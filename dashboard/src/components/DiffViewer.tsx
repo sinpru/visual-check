@@ -1,6 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Slider } from '@/components/ui/slider';
+import { Card, CardContent } from '@/components/ui/card';
+import { Layers, Columns, Image as ImageIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface DiffViewerProps {
   testName: string;
@@ -15,125 +19,178 @@ const DiffViewer: React.FC<DiffViewerProps> = ({
   currentPath,
   diffPath,
 }) => {
-  const [overlayMode, setOverlayMode] = useState(false);
-  const [opacity, setOpacity] = useState(50);
+  const [viewMode, setViewMode] = useState<'side-by-side' | 'overlay'>(
+    'side-by-side',
+  );
+  const [opacity, setOpacity] = useState([50]);
 
-  // Helper to build URLs using our internal /api/image proxy
   const imageUrl = (path: string) =>
     `/api/image?path=${encodeURIComponent(path)}`;
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-gray-800">
-          Visual Comparison
-        </h2>
-        <div className="flex items-center space-x-4 bg-white p-2 rounded-lg border border-gray-200">
-          <label className="flex items-center cursor-pointer">
-            <span className="mr-3 text-sm font-medium text-gray-700">
-              Overlay Mode
-            </span>
-            <div className="relative">
-              <input
-                type="checkbox"
-                className="sr-only"
-                checked={overlayMode}
-                onChange={() => setOverlayMode(!overlayMode)}
-              />
-              <div
-                className={`block w-10 h-6 rounded-full transition-colors ${overlayMode ? 'bg-blue-600' : 'bg-gray-300'}`}
-              ></div>
-              <div
-                className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${overlayMode ? 'translate-x-4' : ''}`}
-              ></div>
-            </div>
-          </label>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 pb-6 border-b border-slate-100">
+        <div>
+          <h2 className="text-xl font-black text-slate-900 tracking-tight">
+            Visual Comparison
+          </h2>
+          <p className="text-sm text-slate-500 font-medium">
+            Inspect the changes pixel-by-pixel.
+          </p>
+        </div>
 
-          {overlayMode && (
-            <div className="flex items-center space-x-2 pl-4 border-l border-gray-200">
-              <span className="text-sm text-gray-500">Opacity:</span>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={opacity}
-                onChange={(e) => setOpacity(parseInt(e.target.value))}
-                className="w-24 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
-              <span className="text-xs font-mono w-8">{opacity}%</span>
-            </div>
-          )}
+        <div className="flex items-center gap-3 bg-slate-100/50 p-1.5 rounded-2xl border border-slate-200/50">
+          <button
+            onClick={() => setViewMode('side-by-side')}
+            className={cn(
+              'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all',
+              viewMode === 'side-by-side'
+                ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200'
+                : 'text-slate-500 hover:text-slate-900',
+            )}
+          >
+            <Columns className="h-4 w-4" />
+            Side-by-Side
+          </button>
+          <button
+            onClick={() => setViewMode('overlay')}
+            className={cn(
+              'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all',
+              viewMode === 'overlay'
+                ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200'
+                : 'text-slate-500 hover:text-slate-900',
+            )}
+          >
+            <Layers className="h-4 w-4" />
+            Overlay
+          </button>
         </div>
       </div>
 
-      {!overlayMode ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2 text-center">
-            <span className="text-sm font-bold uppercase text-gray-500">
-              Baseline
-            </span>
-            <div className="bg-gray-100 rounded-lg overflow-hidden border border-gray-200 aspect-square flex items-center justify-center">
-              <img
-                src={imageUrl(baselinePath)}
-                alt="Baseline"
-                className="max-w-full h-auto object-contain"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2 text-center">
-            <span className="text-sm font-bold uppercase text-gray-500">
-              Current
-            </span>
-            <div className="bg-gray-100 rounded-lg overflow-hidden border border-gray-200 aspect-square flex items-center justify-center">
-              <img
-                src={imageUrl(currentPath)}
-                alt="Current"
-                className="max-w-full h-auto object-contain"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2 text-center">
-            <span className="text-sm font-bold uppercase text-gray-500">
-              Difference
-            </span>
-            <div className="bg-gray-100 rounded-lg overflow-hidden border border-gray-200 aspect-square flex items-center justify-center">
-              {diffPath ? (
-                <img
-                  src={imageUrl(diffPath)}
-                  alt="Diff"
-                  className="max-w-full h-auto object-contain"
-                />
-              ) : (
-                <div className="text-gray-400 text-sm">
-                  No diff available (Test passed)
-                </div>
-              )}
-            </div>
-          </div>
+      {viewMode === 'side-by-side' ? (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <ComparisonPanel
+            label="Baseline"
+            path={baselinePath}
+            badge="Expected"
+          />
+          <ComparisonPanel label="Current" path={currentPath} badge="Actual" />
+          <ComparisonPanel
+            label="Difference"
+            path={diffPath}
+            badge="Changes"
+            isDiff
+          />
         </div>
       ) : (
-        <div className="relative max-w-4xl mx-auto border border-gray-300 rounded-xl overflow-hidden bg-white">
-          <div className="relative aspect-square">
-            <img
-              src={imageUrl(baselinePath)}
-              alt="Baseline (Underlay)"
-              className="absolute inset-0 w-full h-full object-contain"
+        <div className="space-y-8 max-w-5xl mx-auto">
+          <Card className="overflow-hidden border-slate-200/60 shadow-xl rounded-3xl bg-slate-50/50">
+            <CardContent className="p-0 relative aspect-16/10 sm:aspect-auto sm:min-h-150 flex items-center justify-center">
+              <div className="absolute inset-0 flex items-center justify-center p-8">
+                <div className="relative w-full h-full bg-white rounded-xl shadow-2xl overflow-hidden border border-slate-200">
+                  <img
+                    src={imageUrl(baselinePath)}
+                    alt="Baseline"
+                    className="absolute inset-0 w-full h-full object-contain"
+                  />
+                  <img
+                    src={imageUrl(currentPath)}
+                    alt="Current"
+                    className="absolute inset-0 w-full h-full object-contain transition-opacity duration-75"
+                    style={{ opacity: opacity[0] / 100 }}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Layers className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-black text-slate-900">
+                    Overlay Controls
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Adjust visibility to spot differences
+                  </p>
+                </div>
+              </div>
+              <span className="text-sm font-black font-mono bg-slate-100 px-3 py-1 rounded-full text-slate-600">
+                {opacity[0]}%
+              </span>
+            </div>
+
+            <Slider
+              value={opacity}
+              onValueChange={(val) => setOpacity(val as number[])}
+              max={100}
+              step={1}
+              className="py-4"
             />
-            <img
-              src={imageUrl(currentPath)}
-              alt="Current (Overlay)"
-              className="absolute inset-0 w-full h-full object-contain"
-              style={{ opacity: opacity / 100 }}
-            />
-          </div>
-          <div className="p-4 bg-gray-50 text-xs text-gray-500 text-center">
-            Overlaying <strong>Current</strong> over <strong>Baseline</strong>{' '}
-            at {opacity}% opacity.
+
+            <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">
+              <span>Baseline (Under)</span>
+              <span>Current (Over)</span>
+            </div>
           </div>
         </div>
       )}
+    </div>
+  );
+};
+
+interface ComparisonPanelProps {
+  label: string;
+  path: string;
+  badge: string;
+  isDiff?: boolean;
+}
+
+const ComparisonPanel: React.FC<ComparisonPanelProps> = ({
+  label,
+  path,
+  badge,
+  isDiff,
+}) => {
+  const imageUrl = (path: string) =>
+    `/api/image?path=${encodeURIComponent(path)}`;
+
+  return (
+    <div className="space-y-4 group">
+      <div className="flex items-center justify-between px-1">
+        <h3 className="font-black text-slate-900 tracking-tight">{label}</h3>
+        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">
+          {badge}
+        </span>
+      </div>
+
+      <Card className="overflow-hidden border-slate-200/60 shadow-sm group-hover:shadow-md transition-all duration-300 rounded-3xl bg-slate-50/50">
+        <CardContent className="p-4 aspect-video flex items-center justify-center">
+          {path ? (
+            <div className="relative w-full h-full bg-white rounded-lg shadow-sm overflow-hidden border border-slate-100">
+              <img
+                src={imageUrl(path)}
+                alt={label}
+                className={cn(
+                  'w-full h-full object-contain',
+                  isDiff && 'mix-blend-multiply',
+                )}
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-3 text-slate-300">
+              <ImageIcon className="h-12 w-12 opacity-20" />
+              <p className="text-xs font-bold uppercase tracking-widest">
+                No changes
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

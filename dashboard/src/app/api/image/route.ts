@@ -3,35 +3,44 @@ import fs from 'fs';
 import path from 'path';
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const imagePath = searchParams.get('path');
+	const { searchParams } = new URL(request.url);
+	const imagePath = searchParams.get('path');
 
-  if (!imagePath) {
-    return NextResponse.json({ error: 'Path is required' }, { status: 400 });
-  }
+	if (!imagePath) {
+		return NextResponse.json(
+			{ error: 'Path is required' },
+			{ status: 400 },
+		);
+	}
 
-  const SNAPSHOTS_DIR = process.env.SNAPSHOTS_DIR || './snapshots';
-  const fullPath = path.resolve(process.cwd(), imagePath);
-  const snapshotsRoot = path.resolve(process.cwd(), SNAPSHOTS_DIR);
+	const SNAPSHOTS_DIR = process.env.SNAPSHOTS_DIR || './snapshots';
+	const fullPath = path.resolve(process.cwd(), imagePath);
+	const snapshotsRoot = path.resolve(process.cwd(), SNAPSHOTS_DIR);
 
-  // Path traversal prevention
-  if (!fullPath.startsWith(snapshotsRoot)) {
-    return NextResponse.json({ error: 'Unauthorized path' }, { status: 403 });
-  }
+	// Path traversal prevention
+	if (!fullPath.startsWith(snapshotsRoot)) {
+		return NextResponse.json(
+			{ error: 'Unauthorized path' },
+			{ status: 403 },
+		);
+	}
 
-  if (!fs.existsSync(fullPath)) {
-    return NextResponse.json({ error: 'Image not found' }, { status: 404 });
-  }
+	if (!fs.existsSync(fullPath)) {
+		return NextResponse.json({ error: 'Image not found' }, { status: 404 });
+	}
 
-  try {
-    const buffer = fs.readFileSync(fullPath);
-    return new NextResponse(buffer, {
-      headers: {
-        'Content-Type': 'image/png',
-      },
-    });
-  } catch (error) {
-    console.error('Error reading image file:', error);
-    return NextResponse.json({ error: 'Failed to read image' }, { status: 500 });
-  }
+	try {
+		const buffer = fs.readFileSync(fullPath);
+		return new NextResponse(buffer, {
+			headers: {
+				'Content-Type': 'image/png',
+			},
+		});
+	} catch (error) {
+		console.error('Error reading image file:', error);
+		return NextResponse.json(
+			{ error: 'Failed to read image' },
+			{ status: 500 },
+		);
+	}
 }

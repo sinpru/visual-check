@@ -1,20 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
-// @ts-ignore - Assuming core package will be implemented by Person 1
-import { updateStatus } from '@visual-check/core';
+import {
+	updateStatus,
+	readResults,
+	recalculateBuildStatus,
+} from '@visual-check/core';
 
 export async function POST(request: NextRequest) {
-  try {
-    const { testName } = await request.json();
-    
-    if (!testName) {
-      return NextResponse.json({ error: 'testName is required' }, { status: 400 });
-    }
+	try {
+		const { testName, buildId } = await request.json();
 
-    await updateStatus(testName, 'rejected');
+		if (!testName || !buildId) {
+			return NextResponse.json(
+				{ error: 'testName and buildId are required' },
+				{ status: 400 },
+			);
+		}
 
-    return NextResponse.json({ ok: true });
-  } catch (error) {
-    console.error('Error in POST /api/reject:', error);
-    return NextResponse.json({ error: 'Failed to reject test result' }, { status: 500 });
-  }
+		// 1. Update snapshot status to 'rejected'
+		await updateStatus(testName, buildId, 'rejected');
+
+		// 2. Recalculate build status
+		const allResults = await readResults();
+		await recalculateBuildStatus(buildId, allResults);
+
+		return NextResponse.json({ ok: true });
+	} catch (error) {
+		console.error('Reject failed:', error);
+		return NextResponse.json({ error: 'Reject failed' }, { status: 500 });
+	}
 }

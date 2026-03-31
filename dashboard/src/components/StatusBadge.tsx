@@ -1,27 +1,45 @@
-import { ResultStatus } from '@visual-check/core';
 import React from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/lib/utils';
 
-interface StatusBadgeProps {
-  status: ResultStatus;
+const badgeVariants = cva(
+  'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-widest transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+  {
+    variants: {
+      status: {
+        pass: 'bg-green-100 text-green-700 hover:bg-green-100/80',
+        fail: 'bg-red-100 text-red-700 hover:bg-red-100/80',
+        pending: 'bg-amber-100 text-amber-700 hover:bg-amber-100/80',
+        approved: 'bg-blue-100 text-blue-700 hover:bg-blue-100/80',
+        rejected: 'bg-slate-100 text-slate-700 hover:bg-slate-100/80',
+        unreviewed: 'bg-amber-100 text-amber-700 hover:bg-amber-100/80',
+      },
+    },
+    defaultVariants: {
+      status: 'pending',
+    },
+  },
+);
+
+export interface StatusBadgeProps
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
+    Omit<VariantProps<typeof badgeVariants>, 'status'> {
+  status?: string;
 }
 
-const statusColors: Record<ResultStatus, string> = {
-  pass: 'bg-green-100 text-green-800 border-green-200',
-  fail: 'bg-red-100 text-red-800 border-red-200',
-  pending: 'bg-amber-100 text-amber-800 border-amber-200',
-  approved: 'bg-teal-100 text-teal-800 border-teal-200',
-  rejected: 'bg-gray-100 text-gray-800 border-gray-200',
-};
-
-const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
-  const colorClass = statusColors[status] || 'bg-gray-100 text-gray-800';
-
+const StatusBadge: React.FC<StatusBadgeProps> = ({
+  status,
+  className,
+  ...props
+}) => {
   return (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${colorClass}`}
+    <div
+      className={cn(badgeVariants({ status: status as any }), className)}
+      {...props}
     >
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </span>
+      {status}
+    </div>
   );
 };
 
