@@ -1,11 +1,21 @@
+// Types
+export type {
+	FigmaNodeNotFoundError,
+	FigmaAssetFetchError,
+	ResultStatus,
+	FrameDimensions,
+	DiffResult,
+	ResultEntry,
+} from './src/types.ts';
+
 // Figma
-export { getFrameDimensions, fetchFigmaBaseline } from './src/figma.ts'
+export { getFrameDimensions, fetchFigmaBaseline } from './src/figma.ts';
 
 // Diffing
-export { runDiff } from './src/diff.ts'
+export { runDiff } from './src/diff.ts';
 
 // Storage
-export { saveSnapshot, approveBaseline, getPaths } from './src/storage.ts'
+export { saveSnapshot, approveBaseline, getPaths } from './src/storage.ts';
 
 // Results manifest
-export { readResults, writeResult, updateStatus } from './src/results.ts'
+export { readResults, writeResult, updateStatus } from './src/results.ts';

@@ -1,16 +1,8 @@
-import fs from 'node:fs'
-import path from 'node:path'
-import { PNG } from 'pngjs'
-import pixelmatch from 'pixelmatch'
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export interface DiffResult {
-  diffPixels: number
-  diffPercent: number
-  width: number
-  height: number
-}
+import fs from 'node:fs';
+import path from 'node:path';
+import { PNG } from 'pngjs';
+import pixelmatch from 'pixelmatch';
+import { DiffResult } from './types';
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
@@ -24,44 +16,47 @@ export interface DiffResult {
  * Pass null to use the env/default value explicitly.
  */
 export function runDiff(
-  baselineBuffer: Buffer,
-  currentBuffer: Buffer,
-  diffOutputPath: string,
-  threshold: number | null = null
+	baselineBuffer: Buffer,
+	currentBuffer: Buffer,
+	diffOutputPath: string,
+	threshold: number | null = null,
 ): DiffResult {
-  const resolvedThreshold =
-    threshold ??
-    (process.env['DIFF_THRESHOLD'] != null
-      ? Number(process.env['DIFF_THRESHOLD'])
-      : 0.1)
+	const resolvedThreshold =
+		threshold ??
+		(process.env['DIFF_THRESHOLD'] != null
+			? Number(process.env['DIFF_THRESHOLD'])
+			: 0.1);
 
-  const baseline = PNG.sync.read(baselineBuffer)
-  const current  = PNG.sync.read(currentBuffer)
+	const baseline = PNG.sync.read(baselineBuffer);
+	const current = PNG.sync.read(currentBuffer);
 
-  if (baseline.width !== current.width || baseline.height !== current.height) {
-    throw new Error(
-      `Dimension mismatch: baseline is ${baseline.width}×${baseline.height} ` +
-      `but current is ${current.width}×${current.height}. ` +
-      `Run sharp normalization before diffing.`
-    )
-  }
+	if (
+		baseline.width !== current.width ||
+		baseline.height !== current.height
+	) {
+		throw new Error(
+			`Dimension mismatch: baseline is ${baseline.width}×${baseline.height} ` +
+				`but current is ${current.width}×${current.height}. ` +
+				`Run sharp normalization before diffing.`,
+		);
+	}
 
-  const { width, height } = baseline
-  const diff = new PNG({ width, height })
+	const { width, height } = baseline;
+	const diff = new PNG({ width, height });
 
-  const diffPixels = pixelmatch(
-    baseline.data,
-    current.data,
-    diff.data,
-    width,
-    height,
-    { threshold: resolvedThreshold }
-  )
+	const diffPixels = pixelmatch(
+		baseline.data,
+		current.data,
+		diff.data,
+		width,
+		height,
+		{ threshold: resolvedThreshold },
+	);
 
-  fs.mkdirSync(path.dirname(diffOutputPath), { recursive: true })
-  fs.writeFileSync(diffOutputPath, PNG.sync.write(diff))
+	fs.mkdirSync(path.dirname(diffOutputPath), { recursive: true });
+	fs.writeFileSync(diffOutputPath, PNG.sync.write(diff));
 
-  const diffPercent = (diffPixels / (width * height)) * 100
+	const diffPercent = (diffPixels / (width * height)) * 100;
 
-  return { diffPixels, diffPercent, width, height }
+	return { diffPixels, diffPercent, width, height };
 }
