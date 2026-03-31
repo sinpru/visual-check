@@ -135,12 +135,12 @@ npm install sharp --workspace=core
 
 ## Inter-Package Imports
 
-```js
+```ts
 // In playwright package — importing from core
-import { runDiff, writeResults } from '@visual-check/core';
+import { runDiff, writeResult } from '@visual-check/core';
 
 // In dashboard API route — reading from core's storage helpers
-import { getResults, approveBaseline } from '@visual-check/core';
+import { readResults, approveBaseline } from '@visual-check/core';
 ```
 
 ---

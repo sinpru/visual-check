@@ -21,7 +21,7 @@ inspect visual diffs, approve baselines, or reject changes.
 visual-check/dashboard/
 ├── AGENTS.md
 ├── package.json
-├── next.config.mjs
+├── next.config.ts
 ├── app/
 │   ├── layout.tsx
 │   ├── page.tsx                        ← test run list (/)
@@ -129,8 +129,8 @@ Renders a pill badge based on status string.
 Use Next.js Server Components for the list page (reads `results.json` directly on the server).
 Use client-side fetch for approve/reject mutations.
 
-```js
-// app/page.js — server component
+```tsx
+// app/page.tsx — server component
 import { readResults } from '@visual-check/core'
 
 export default async function HomePage() {
@@ -139,9 +139,9 @@ export default async function HomePage() {
 }
 ```
 
-```js
+```tsx
 // Approve mutation — client component
-async function handleApprove(testName) {
+async function handleApprove(testName: string) {
   setStatus('approved') // optimistic
   const res = await fetch('/api/approve', {
     method: 'POST',
@@ -168,9 +168,9 @@ SNAPSHOTS_DIR=../../snapshots    # must match the path used by playwright and co
 {
   "dependencies": {
     "@visual-check/core": "*",
-    "next": "^14.0.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "next": "^16.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "dotenv": "^16.0.0"
   }
 }
