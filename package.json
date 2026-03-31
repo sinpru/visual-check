@@ -1,0 +1,14 @@
+{
+  "name": "visual-check",
+  "private": true,
+  "scripts": {
+    "test": "pnpm --filter playwright test",
+    "dev": "pnpm --filter dashboard dev",
+    "lint": "pnpm -r exec eslint ."
+  },
+  "devDependencies": {
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  }
+}
