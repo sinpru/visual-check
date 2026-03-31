@@ -3,9 +3,11 @@ export type {
 	FigmaNodeNotFoundError,
 	FigmaAssetFetchError,
 	ResultStatus,
+	BuildStatus,
 	FrameDimensions,
 	DiffResult,
 	ResultEntry,
+	BuildEntry,
 } from './src/types.ts';
 
 // Figma
@@ -19,3 +21,6 @@ export { saveSnapshot, approveBaseline, getPaths } from './src/storage.ts';
 
 // Results manifest
 export { readResults, writeResult, updateStatus } from './src/results.ts';
+
+// Builds
+export { readBuilds, createBuild, updateBuild, recalculateBuildStatus } from './src/builds.ts';

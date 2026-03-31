@@ -1,68 +1,44 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-// ─── Env ──────────────────────────────────────────────────────────────────────
-
 function getSnapshotsDir(): string {
-	const dir = process.env['SNAPSHOTS_DIR'];
+	const dir = process.env.SNAPSHOTS_DIR;
 	if (!dir) throw new Error('SNAPSHOTS_DIR is not set in environment');
-	return dir;
+	return path.resolve(dir);
 }
 
-// ─── Public API ───────────────────────────────────────────────────────────────
-
-/**
- * Returns the canonical file paths for a given test name.
- * All paths derive from process.env.SNAPSHOTS_DIR — never hardcoded.
- */
-export function getPaths(testName: string): {
-	baseline: string;
-	current: string;
-	diff: string;
-} {
-	const base = getSnapshotsDir();
+export function getPaths(testName: string, buildId?: string) {
+	const snapshotsDir = getSnapshotsDir();
 	return {
-		baseline: path.join(base, 'baselines', `${testName}.png`),
-		current: path.join(base, 'current', `${testName}.png`),
-		diff: path.join(base, 'diffs', `${testName}.png`),
+		baseline: path.join(snapshotsDir, 'baselines', `${testName}.png`),
+		current: buildId 
+			? path.join(snapshotsDir, 'current', buildId, `${testName}.png`)
+			: path.join(snapshotsDir, 'current', `${testName}.png`),
+		diff: buildId
+			? path.join(snapshotsDir, 'diffs', buildId, `${testName}.png`)
+			: path.join(snapshotsDir, 'diffs', `${testName}.png`),
 	};
 }
 
-/**
- * Writes a PNG buffer to either the baseline or current snapshot folder.
- * Creates the directory if it does not exist.
- */
-export function saveSnapshot(
-	testName: string,
-	buffer: Buffer,
-	type: 'baseline' | 'current',
-): void {
-	const paths = getPaths(testName);
-	const dest = type === 'baseline' ? paths.baseline : paths.current;
-	fs.mkdirSync(path.dirname(dest), { recursive: true });
-	fs.writeFileSync(dest, buffer);
+export function saveSnapshot(testName: string, buffer: Buffer, type: 'baseline' | 'current', buildId?: string): void {
+	const paths = getPaths(testName, buildId);
+	const targetPath = type === 'baseline' ? paths.baseline : paths.current;
+	
+	fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+	fs.writeFileSync(targetPath, buffer);
 }
 
-/**
- * Promotes the current snapshot to baseline.
- * Copies current/{testName}.png → baselines/{testName}.png
- * Deletes diffs/{testName}.png if it exists.
- *
- * Does NOT update results.json — the caller must call updateStatus() after.
- */
-export function approveBaseline(testName: string): void {
-	const paths = getPaths(testName);
-
+export function approveBaseline(testName: string, buildId: string): void {
+	const paths = getPaths(testName, buildId);
+	
 	if (!fs.existsSync(paths.current)) {
-		throw new Error(
-			`Cannot approve: no current snapshot found at ${paths.current}`,
-		);
+		throw new Error(`Current snapshot not found for ${testName} in build ${buildId}`);
 	}
 
 	fs.mkdirSync(path.dirname(paths.baseline), { recursive: true });
 	fs.copyFileSync(paths.current, paths.baseline);
-
+	
 	if (fs.existsSync(paths.diff)) {
-		fs.rmSync(paths.diff);
+		fs.unlinkSync(paths.diff);
 	}
 }

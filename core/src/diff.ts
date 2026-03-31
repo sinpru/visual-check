@@ -23,8 +23,8 @@ export function runDiff(
 ): DiffResult {
 	const resolvedThreshold =
 		threshold ??
-		(process.env['DIFF_THRESHOLD'] != null
-			? Number(process.env['DIFF_THRESHOLD'])
+		(process.env.DIFF_THRESHOLD != null
+			? Number(process.env.DIFF_THRESHOLD)
 			: 0.1);
 
 	const baseline = PNG.sync.read(baselineBuffer);
