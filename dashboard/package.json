@@ -1,24 +1,26 @@
 {
-  "name": "@visual-check/dashboard",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
-  },
-  "dependencies": {
-    "@visual-check/core": "workspace:*",
-    "next": "16.2.1",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "dotenv": "^16.0.0"
-  },
-  "devDependencies": {
-    "eslint": "^8.0.0",
-    "eslint-config-next": "16.2.1",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0"
-  }
+	"name": "@visual-check/dashboard",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "eslint"
+	},
+	"dependencies": {
+		"@visual-check/core": "workspace:*",
+		"next": "16.2.1",
+		"react": "19.2.4",
+		"react-dom": "19.2.4",
+		"dotenv": "^16.0.0"
+	},
+	"devDependencies": {
+		"@tailwindcss/postcss": "^4.0.0",
+		"@types/react": "^19.0.0",
+		"@types/react-dom": "^19.0.0",
+		"eslint": "^9.0.0",
+		"eslint-config-next": "16.2.1",
+		"tailwindcss": "^4.0.0"
+	}
 }
