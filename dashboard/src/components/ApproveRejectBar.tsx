@@ -3,7 +3,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Check, X, Loader2 } from 'lucide-react';
+import {
+  Check,
+  X,
+  Loader2,
+  ChevronRight,
+  ChevronLeft,
+  AlertCircle,
+} from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -160,29 +167,44 @@ const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
   ]);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-50">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <div className="hidden md:block">
-          <p className="font-black text-slate-900">Review Required</p>
-          <p className="text-sm text-slate-500 font-medium">
-            Decide if these visual changes are intended.
-          </p>
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[calc(100%-4rem)] max-w-5xl bg-white/80 backdrop-blur-2xl border border-slate-200 p-4 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] z-50 ring-1 ring-slate-200/50">
+      <div className="flex items-center justify-between gap-8 px-4">
+        <div className="hidden lg:flex items-center gap-4">
+          <div className="p-3 bg-amber-100 rounded-2xl">
+            <AlertCircle className="h-6 w-6 text-amber-600" />
+          </div>
+          <div>
+            <p className="font-black text-slate-900 tracking-tight">
+              Review Required
+            </p>
+            <p className="text-xs text-slate-500 font-medium">
+              Keyboard:{' '}
+              <kbd className="px-1.5 py-0.5 rounded bg-slate-100 font-mono">
+                A
+              </kbd>{' '}
+              Approve ·{' '}
+              <kbd className="px-1.5 py-0.5 rounded bg-slate-100 font-mono">
+                R
+              </kbd>{' '}
+              Reject
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-4 w-full md:w-auto">
-          {canReview && (
+        <div className="flex items-center gap-3 flex-1 lg:flex-none">
+          {canReview ? (
             <>
               <Button
                 variant="outline"
                 onClick={handleReject}
                 disabled={isRejecting || isApproving}
-                className="flex-1 md:flex-none h-14 px-8 border-2 border-slate-200 rounded-2xl font-black text-slate-600 hover:bg-slate-50 transition-all"
+                className="flex-1 lg:flex-none h-14 px-8 border-2 border-slate-200 rounded-2xl font-black text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-95"
               >
                 {isRejecting ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
                   <>
-                    <X className="mr-2 h-5 w-5" />
+                    <X className="mr-2 h-5 w-5 text-red-500" />
                     Reject
                   </>
                 )}
@@ -193,72 +215,95 @@ const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
                   render={
                     <Button
                       disabled={isApproving || isRejecting}
-                      className="flex-1 md:flex-none h-14 px-10 rounded-2xl font-black text-lg shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                      className="flex-1 lg:flex-none h-14 px-10 rounded-2xl font-black text-lg shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >
                       {isApproving ? (
                         <Loader2 className="h-5 w-5 animate-spin" />
                       ) : (
                         <>
                           <Check className="mr-2 h-5 w-5" />
-                          Approve Changes
+                          Approve
                         </>
                       )}
                     </Button>
                   }
                 />
-                <DialogContent className="rounded-3xl max-w-md p-8">
+                <DialogContent className="rounded-[2.5rem] max-w-md p-10 ring-1 ring-slate-200/50">
                   <DialogHeader>
-                    <DialogTitle className="text-2xl font-black text-slate-900 tracking-tight">
-                      Approve visual changes?
+                    <DialogTitle className="text-3xl font-black text-slate-900 tracking-tight">
+                      Confirm Approval
                     </DialogTitle>
-                    <DialogDescription className="text-slate-500 font-medium pt-2">
-                      This will update the baseline for{' '}
-                      <span className="text-slate-900 font-bold">
+                    <DialogDescription className="text-slate-500 font-medium pt-4 text-base leading-relaxed">
+                      You are about to approve visual changes for{' '}
+                      <span className="text-slate-900 font-black">
                         {testName}
                       </span>
-                      . Future tests will compare against this version.
+                      . This will set the current snapshot as the new ground
+                      truth.
                     </DialogDescription>
                   </DialogHeader>
-                  <DialogFooter className="mt-8 flex flex-col sm:flex-row gap-3">
+                  <DialogFooter className="mt-10 flex flex-col sm:flex-row gap-4">
                     <Button
-                      variant="outline"
-                      onClick={() => {}}
-                      className="rounded-xl font-bold border-slate-200"
+                      variant="ghost"
+                      className="rounded-2xl font-bold text-slate-500 h-12"
                     >
                       Cancel
                     </Button>
                     <Button
                       onClick={handleApprove}
-                      className="rounded-xl font-black px-6"
+                      className="rounded-2xl font-black px-8 h-12 shadow-lg shadow-primary/20"
                     >
-                      Yes, Approve
+                      Yes, Approve Changes
                     </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
             </>
-          )}
-
-          {!canReview && (
-            <div className="flex items-center gap-4">
-              <p className="text-slate-500 font-bold">
-                Status:{' '}
-                <span className="text-slate-900 capitalize">
+          ) : (
+            <div className="flex items-center gap-6 bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100 shadow-inner">
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                  Status
+                </span>
+                <span className="px-3 py-1 rounded-full bg-white border border-slate-200 text-xs font-black uppercase tracking-widest shadow-sm">
                   {currentStatus}
                 </span>
-              </p>
-              {nextSnapshot && (
-                <Button
-                  onClick={() =>
-                    router.push(`/builds/${buildId}/${nextSnapshot}`)
-                  }
-                  className="rounded-xl font-black"
-                >
-                  Next Snapshot
-                </Button>
-              )}
+              </div>
+
+              <div className="w-px h-6 bg-slate-200" />
+
+              <div className="flex items-center gap-2 text-slate-400 text-sm font-bold">
+                Review Complete
+                <Check className="h-4 w-4 text-green-500" />
+              </div>
             </div>
           )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() =>
+              prevSnapshot
+                ? router.push(`/builds/${buildId}/${prevSnapshot}`)
+                : router.push(`/builds/${buildId}`)
+            }
+            className="h-14 w-14 rounded-2xl hover:bg-slate-100"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            disabled={!nextSnapshot}
+            onClick={() =>
+              nextSnapshot && router.push(`/builds/${buildId}/${nextSnapshot}`)
+            }
+            className="h-14 w-14 rounded-2xl hover:bg-slate-100 disabled:opacity-30"
+          >
+            <ChevronRight className="h-6 w-6" />
+          </Button>
         </div>
       </div>
     </div>

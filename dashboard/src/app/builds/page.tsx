@@ -6,7 +6,7 @@ export default async function BuildsPage() {
   const builds = await readBuilds();
 
   return (
-    <main className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <main className="max-w-400 mx-auto py-12 px-6 lg:px-12">
       <header className="mb-12 flex items-start justify-between gap-6">
         <div>
           <h1 className="text-4xl font-black text-slate-900 tracking-tight">

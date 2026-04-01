@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { ImagePlus, Loader2, X, CheckCircle, AlertCircle } from 'lucide-react';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -18,15 +18,15 @@ interface FigmaSnapshotResult {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function FigmaSnapshotModal() {
-  const [step, setStep]         = useState<Step>('idle');
-  const [error, setError]       = useState('');
-  const [result, setResult]     = useState<FigmaSnapshotResult | null>(null);
+  const [step, setStep] = useState<Step>('idle');
+  const [error, setError] = useState('');
+  const [result, setResult] = useState<FigmaSnapshotResult | null>(null);
 
   // Form fields
   const [testName, setTestName] = useState('');
-  const [nodeId, setNodeId]     = useState('');
-  const [fileKey, setFileKey]   = useState('');
-  const [token, setToken]       = useState('');
+  const [nodeId, setNodeId] = useState('');
+  const [fileKey, setFileKey] = useState('');
+  const [token, setToken] = useState('');
 
   function open() {
     setStep('open');
@@ -50,10 +50,10 @@ export default function FigmaSnapshotModal() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           testName: testName.trim(),
-          nodeId:   nodeId.trim(),
+          nodeId: nodeId.trim(),
           // Only send if filled — API falls back to env vars if omitted
           ...(fileKey.trim() ? { fileKey: fileKey.trim() } : {}),
-          ...(token.trim()   ? { token:   token.trim()   } : {}),
+          ...(token.trim() ? { token: token.trim() } : {}),
         }),
       });
 
@@ -85,7 +85,7 @@ export default function FigmaSnapshotModal() {
         className={cn(
           'flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-black',
           'bg-[#1ABCFE] text-white hover:bg-[#0FA8E8] transition-colors shadow-sm',
-          'shadow-[#1ABCFE]/20'
+          'shadow-[#1ABCFE]/20',
         )}
       >
         <ImagePlus className="h-4 w-4" />
@@ -96,10 +96,11 @@ export default function FigmaSnapshotModal() {
       {step !== 'idle' && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
-          onClick={(e) => { if (e.target === e.currentTarget) close(); }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) close();
+          }}
         >
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
-
             {/* Header */}
             <div className="flex items-center justify-between px-7 pt-7 pb-5 border-b border-slate-100">
               <div className="flex items-center gap-3">
@@ -111,7 +112,8 @@ export default function FigmaSnapshotModal() {
                     Pull Figma Baseline
                   </h2>
                   <p className="text-xs text-slate-400 font-medium mt-0.5">
-                    Snapshot will be saved as the baseline for future comparisons
+                    Snapshot will be saved as the baseline for future
+                    comparisons
                   </p>
                 </div>
               </div>
@@ -125,7 +127,6 @@ export default function FigmaSnapshotModal() {
 
             {/* Body */}
             <div className="px-7 py-6">
-
               {/* ── Success state ── */}
               {step === 'success' && result && (
                 <div className="text-center py-4">
@@ -136,8 +137,10 @@ export default function FigmaSnapshotModal() {
                     Baseline saved!
                   </p>
                   <p className="text-sm text-slate-500 font-medium">
-                    <span className="font-black text-slate-700">{result.testName}</span>
-                    {' '}— {result.width}×{result.height}px
+                    <span className="font-black text-slate-700">
+                      {result.testName}
+                    </span>{' '}
+                    — {result.width}×{result.height}px
                   </p>
                   <p className="text-xs text-slate-400 mt-3">
                     Refreshing builds list…
@@ -148,7 +151,6 @@ export default function FigmaSnapshotModal() {
               {/* ── Form state ── */}
               {(step === 'open' || step === 'loading' || step === 'error') && (
                 <form onSubmit={handleSubmit} className="space-y-4">
-
                   <Field
                     label="Test name"
                     hint="Unique key for this snapshot (e.g. homepage-hero)"
@@ -161,7 +163,14 @@ export default function FigmaSnapshotModal() {
 
                   <Field
                     label="Node ID"
-                    hint={<>Right-click frame in Figma → Copy link → <code className="bg-slate-100 px-1 rounded text-[11px]">?node-id=1%3A23</code></>}
+                    hint={
+                      <>
+                        Right-click frame in Figma → Copy link →{' '}
+                        <code className="bg-slate-100 px-1 rounded text-[11px]">
+                          ?node-id=1%3A23
+                        </code>
+                      </>
+                    }
                     value={nodeId}
                     onChange={setNodeId}
                     placeholder="1:23"
@@ -171,7 +180,10 @@ export default function FigmaSnapshotModal() {
 
                   <div className="border-t border-slate-100 pt-4">
                     <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3">
-                      Credentials <span className="normal-case font-medium tracking-normal">(leave blank to use .env)</span>
+                      Credentials{' '}
+                      <span className="normal-case font-medium tracking-normal">
+                        (leave blank to use .env)
+                      </span>
                     </p>
 
                     <div className="space-y-3">
@@ -200,7 +212,9 @@ export default function FigmaSnapshotModal() {
                   {step === 'error' && error && (
                     <div className="flex items-start gap-2.5 p-3.5 bg-red-50 rounded-2xl border border-red-100">
                       <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
-                      <p className="text-sm text-red-700 font-medium">{error}</p>
+                      <p className="text-sm text-red-700 font-medium">
+                        {error}
+                      </p>
                     </div>
                   )}
 
@@ -213,7 +227,7 @@ export default function FigmaSnapshotModal() {
                       'text-sm font-black text-white transition-colors',
                       step === 'loading'
                         ? 'bg-[#1ABCFE]/60 cursor-not-allowed'
-                        : 'bg-[#1ABCFE] hover:bg-[#0FA8E8]'
+                        : 'bg-[#1ABCFE] hover:bg-[#0FA8E8]',
                     )}
                   >
                     {step === 'loading' ? (
@@ -251,7 +265,16 @@ interface FieldProps {
   type?: string;
 }
 
-function Field({ label, hint, value, onChange, placeholder, required, disabled, type = 'text' }: FieldProps) {
+function Field({
+  label,
+  hint,
+  value,
+  onChange,
+  placeholder,
+  required,
+  disabled,
+  type = 'text',
+}: FieldProps) {
   return (
     <div>
       <label className="block text-xs font-black text-slate-700 mb-1.5">
@@ -273,7 +296,7 @@ function Field({ label, hint, value, onChange, placeholder, required, disabled, 
           'border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-300',
           'focus:outline-none focus:ring-2 focus:ring-[#1ABCFE]/30 focus:border-[#1ABCFE]',
           'disabled:opacity-50 disabled:cursor-not-allowed',
-          'transition-all'
+          'transition-all',
         )}
       />
     </div>

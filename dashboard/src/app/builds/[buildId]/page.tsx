@@ -23,7 +23,7 @@ export default async function BuildPage({ params }: BuildPageProps) {
   const results = await readResults(buildId);
 
   return (
-    <main className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <main className="max-w-400 mx-auto py-12 px-6 lg:px-12">
       <div className="mb-10">
         <Link
           href="/builds"

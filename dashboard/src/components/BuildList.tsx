@@ -1,14 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { BuildEntry } from '@visual-check/core';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import StatusBadge from './StatusBadge';
 import { relativeTime } from '@/lib/format';
 import { GitBranch, GitCommit, ChevronRight, ImagePlus } from 'lucide-react';
@@ -33,95 +25,109 @@ const BuildList: React.FC<BuildListProps> = ({ builds }) => {
   }
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-      <Table>
-        <TableHeader className="bg-slate-50/50">
-          <TableRow className="hover:bg-transparent">
-            <TableHead className="w-75 font-black uppercase tracking-widest text-[10px] text-slate-400 py-6">
-              Build ID / Branch
-            </TableHead>
-            <TableHead className="font-black uppercase tracking-widest text-[10px] text-slate-400">
-              Status
-            </TableHead>
-            <TableHead className="font-black uppercase tracking-widest text-[10px] text-slate-400">
-              Changed
-            </TableHead>
-            <TableHead className="font-black uppercase tracking-widest text-[10px] text-slate-400">
-              Total
-            </TableHead>
-            <TableHead className="font-black uppercase tracking-widest text-[10px] text-slate-400">
-              Created At
-            </TableHead>
-            <TableHead className="w-12.5"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {builds.map((build) => {
-            const isFigma = build.branch === 'figma';
-            return (
-              <TableRow key={build.buildId} className="group cursor-pointer">
-                <TableCell className="py-6">
-                  <Link href={`/builds/${build.buildId}`} className="block">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-black text-slate-900 group-hover:text-primary transition-colors">
-                        {build.buildId}
-                      </span>
-                      {isFigma && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-[#1ABCFE]/10 text-[#0FA8E8] text-[10px] font-black uppercase tracking-wider">
-                          <ImagePlus className="h-2.5 w-2.5" />
-                          Figma
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3 text-xs font-medium text-slate-500">
-                      {isFigma ? (
-                        <div className="flex items-center gap-1 text-[#0FA8E8]">
-                          <ImagePlus className="h-3 w-3" />
-                          Figma baseline
-                        </div>
-                      ) : (
-                        <>
-                          <div className="flex items-center gap-1">
-                            <GitBranch className="h-3 w-3 text-slate-400" />
-                            {build.branch || 'main'}
-                          </div>
-                          {build.commitHash && (
-                            <div className="flex items-center gap-1">
-                              <GitCommit className="h-3 w-3 text-slate-400" />
-                              {build.commitHash.substring(0, 7)}
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </Link>
-                </TableCell>
-                <TableCell>
+    <div className="space-y-4">
+      {builds.map((build) => {
+        const isFigma = build.branch === 'figma';
+        return (
+          <Link
+            key={build.buildId}
+            href={`/builds/${build.buildId}`}
+            className="group block bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-primary/20 transition-all duration-300 overflow-hidden"
+          >
+            <div className="flex items-center p-6 sm:p-8">
+              <div className="flex-1 min-w-0 pr-8">
+                <div className="flex items-center gap-4 mb-3">
+                  <h3 className="text-xl font-black text-slate-900 group-hover:text-primary transition-colors truncate tracking-tight">
+                    {build.buildId}
+                  </h3>
                   <StatusBadge status={build.status} />
-                </TableCell>
-                <TableCell>
-                  <span className="font-black text-slate-900">
+                  {isFigma && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#1ABCFE]/10 text-[#0FA8E8] text-[10px] font-black uppercase tracking-wider ring-1 ring-[#1ABCFE]/20">
+                      <ImagePlus className="h-3 w-3" />
+                      Figma
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-sm font-medium text-slate-500">
+                  <div className="flex items-center gap-2">
+                    {isFigma ? (
+                      <div className="flex items-center gap-2 text-[#0FA8E8] font-bold">
+                        <ImagePlus className="h-4 w-4" />
+                        Figma baseline
+                      </div>
+                    ) : (
+                      <>
+                        <GitBranch className="h-4 w-4 text-slate-400" />
+                        <span className="truncate max-w-37.5">
+                          {build.branch || 'main'}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  {!isFigma && build.commitHash && (
+                    <div className="flex items-center gap-2">
+                      <GitCommit className="h-4 w-4 text-slate-400" />
+                      <span className="font-mono text-xs bg-slate-50 px-2 py-0.5 rounded-lg border border-slate-100">
+                        {build.commitHash.substring(0, 7)}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 text-slate-400">
+                    <span className="text-slate-200">•</span>
+                    <span>{relativeTime(build.createdAt)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-8 pr-8 border-r border-slate-100 hidden md:flex">
+                <div className="text-center">
+                  <div className="text-2xl font-black text-slate-900">
                     {build.changedSnapshots}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span className="font-bold text-slate-500">
+                  </div>
+                  <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    Changed
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-black text-slate-400">
                     {build.totalSnapshots}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span className="text-sm font-medium text-slate-500">
-                    {relativeTime(build.createdAt)}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <ChevronRight className="h-5 w-5 text-slate-300 group-hover:text-slate-900 transition-colors" />
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+                  </div>
+                  <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    Total
+                  </div>
+                </div>
+              </div>
+
+              <div className="pl-8 flex items-center gap-4">
+                <div className="h-12 w-12 rounded-2xl bg-slate-50 flex items-center justify-center group-hover:bg-primary/5 transition-colors">
+                  <ChevronRight className="h-6 w-6 text-slate-300 group-hover:text-primary transition-colors" />
+                </div>
+              </div>
+            </div>
+
+            {/* Progress bar at the bottom */}
+            <div className="h-1.5 w-full bg-slate-50 flex">
+              <div
+                className="h-full bg-green-500 transition-all duration-1000"
+                style={{
+                  width: `${
+                    (build.passedSnapshots / build.totalSnapshots) * 100
+                  }%`,
+                }}
+              />
+              <div
+                className="h-full bg-destructive transition-all duration-1000"
+                style={{
+                  width: `${
+                    (build.changedSnapshots / build.totalSnapshots) * 100
+                  }%`,
+                }}
+              />
+            </div>
+          </Link>
+        );
+      })}
     </div>
   );
 };
