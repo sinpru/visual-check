@@ -1,11 +1,16 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { BuildEntry, BuildStatus } from './types';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const REPO_ROOT = path.resolve(path.dirname(__filename), '..', '..');
 
 function getBuildsPath(): string {
-	const dir = process.env.SNAPSHOTS_DIR;
-	if (!dir) throw new Error('SNAPSHOTS_DIR is not set in environment');
-	return path.join(dir, 'builds.json');
+  const dir = process.env.SNAPSHOTS_DIR;
+  if (!dir) throw new Error('SNAPSHOTS_DIR is not set in environment');
+  const resolved = path.isAbsolute(dir) ? dir : path.resolve(REPO_ROOT, dir);
+  return path.join(resolved, 'builds.json');
 }
 
 export function readBuilds(): BuildEntry[] {

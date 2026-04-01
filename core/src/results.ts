@@ -1,13 +1,16 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { ResultEntry, ResultStatus } from './types';
+import { fileURLToPath } from 'node:url';
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+const __filename = fileURLToPath(import.meta.url);
+const REPO_ROOT = path.resolve(path.dirname(__filename), '..', '..');
 
 function getResultsPath(): string {
-        const dir = process.env.SNAPSHOTS_DIR;
-        if (!dir) throw new Error('SNAPSHOTS_DIR is not set in environment');
-        return path.join(dir, 'results.json');
+  const dir = process.env.SNAPSHOTS_DIR;
+  if (!dir) throw new Error('SNAPSHOTS_DIR is not set in environment');
+  const resolved = path.isAbsolute(dir) ? dir : path.resolve(REPO_ROOT, dir);
+  return path.join(resolved, 'results.json');
 }
 
 // ─── Public API ───────────────────────────────────────────────────────────────

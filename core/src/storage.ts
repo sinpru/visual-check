@@ -1,10 +1,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const REPO_ROOT = path.resolve(path.dirname(__filename), '..', '..');
 
 function getSnapshotsDir(): string {
-	const dir = process.env.SNAPSHOTS_DIR;
-	if (!dir) throw new Error('SNAPSHOTS_DIR is not set in environment');
-	return path.resolve(dir);
+  const dir = process.env.SNAPSHOTS_DIR;
+  if (!dir) throw new Error('SNAPSHOTS_DIR is not set in environment');
+  return path.isAbsolute(dir) ? dir : path.resolve(REPO_ROOT, dir);
 }
 
 export function getPaths(testName: string, buildId?: string) {
