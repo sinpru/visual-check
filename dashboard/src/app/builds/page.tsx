@@ -1,7 +1,6 @@
 import { readBuilds } from '@visual-check/core';
 import BuildList from '@/components/BuildList';
 import FigmaSnapshotModal from '@/components/FigmaSnapshotModal';
-import CompareDemoButton from '@/components/CompareDemoButton';
 
 export default async function BuildsPage() {
   const builds = await readBuilds();
@@ -20,7 +19,6 @@ export default async function BuildsPage() {
 
         {/* Action buttons */}
         <div className="shrink-0 pt-1 flex items-center gap-3">
-          <CompareDemoButton />
           <FigmaSnapshotModal />
         </div>
       </header>

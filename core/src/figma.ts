@@ -141,7 +141,7 @@ export async function fetchFigmaBaseline(
 	const rawBuffer = Buffer.from(await cdnRes.arrayBuffer());
 
 	// Step 5 — normalize to exact target dimensions via sharp
-	const normalized = await sharp(rawBuffer)
+	const normalized = await sharp(rawBuffer as any)
 		.resize(targetWidth, targetHeight, { fit: 'fill' })
 		.png()
 		.toBuffer();

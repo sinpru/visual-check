@@ -147,7 +147,7 @@ export async function visualTest(
 
   // 8. Run pixel diff against baseline
   const baselineBuffer = fs.readFileSync(paths.baseline);
-  const diffResult = runDiff(baselineBuffer, screenshotBuffer, paths.diff);
+  const diffResult = runDiff(baselineBuffer as any, screenshotBuffer as any, paths.diff);
 
   // 9. Determine pass/fail: diffPercent < 1.0 → pass, else fail
   const status = diffResult.diffPercent < 1.0 ? 'pass' : 'fail';
