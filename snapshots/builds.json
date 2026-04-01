@@ -1,0 +1,11 @@
+[
+  {
+    "buildId": "build_1775016826184",
+    "createdAt": "2026-04-01T04:13:46.184Z",
+    "status": "passed",
+    "totalSnapshots": 1,
+    "changedSnapshots": 0,
+    "passedSnapshots": 1,
+    "branch": "figma"
+  }
+]
