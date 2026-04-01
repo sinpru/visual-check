@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { getSnapshotsDir } from '@visual-check/core';
 
 export async function GET(request: NextRequest) {
 	const { searchParams } = new URL(request.url);
@@ -13,8 +14,7 @@ export async function GET(request: NextRequest) {
 		);
 	}
 
-	const SNAPSHOTS_DIR = process.env.SNAPSHOTS_DIR || './snapshots';
-	const snapshotsRoot = path.resolve(process.cwd(), SNAPSHOTS_DIR);
+	const snapshotsRoot = getSnapshotsDir();
 	const fullPath = path.resolve(snapshotsRoot, imagePath);
 
 	// Path traversal prevention

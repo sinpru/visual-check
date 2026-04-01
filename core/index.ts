@@ -17,7 +17,7 @@ export { getFrameDimensions, fetchFigmaBaseline } from './src/figma.ts';
 export { runDiff } from './src/diff.ts';
 
 // Storage
-export { saveSnapshot, approveBaseline, getPaths } from './src/storage.ts';
+export { saveSnapshot, approveBaseline, getPaths, getSnapshotsDir } from './src/storage.ts';
 
 // Results manifest
 export { readResults, writeResult, updateStatus } from './src/results.ts';
