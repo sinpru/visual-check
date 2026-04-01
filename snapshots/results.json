@@ -1,0 +1,30 @@
+[
+  {
+    "testName": "Homepage",
+    "buildId": "build_1775016826184",
+    "status": "pass",
+    "diffPercent": 0,
+    "diffPixels": 0,
+    "baselinePath": "baselines/Homepage.png",
+    "currentPath": "baselines/Homepage.png",
+    "viewport": {
+      "width": 1920,
+      "height": 960
+    },
+    "timestamp": "2026-04-01T04:13:46.185Z"
+  },
+  {
+    "testName": "test",
+    "buildId": "build_1775018868363",
+    "status": "pass",
+    "diffPercent": 0,
+    "diffPixels": 0,
+    "baselinePath": "baselines/test.png",
+    "currentPath": "baselines/test.png",
+    "viewport": {
+      "width": 1920,
+      "height": 960
+    },
+    "timestamp": "2026-04-01T04:47:48.364Z"
+  }
+]
