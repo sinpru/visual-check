@@ -1,0 +1,117 @@
+@import 'tailwindcss';
+/* @plugin "tailwindcss-animate"; */
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+	--font-sans: var(--font-geist-sans), ui-sans-serif, system-ui;
+	--font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular;
+
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+
+	--radius-lg: var(--radius);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-sm: calc(var(--radius) - 4px);
+
+	--animate-accordion-down: accordion-down 0.2s ease-out;
+	--animate-accordion-up: accordion-up 0.2s ease-out;
+
+	@keyframes accordion-down {
+		from {
+			height: 0;
+		}
+		to {
+			height: var(--radix-accordion-content-height);
+		}
+	}
+	@keyframes accordion-up {
+		from {
+			height: var(--radix-accordion-content-height);
+		}
+		to {
+			height: 0;
+		}
+	}
+}
+
+@layer base {
+	:root {
+		--background: oklch(1 0 0);
+		--foreground: oklch(0.145 0.045 235.845);
+		--card: oklch(1 0 0);
+		--card-foreground: oklch(0.145 0.045 235.845);
+		--popover: oklch(1 0 0);
+		--popover-foreground: oklch(0.145 0.045 235.845);
+		--primary: oklch(0.205 0.047 255.708);
+		--primary-foreground: oklch(0.985 0.002 247.833);
+		--secondary: oklch(0.97 0.001 106.624);
+		--secondary-foreground: oklch(0.205 0.047 255.708);
+		--muted: oklch(0.97 0.001 106.624);
+		--muted-foreground: oklch(0.556 0.043 255.034);
+		--accent: oklch(0.97 0.001 106.624);
+		--accent-foreground: oklch(0.205 0.047 255.708);
+		--destructive: oklch(0.577 0.245 27.325);
+		--destructive-foreground: oklch(0.577 0.245 27.325);
+		--border: oklch(0.922 0.004 256.32);
+		--input: oklch(0.922 0.004 256.32);
+		--ring: oklch(0.87 0.006 254.504);
+		--radius: 0.5rem;
+	}
+
+	.dark {
+		--background: oklch(0.145 0.045 235.845);
+		--foreground: oklch(0.985 0.002 247.833);
+		--card: oklch(0.145 0.045 235.845);
+		--card-foreground: oklch(0.985 0.002 247.833);
+		--popover: oklch(0.145 0.045 235.845);
+		--popover-foreground: oklch(0.985 0.002 247.833);
+		--primary: oklch(0.985 0.002 247.833);
+		--primary-foreground: oklch(0.205 0.047 255.708);
+		--secondary: oklch(0.269 0.048 266.412);
+		--secondary-foreground: oklch(0.985 0.002 247.833);
+		--muted: oklch(0.269 0.048 266.412);
+		--muted-foreground: oklch(0.708 0.042 265.755);
+		--accent: oklch(0.269 0.048 266.412);
+		--accent-foreground: oklch(0.985 0.002 247.833);
+		--destructive: oklch(0.396 0.141 25.723);
+		--destructive-foreground: oklch(0.637 0.237 25.331);
+		--border: oklch(0.269 0.048 266.412);
+		--input: oklch(0.269 0.048 266.412);
+		--ring: oklch(0.439 0.081 254.739);
+	}
+}
+
+@layer base {
+	* {
+		@apply border-border;
+	}
+	body {
+		@apply bg-background text-foreground antialiased;
+	}
+}

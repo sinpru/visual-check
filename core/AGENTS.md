@@ -10,7 +10,7 @@
 `core` is the shared internal library used by both `playwright` and `dashboard`.
 It has no server, no CLI, and no side effects on import — pure functions only.
 
-**Owner:** Person 1
+**Owner:** Thanh Binh
 
 ---
 
