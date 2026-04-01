@@ -1,13 +1,18 @@
 // Types
 export type {
-	FigmaNodeNotFoundError,
-	FigmaAssetFetchError,
 	ResultStatus,
 	BuildStatus,
+	ProjectStatus,
 	FrameDimensions,
 	DiffResult,
 	ResultEntry,
 	BuildEntry,
+	ProjectEntry,
+} from './src/types.ts';
+
+export {
+	FigmaNodeNotFoundError,
+	FigmaAssetFetchError,
 } from './src/types.ts';
 
 // Figma
@@ -24,3 +29,6 @@ export { readResults, writeResult, updateStatus } from './src/results.ts';
 
 // Builds
 export { readBuilds, createBuild, updateBuild, recalculateBuildStatus } from './src/builds.ts';
+
+// Projects
+export { readProjects, createProject, updateProject, deleteProject } from './src/projects.ts';

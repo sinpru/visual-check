@@ -26,5 +26,19 @@
       "height": 960
     },
     "timestamp": "2026-04-01T04:47:48.364Z"
+  },
+  {
+    "testName": "homepage",
+    "buildId": "build_1775063396028",
+    "status": "pass",
+    "diffPercent": 0,
+    "diffPixels": 0,
+    "baselinePath": "baselines/homepage.png",
+    "currentPath": "baselines/homepage.png",
+    "viewport": {
+      "width": 1920,
+      "height": 960
+    },
+    "timestamp": "2026-04-01T17:09:58.158Z"
   }
 ]
