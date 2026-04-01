@@ -14,8 +14,8 @@ export async function GET(request: NextRequest) {
 	}
 
 	const SNAPSHOTS_DIR = process.env.SNAPSHOTS_DIR || './snapshots';
-	const fullPath = path.resolve(process.cwd(), imagePath);
 	const snapshotsRoot = path.resolve(process.cwd(), SNAPSHOTS_DIR);
+	const fullPath = path.resolve(snapshotsRoot, imagePath);
 
 	// Path traversal prevention
 	if (!fullPath.startsWith(snapshotsRoot)) {
