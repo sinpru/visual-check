@@ -30,7 +30,7 @@ interface VisualTestOptions {
  * 2. Normalize scroll state
  * 3. Wait for networkidle
  * 4. Capture screenshot (full page, element, or clipped)
- * 5. Save to current/{testName}.png
+ * 5. Save to current/{buildId}/{testName}.png
  * 6. If updateBaseline → save to baselines/ and write pending status, stop
  * 7. If no baseline exists → save as baseline, mark pending, stop
  * 8. Run pixel diff against baseline
@@ -44,8 +44,12 @@ export async function visualTest(
 ): Promise<void> {
   const updateBaseline =
     options.updateBaseline ?? process.env.UPDATE_BASELINE === 'true';
-  const paths = getPaths(testName);
-  const viewport = { width: 1440, height: 900 };
+  
+  // Get buildId from env or generate one (though env is preferred for stable runs)
+  const buildId = process.env.BUILD_ID || `build_${Date.now()}`;
+  
+  const paths = getPaths(testName, buildId);
+  const viewport = page.viewportSize() || { width: 1440, height: 900 };
   const timestamp = new Date().toISOString();
 
   // 1. Suppress all CSS animations and transitions before capture
@@ -63,8 +67,8 @@ export async function visualTest(
   // 4. Capture screenshot
   const screenshotBuffer = await captureScreenshot(page, options);
 
-  // 5. Save to current/{testName}.png
-  saveSnapshot(testName, screenshotBuffer, 'current');
+  // 5. Save to current/{buildId}/{testName}.png
+  saveSnapshot(testName, screenshotBuffer, 'current', buildId);
 
   // 6. If updateBaseline → save to baselines/ and write pending status, stop
   if (updateBaseline) {
@@ -108,12 +112,14 @@ export async function visualTest(
 
     writeResult({
       testName,
+      buildId,
       status: 'pending',
       diffPercent: 0,
       diffPixels: 0,
-      width: viewport.width,
-      height: viewport.height,
-      updatedAt: timestamp,
+      baselinePath: `baselines/${testName}.png`,
+      currentPath: `current/${buildId}/${testName}.png`,
+      viewport,
+      timestamp,
     });
     return;
   }
@@ -127,12 +133,14 @@ export async function visualTest(
 
     writeResult({
       testName,
+      buildId,
       status: 'pending',
       diffPercent: 0,
       diffPixels: 0,
-      width: viewport.width,
-      height: viewport.height,
-      updatedAt: timestamp,
+      baselinePath: `baselines/${testName}.png`,
+      currentPath: `current/${buildId}/${testName}.png`,
+      viewport,
+      timestamp,
     });
     return;
   }
@@ -147,12 +155,15 @@ export async function visualTest(
   // 10. Write result to results.json
   writeResult({
     testName,
+    buildId,
     status,
     diffPercent: diffResult.diffPercent,
     diffPixels: diffResult.diffPixels,
-    width: viewport.width,
-    height: viewport.height,
-    updatedAt: timestamp,
+    baselinePath: `baselines/${testName}.png`,
+    currentPath: `current/${buildId}/${testName}.png`,
+    diffPath: `diffs/${buildId}/${testName}.png`,
+    viewport,
+    timestamp,
   });
 
   if (status === 'fail') {

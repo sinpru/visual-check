@@ -59,7 +59,7 @@ export default async function TestPage({ params }: PageProps) {
         </Link>
       </div>
 
-      <Card className="border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden rounded-3xl mb-12">
+      <Card className="bg-white border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden rounded-3xl mb-12">
         <CardHeader className="border-b border-slate-200/60 p-6 sm:p-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-3">
@@ -116,7 +116,7 @@ export default async function TestPage({ params }: PageProps) {
           </div>
         </CardHeader>
 
-        <CardContent className="p-8">
+        <CardContent className="p-8 bg-white">
           <DiffViewer
             testName={result.testName}
             baselinePath={result.baselinePath}
