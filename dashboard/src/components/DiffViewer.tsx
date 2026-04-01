@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Slider } from '@/components/ui/slider';
 import { Card, CardContent } from '@/components/ui/card';
-import { Layers, Columns, Image as ImageIcon } from 'lucide-react';
+import { Layers, Columns, Image as ImageIcon, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface DiffViewerProps {
@@ -28,25 +29,27 @@ const DiffViewer: React.FC<DiffViewerProps> = ({
     `/api/image?path=${encodeURIComponent(path)}`;
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 pb-6 border-b border-slate-100">
+    <div className="space-y-12 pb-32">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8 pb-8 border-b border-slate-200">
         <div>
-          <h2 className="text-xl font-black text-slate-900 tracking-tight">
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
             Visual Comparison
+            <Info className="h-5 w-5 text-slate-300" />
           </h2>
-          <p className="text-sm text-slate-500 font-medium">
-            Inspect the changes pixel-by-pixel.
+          <p className="text-slate-500 font-medium mt-1">
+            Compare the baseline with the current snapshot to identify
+            regressions.
           </p>
         </div>
 
-        <div className="flex items-center gap-3 bg-slate-100/50 p-1.5 rounded-2xl border border-slate-200/50">
+        <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shadow-inner">
           <button
             onClick={() => setViewMode('side-by-side')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all',
+              'flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black transition-all duration-300',
               viewMode === 'side-by-side'
-                ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200'
-                : 'text-slate-500 hover:text-slate-900',
+                ? 'bg-white text-slate-900 shadow-md ring-1 ring-slate-200'
+                : 'text-slate-500 hover:text-slate-900 hover:bg-white/50',
             )}
           >
             <Columns className="h-4 w-4" />
@@ -55,10 +58,10 @@ const DiffViewer: React.FC<DiffViewerProps> = ({
           <button
             onClick={() => setViewMode('overlay')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all',
+              'flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black transition-all duration-300',
               viewMode === 'overlay'
-                ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200'
-                : 'text-slate-500 hover:text-slate-900',
+                ? 'bg-white text-slate-900 shadow-md ring-1 ring-slate-200'
+                : 'text-slate-500 hover:text-slate-900 hover:bg-white/50',
             )}
           >
             <Layers className="h-4 w-4" />
@@ -68,35 +71,48 @@ const DiffViewer: React.FC<DiffViewerProps> = ({
       </div>
 
       {viewMode === 'side-by-side' ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <ComparisonPanel
             label="Baseline"
             path={baselinePath}
             badge="Expected"
+            description="The approved ground truth from Figma or previous runs."
           />
-          <ComparisonPanel label="Current" path={currentPath} badge="Actual" />
+          <ComparisonPanel
+            label="Current"
+            path={currentPath}
+            badge="Actual"
+            description="The screenshot captured from the live application."
+          />
           <ComparisonPanel
             label="Difference"
             path={diffPath}
             badge="Changes"
+            description="Highlighting pixels that don't match the baseline."
             isDiff
           />
         </div>
       ) : (
-        <div className="space-y-8 max-w-5xl mx-auto">
-          <Card className="overflow-hidden border-slate-200/60 shadow-xl rounded-3xl bg-slate-50/50">
-            <CardContent className="p-0 relative aspect-16/10 sm:aspect-auto sm:min-h-150 flex items-center justify-center">
-              <div className="absolute inset-0 flex items-center justify-center p-8">
-                <div className="relative w-full h-full bg-white rounded-xl shadow-2xl overflow-hidden border border-slate-200">
-                  <img
+        <div className="space-y-12 max-w-[1400px] mx-auto">
+          <Card className="overflow-hidden border-slate-200 shadow-2xl rounded-[2.5rem] bg-white ring-1 ring-slate-200/50">
+            <CardContent className="p-4 md:p-6 min-h-[600px] flex items-center justify-center">
+              <div className="relative w-full max-w-full h-auto bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
+                <div className="relative aspect-auto">
+                  <Image
                     src={imageUrl(baselinePath)}
                     alt="Baseline"
-                    className="absolute inset-0 w-full h-full object-contain"
+                    width={1920}
+                    height={1080}
+                    unoptimized
+                    className="w-full h-auto object-contain block"
                   />
-                  <img
+                  <Image
                     src={imageUrl(currentPath)}
                     alt="Current"
-                    className="absolute inset-0 w-full h-full object-contain transition-opacity duration-75"
+                    width={1920}
+                    height={1080}
+                    unoptimized
+                    className="absolute inset-0 w-full h-auto object-contain transition-opacity duration-150"
                     style={{ opacity: opacity[0] / 100 }}
                   />
                 </div>
@@ -104,22 +120,22 @@ const DiffViewer: React.FC<DiffViewerProps> = ({
             </CardContent>
           </Card>
 
-          <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+          <div className="bg-white p-10 rounded-[2.5rem] border border-slate-200 shadow-xl space-y-8 max-w-2xl mx-auto ring-1 ring-slate-200/50">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Layers className="h-5 w-5 text-primary" />
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-primary/10 rounded-2xl">
+                  <Layers className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-black text-slate-900">
-                    Overlay Controls
+                  <h3 className="text-lg font-black text-slate-900 tracking-tight">
+                    Opacity Controller
                   </h3>
-                  <p className="text-xs text-slate-500 font-medium">
-                    Adjust visibility to spot differences
+                  <p className="text-sm text-slate-500 font-medium">
+                    Slide to toggle between baseline and current
                   </p>
                 </div>
               </div>
-              <span className="text-sm font-black font-mono bg-slate-100 px-3 py-1 rounded-full text-slate-600">
+              <span className="text-lg font-black font-mono bg-slate-50 px-4 py-2 rounded-2xl text-primary border border-slate-100 shadow-inner">
                 {opacity[0]}%
               </span>
             </div>
@@ -129,10 +145,10 @@ const DiffViewer: React.FC<DiffViewerProps> = ({
               onValueChange={(val) => setOpacity(val as number[])}
               max={100}
               step={1}
-              className="py-4"
+              className="py-6"
             />
 
-            <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">
+            <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 px-2">
               <span>Baseline (Under)</span>
               <span>Current (Over)</span>
             </div>
@@ -147,6 +163,7 @@ interface ComparisonPanelProps {
   label: string;
   path: string;
   badge: string;
+  description: string;
   isDiff?: boolean;
 }
 
@@ -154,38 +171,51 @@ const ComparisonPanel: React.FC<ComparisonPanelProps> = ({
   label,
   path,
   badge,
+  description,
   isDiff,
 }) => {
   const imageUrl = (path: string) =>
     `/api/image?path=${encodeURIComponent(path)}`;
 
   return (
-    <div className="space-y-4 group">
-      <div className="flex items-center justify-between px-1">
-        <h3 className="font-black text-slate-900 tracking-tight">{label}</h3>
-        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">
-          {badge}
-        </span>
+    <div className="space-y-6 group">
+      <div className="space-y-2 px-1">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-black text-slate-900 tracking-tight group-hover:text-primary transition-colors">
+            {label}
+          </h3>
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-100 border border-slate-200 px-3 py-1 rounded-full shadow-sm">
+            {badge}
+          </span>
+        </div>
+        <p className="text-xs text-slate-400 font-medium leading-relaxed">
+          {description}
+        </p>
       </div>
 
-      <Card className="overflow-hidden border-slate-200/60 shadow-sm group-hover:shadow-md transition-all duration-300 rounded-3xl bg-slate-50/50">
-        <CardContent className="p-4 aspect-video flex items-center justify-center">
+      <Card className="overflow-hidden border-slate-200 shadow-md group-hover:shadow-2xl group-hover:-translate-y-2 transition-all duration-500 rounded-[2rem] bg-white ring-1 ring-slate-100">
+        <CardContent className="p-2 sm:p-4 min-h-100 flex items-center justify-center">
           {path ? (
-            <div className="relative w-full h-full bg-white rounded-lg shadow-sm overflow-hidden border border-slate-100">
-              <img
+            <div className="relative w-full h-full bg-white rounded-xl shadow-sm overflow-hidden border border-slate-100 p-1">
+              <Image
                 src={imageUrl(path)}
                 alt={label}
+                width={1920}
+                height={1080}
+                unoptimized
                 className={cn(
-                  'w-full h-full object-contain',
+                  'w-full h-auto object-contain block',
                   isDiff && 'mix-blend-multiply',
                 )}
               />
             </div>
           ) : (
-            <div className="flex flex-col items-center gap-3 text-slate-300">
-              <ImageIcon className="h-12 w-12 opacity-20" />
-              <p className="text-xs font-bold uppercase tracking-widest">
-                No changes
+            <div className="flex flex-col items-center gap-4 text-slate-200">
+              <div className="p-6 bg-slate-100 rounded-full">
+                <ImageIcon className="h-12 w-12 opacity-50" />
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                No visual changes
               </p>
             </div>
           )}

@@ -4,7 +4,13 @@ import { readResults } from '@visual-check/core';
 import DiffViewer from '@/components/DiffViewer';
 import StatusBadge from '@/components/StatusBadge';
 import ApproveRejectBar from '@/components/ApproveRejectBar';
-import { ChevronLeft, Calendar, Maximize2, FileDigit, Clock } from 'lucide-react';
+import {
+  ChevronLeft,
+  Calendar,
+  Maximize2,
+  FileDigit,
+  Clock,
+} from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { formatDiffPercent, relativeTime } from '@/lib/format';
 
@@ -26,21 +32,20 @@ export default async function TestPage({ params }: PageProps) {
   }
 
   // Find prev/next snapshot for navigation
-  const currentIndex = results.findIndex(r => r.testName === testName);
-  const nextSnapshot = currentIndex !== -1 && currentIndex < results.length - 1 
-    ? results[currentIndex + 1].testName 
-    : undefined;
-  const prevSnapshot = currentIndex > 0 
-    ? results[currentIndex - 1].testName 
-    : undefined;
+  const currentIndex = results.findIndex((r) => r.testName === testName);
+  const nextSnapshot =
+    currentIndex !== -1 && currentIndex < results.length - 1
+      ? results[currentIndex + 1].testName
+      : undefined;
+  const prevSnapshot =
+    currentIndex > 0 ? results[currentIndex - 1].testName : undefined;
 
-  const formattedDate = new Date(result.updatedAt || result.timestamp).toLocaleString(
-    undefined,
-    {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    }
-  );
+  const formattedDate = new Date(
+    result.updatedAt || result.timestamp,
+  ).toLocaleString(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  });
 
   return (
     <main className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 pb-48">
@@ -55,11 +60,11 @@ export default async function TestPage({ params }: PageProps) {
       </div>
 
       <Card className="border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden rounded-3xl mb-12">
-        <CardHeader className="bg-slate-50/50 border-b border-slate-200/60 p-8">
+        <CardHeader className="border-b border-slate-200/60 p-6 sm:p-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-3">
               <div className="flex items-center gap-4">
-                <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                   {result.testName}
                 </h1>
                 <StatusBadge status={result.status} className="scale-110" />
@@ -87,7 +92,9 @@ export default async function TestPage({ params }: PageProps) {
                 </p>
                 <p
                   className={`text-3xl font-black font-mono ${
-                    result.diffPercent > 0 ? 'text-destructive' : 'text-slate-900'
+                    result.diffPercent > 0
+                      ? 'text-destructive'
+                      : 'text-slate-900'
                   }`}
                 >
                   {formatDiffPercent(result.diffPercent)}
@@ -119,10 +126,10 @@ export default async function TestPage({ params }: PageProps) {
         </CardContent>
       </Card>
 
-      <ApproveRejectBar 
-        testName={result.testName} 
+      <ApproveRejectBar
+        testName={result.testName}
         buildId={buildId}
-        status={result.status} 
+        status={result.status}
         nextSnapshot={nextSnapshot}
         prevSnapshot={prevSnapshot}
       />
