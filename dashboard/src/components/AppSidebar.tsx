@@ -67,26 +67,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="p-4">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              variant="outline"
-              className="bg-slate-900 text-white hover:bg-slate-800 hover:text-white rounded-xl h-12"
-              render={
-                <a href="https://github.com" target="_blank" rel="noreferrer" />
-              }
-            >
-              <div className="flex items-center justify-between w-full">
-                <span className="text-xs font-black uppercase tracking-tight">
-                  Documentation
-                </span>
-                <ExternalLink className="size-3 ml-2" />
-              </div>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );

@@ -55,27 +55,6 @@ export default function RootLayout({
 
               <div className="grow">{children}</div>
 
-              <footer className="py-12 border-t border-slate-200 bg-white px-8">
-                <div className="max-w-400 mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-                  <p className="text-sm font-medium text-slate-500">
-                    © 2026 Visual Check. Built for pixel perfection.
-                  </p>
-                  <div className="flex items-center gap-8">
-                    <Link
-                      href="/builds"
-                      className="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all"
-                    >
-                      Support
-                    </Link>
-                    <Link
-                      href="/builds"
-                      className="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all"
-                    >
-                      Status
-                    </Link>
-                  </div>
-                </div>
-              </footer>
             </SidebarInset>
           </SidebarProvider>
         </TooltipProvider>
