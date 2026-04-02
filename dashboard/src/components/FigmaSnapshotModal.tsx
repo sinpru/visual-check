@@ -7,6 +7,7 @@ import {
   Search, LayoutGrid, Check,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -21,12 +22,18 @@ interface DiscoveredFrame {
 }
 
 interface SelectedFrame extends DiscoveredFrame {
-  testName: string; // editable by user, defaults to frame name
+  testName: string;
+}
+
+interface FigmaSnapshotModalProps {
+  /** When provided, the created build will be tagged with this project. */
+  projectId?: string;
+  /** Shown in the modal header as context. */
+  projectName?: string;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-/** Sanitise a frame name into a valid testName key */
 function toTestName(name: string): string {
   return name
     .toLowerCase()
@@ -35,11 +42,9 @@ function toTestName(name: string): string {
     .slice(0, 80);
 }
 
-/** Parse file key out of a full Figma URL or return the string as-is */
 function parseFileKey(input: string): string {
   try {
     const url = new URL(input);
-    // https://www.figma.com/file/FILEKEY/Name  or  /design/FILEKEY/Name
     const parts = url.pathname.split('/').filter(Boolean);
     const idx = parts.findIndex((p) => p === 'file' || p === 'design');
     if (idx !== -1 && parts[idx + 1]) return parts[idx + 1];
@@ -51,23 +56,26 @@ function parseFileKey(input: string): string {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function FigmaSnapshotModal() {
-  const [step, setStep]                   = useState<Step>('idle');
-  const [error, setError]                 = useState('');
+export default function FigmaSnapshotModal({ projectId, projectName }: FigmaSnapshotModalProps) {
+  const router = useRouter();
 
-  // Step 1 state
-  const [fileInput, setFileInput]         = useState('');
-  const [token, setToken]                 = useState('');
-  const [fileName, setFileName]           = useState('');
+  const [step, setStep]                       = useState<Step>('idle');
+  const [error, setError]                     = useState('');
+
+  // Step 1
+  const [fileInput, setFileInput]             = useState('');
+  const [token, setToken]                     = useState('');
+  const [fileName, setFileName]               = useState('');
   const [resolvedFileKey, setResolvedFileKey] = useState('');
 
-  // Step 2 state
-  const [frames, setFrames]               = useState<DiscoveredFrame[]>([]);
-  const [selected, setSelected]           = useState<SelectedFrame[]>([]);
-  const [search, setSearch]               = useState('');
-  const [savedCount, setSavedCount]       = useState(0);
+  // Step 2
+  const [frames, setFrames]                   = useState<DiscoveredFrame[]>([]);
+  const [selected, setSelected]               = useState<SelectedFrame[]>([]);
+  const [search, setSearch]                   = useState('');
+  const [savedCount, setSavedCount]           = useState(0);
+  const [createdBuildId, setCreatedBuildId]   = useState('');
 
-  // ── Open / close ────────────────────────────────────────────────────────────
+  // ── Open / close ─────────────────────────────────────────────────────────────
 
   function open() {
     setStep('step1');
@@ -77,6 +85,7 @@ export default function FigmaSnapshotModal() {
     setFrames([]);
     setSelected([]);
     setSearch('');
+    setCreatedBuildId('');
   }
 
   function close() {
@@ -84,7 +93,7 @@ export default function FigmaSnapshotModal() {
     setError('');
   }
 
-  // ── Step 1 → discover frames ────────────────────────────────────────────────
+  // ── Step 1 → discover frames ─────────────────────────────────────────────────
 
   async function handleDiscover(e: React.FormEvent) {
     e.preventDefault();
@@ -110,10 +119,7 @@ export default function FigmaSnapshotModal() {
 
       setFileName(data.fileName);
       setFrames(discovered);
-      // Pre-select all frames with generated testNames
-      setSelected(
-        discovered.map((f) => ({ ...f, testName: toTestName(f.name) }))
-      );
+      setSelected(discovered.map((f) => ({ ...f, testName: toTestName(f.name) })));
       setStep('step2');
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -141,16 +147,17 @@ export default function FigmaSnapshotModal() {
 
   function updateTestName(frameId: string, testName: string) {
     setSelected((prev) =>
-      prev.map((s) => s.id === frameId ? { ...s, testName } : s)
+      prev.map((s) => (s.id === frameId ? { ...s, testName } : s))
     );
   }
 
-  const filteredFrames = frames.filter((f) =>
-    f.name.toLowerCase().includes(search.toLowerCase()) ||
-    f.pageName.toLowerCase().includes(search.toLowerCase())
+  const filteredFrames = frames.filter(
+    (f) =>
+      f.name.toLowerCase().includes(search.toLowerCase()) ||
+      f.pageName.toLowerCase().includes(search.toLowerCase()),
   );
 
-  // ── Step 2 → pull selected frames ──────────────────────────────────────────
+  // ── Step 2 → pull selected frames ───────────────────────────────────────────
 
   async function handlePull() {
     if (selected.length === 0) return;
@@ -164,6 +171,8 @@ export default function FigmaSnapshotModal() {
         body: JSON.stringify({
           fileKey: resolvedFileKey,
           ...(token.trim() ? { token: token.trim() } : {}),
+          // ← projectId attached here so the build gets tagged with this project
+          ...(projectId ? { projectId } : {}),
           frames: selected.map((s) => ({
             nodeId:   s.id,
             testName: s.testName,
@@ -177,16 +186,35 @@ export default function FigmaSnapshotModal() {
       if (!res.ok) throw new Error(data.error ?? `Server error ${res.status}`);
 
       setSavedCount(data.saved?.length ?? selected.length);
+      setCreatedBuildId(data.build?.buildId ?? '');
       setStep('success');
-
-      setTimeout(() => window.location.reload(), 1800);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
       setStep('error' as Step);
     }
   }
 
-  // ── Group frames by page for display ────────────────────────────────────────
+  // ── Success navigation ───────────────────────────────────────────────────────
+
+  function goToBuild() {
+    if (createdBuildId) {
+      router.push(`/builds/${createdBuildId}`);
+    } else if (projectId) {
+      router.push(`/projects/${projectId}`);
+    } else {
+      router.push('/builds');
+    }
+    close();
+  }
+
+  function goToProject() {
+    if (projectId) {
+      router.refresh(); // re-fetch server component data
+      close();
+    }
+  }
+
+  // ── Group frames by page ─────────────────────────────────────────────────────
 
   const framesByPage = filteredFrames.reduce<Record<string, DiscoveredFrame[]>>(
     (acc, f) => {
@@ -194,7 +222,7 @@ export default function FigmaSnapshotModal() {
       acc[f.pageName].push(f);
       return acc;
     },
-    {}
+    {},
   );
 
   const isSelected = (id: string) => selected.some((s) => s.id === id);
@@ -203,7 +231,7 @@ export default function FigmaSnapshotModal() {
 
   return (
     <>
-      {/* Trigger */}
+      {/* ── Trigger ── */}
       <button
         onClick={open}
         className={cn(
@@ -212,20 +240,21 @@ export default function FigmaSnapshotModal() {
         )}
       >
         <ImagePlus className="h-4 w-4" />
-        Compare to Figma
+        Pull Figma baselines
       </button>
 
-      {/* Backdrop */}
+      {/* ── Backdrop ── */}
       {step !== 'idle' && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
           onClick={(e) => { if (e.target === e.currentTarget) close(); }}
         >
-          <div className={cn(
-            'bg-white rounded-3xl shadow-2xl w-full overflow-hidden flex flex-col',
-            step === 'step2' || step === 'pulling' ? 'max-w-2xl max-h-[85vh]' : 'max-w-md',
-          )}>
-
+          <div
+            className={cn(
+              'bg-white rounded-3xl shadow-2xl w-full overflow-hidden flex flex-col',
+              step === 'step2' || step === 'pulling' ? 'max-w-2xl max-h-[85vh]' : 'max-w-md',
+            )}
+          >
             {/* Header */}
             <div className="flex items-center justify-between px-7 pt-6 pb-5 border-b border-slate-100 shrink-0">
               <div className="flex items-center gap-3">
@@ -241,6 +270,8 @@ export default function FigmaSnapshotModal() {
                   <p className="text-xs text-slate-400 font-medium mt-0.5">
                     {step === 'step2' || step === 'pulling'
                       ? `${selected.length} of ${frames.length} selected`
+                      : projectName
+                      ? `Baselines for ${projectName}`
                       : 'Snapshot frames will be saved as baselines'}
                   </p>
                 </div>
@@ -258,15 +289,34 @@ export default function FigmaSnapshotModal() {
 
               {/* ── Success ── */}
               {step === 'success' && (
-                <div className="px-7 py-10 text-center">
+                <div className="px-7 py-8 text-center">
                   <div className="h-14 w-14 rounded-2xl bg-green-50 flex items-center justify-center mx-auto mb-4">
                     <CheckCircle className="h-7 w-7 text-green-500" />
                   </div>
                   <p className="font-black text-slate-900 text-lg mb-1">Baselines saved!</p>
-                  <p className="text-sm text-slate-500 font-medium">
+                  <p className="text-sm text-slate-500 font-medium mb-6">
                     {savedCount} frame{savedCount !== 1 ? 's' : ''} pulled from Figma
+                    {projectName ? ` for ${projectName}` : ''}
                   </p>
-                  <p className="text-xs text-slate-400 mt-3">Refreshing builds list…</p>
+                  <div className="flex flex-col gap-2.5">
+                    {createdBuildId && (
+                      <button
+                        onClick={goToBuild}
+                        className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-violet-600 text-white text-sm font-black hover:bg-violet-700 transition-colors"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                        View build
+                      </button>
+                    )}
+                    {projectId && (
+                      <button
+                        onClick={goToProject}
+                        className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-slate-100 text-slate-700 text-sm font-black hover:bg-slate-200 transition-colors"
+                      >
+                        Back to project
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -299,11 +349,11 @@ export default function FigmaSnapshotModal() {
 
                   <button
                     type="submit"
-                    disabled={step === 'discovering'}
+                    disabled={step === 'discovering' || !fileInput.trim()}
                     className={cn(
                       'w-full flex items-center justify-center gap-2 py-3 rounded-2xl',
                       'text-sm font-black text-white transition-colors',
-                      step === 'discovering'
+                      step === 'discovering' || !fileInput.trim()
                         ? 'bg-violet-400 cursor-not-allowed'
                         : 'bg-violet-600 hover:bg-violet-700',
                     )}
@@ -344,7 +394,7 @@ export default function FigmaSnapshotModal() {
                     </button>
                   </div>
 
-                  {/* Frame list — scrollable */}
+                  {/* Frame list */}
                   <div className="overflow-y-auto grow px-7 py-4 space-y-5">
                     {Object.entries(framesByPage).map(([pageName, pageFrames]) => (
                       <div key={pageName}>
@@ -369,36 +419,29 @@ export default function FigmaSnapshotModal() {
                                 onClick={() => toggleFrame(frame)}
                               >
                                 {/* Checkbox */}
-                                <div className={cn(
-                                  'h-5 w-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors',
-                                  isSelected(frame.id)
-                                    ? 'border-violet-600 bg-violet-600'
-                                    : 'border-slate-300',
-                                )}>
-                                  {isSelected(frame.id) && (
-                                    <Check className="h-3 w-3 text-white" />
+                                <div
+                                  className={cn(
+                                    'h-5 w-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors',
+                                    isSelected(frame.id) ? 'border-violet-600 bg-violet-600' : 'border-slate-300',
                                   )}
+                                >
+                                  {isSelected(frame.id) && <Check className="h-3 w-3 text-white" />}
                                 </div>
 
                                 {/* Frame info */}
                                 <div className="grow min-w-0">
-                                  <p className="text-sm font-black text-slate-900 truncate">
-                                    {frame.name}
-                                  </p>
+                                  <p className="text-sm font-black text-slate-900 truncate">{frame.name}</p>
                                   <p className="text-xs text-slate-400 font-medium">
                                     {frame.width}×{frame.height}px
                                   </p>
                                 </div>
 
-                                {/* Test name input — only shown when selected */}
+                                {/* Editable test name */}
                                 {sel && (
                                   <input
                                     type="text"
                                     value={sel.testName}
-                                    onChange={(e) => {
-                                      e.stopPropagation();
-                                      updateTestName(frame.id, e.target.value);
-                                    }}
+                                    onChange={(e) => { e.stopPropagation(); updateTestName(frame.id, e.target.value); }}
                                     onClick={(e) => e.stopPropagation()}
                                     placeholder="test-name"
                                     className={cn(
@@ -423,7 +466,7 @@ export default function FigmaSnapshotModal() {
                     </div>
                   )}
 
-                  {/* Footer actions */}
+                  {/* Footer */}
                   <div className="px-7 py-5 border-t border-slate-100 shrink-0 flex items-center gap-3">
                     <button
                       onClick={() => { setStep('step1'); setError(''); }}

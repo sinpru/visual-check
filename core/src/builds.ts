@@ -9,80 +9,101 @@ function getBuildsPath(): string {
 }
 
 export function readBuilds(): BuildEntry[] {
-	const filePath = getBuildsPath();
-	if (!fs.existsSync(filePath)) return [];
-	try {
-		const builds = JSON.parse(fs.readFileSync(filePath, 'utf-8')) as BuildEntry[];
-		return builds.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-	} catch (e) {
-		console.error('Failed to parse builds.json:', e);
-		return [];
-	}
+  const filePath = getBuildsPath();
+  if (!fs.existsSync(filePath)) return [];
+  try {
+    const builds = JSON.parse(fs.readFileSync(filePath, 'utf-8')) as BuildEntry[];
+    return builds.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  } catch (e) {
+    console.error('Failed to parse builds.json:', e);
+    return [];
+  }
 }
 
 export function createBuild(data: Partial<BuildEntry>): BuildEntry {
-	const builds = readBuilds();
-	const newBuild: BuildEntry = {
-		buildId: `build_${Date.now()}`,
-		createdAt: new Date().toISOString(),
-		status: 'unreviewed',
-		totalSnapshots: 0,
-		changedSnapshots: 0,
-		passedSnapshots: 0,
-		...data,
-	};
+  const builds = readBuilds();
+  const newBuild: BuildEntry = {
+    buildId: `build_${Date.now()}`,
+    createdAt: new Date().toISOString(),
+    status: 'unreviewed',
+    totalSnapshots: 0,
+    changedSnapshots: 0,
+    passedSnapshots: 0,
+    ...data,
+  };
 
-	builds.push(newBuild);
-	writeBuilds(builds);
-	return newBuild;
+  builds.push(newBuild);
+  writeBuilds(builds);
+  return newBuild;
+}
+
+/**
+ * Idempotent build creation.
+ * Returns the existing build if buildId is already in builds.json,
+ * otherwise creates a new one with the provided data.
+ * Used by visualTest.ts so multiple tests in the same Playwright run
+ * share a single build record.
+ */
+export function getOrCreateBuild(buildId: string, data: Partial<BuildEntry>): BuildEntry {
+  const builds = readBuilds();
+  const existing = builds.find((b) => b.buildId === buildId);
+  if (existing) return existing;
+
+  const newBuild: BuildEntry = {
+    buildId,
+    createdAt: new Date().toISOString(),
+    status: 'unreviewed',
+    totalSnapshots: 0,
+    changedSnapshots: 0,
+    passedSnapshots: 0,
+    ...data,
+  };
+
+  builds.push(newBuild);
+  writeBuilds(builds);
+  return newBuild;
 }
 
 export function updateBuild(buildId: string, data: Partial<BuildEntry>): void {
-	const builds = readBuilds();
-	const idx = builds.findIndex((b) => b.buildId === buildId);
-	if (idx === -1) return;
+  const builds = readBuilds();
+  const idx = builds.findIndex((b) => b.buildId === buildId);
+  if (idx === -1) return;
 
-	builds[idx] = { ...builds[idx], ...data };
-	writeBuilds(builds);
+  builds[idx] = { ...builds[idx], ...data };
+  writeBuilds(builds);
 }
 
 function writeBuilds(builds: BuildEntry[]): void {
-	const filePath = getBuildsPath();
-	const dir = path.dirname(filePath);
-	if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  const filePath = getBuildsPath();
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
-	const tmp = `${filePath}.tmp`;
-	fs.writeFileSync(tmp, JSON.stringify(builds, null, 2));
-	fs.renameSync(tmp, filePath);
+  const tmp = `${filePath}.tmp`;
+  fs.writeFileSync(tmp, JSON.stringify(builds, null, 2));
+  fs.renameSync(tmp, filePath);
 }
 
 export function recalculateBuildStatus(buildId: string, results: any[]): void {
-	const buildResults = results.filter((r) => r.buildId === buildId);
-	
-	const total = buildResults.length;
-	const passed = buildResults.filter((r) => r.status === 'pass' || r.status === 'approved').length;
-	const failed = buildResults.filter((r) => r.status === 'rejected').length;
-	const changed = total - passed - failed;
+  const buildResults = results.filter((r) => r.buildId === buildId);
 
-	let status: BuildStatus = 'unreviewed';
-	if (total > 0) {
-		if (passed === total) {
-			status = 'passed';
-		} else if (failed > 0) {
-			status = 'failed';
-		} else if (changed > 0) {
-			status = 'unreviewed';
-		} else if (passed + failed === total) {
-			// All reviewed, but some are failed
-			status = failed > 0 ? 'failed' : 'approved';
-		}
-	}
+  const total   = buildResults.length;
+  const passed  = buildResults.filter((r) => r.status === 'pass' || r.status === 'approved').length;
+  const failed  = buildResults.filter((r) => r.status === 'fail' || r.status === 'rejected').length;
+  const changed = total - passed - failed;
 
-	updateBuild(buildId, {
-		totalSnapshots: total,
-		passedSnapshots: passed,
-		changedSnapshots: changed,
-		status,
-		finishedAt: new Date().toISOString(),
-	});
+  let status: BuildStatus = 'unreviewed';
+  if (total > 0) {
+    if (failed > 0)        status = 'failed';
+    else if (changed > 0)  status = 'unreviewed';
+    else if (passed === total) status = 'passed';
+    else                   status = 'approved';
+  }
+
+  updateBuild(buildId, {
+    totalSnapshots:   total,
+    passedSnapshots:  passed,
+    changedSnapshots: changed,
+    status,
+    finishedAt: new Date().toISOString(),
+  });
 }
