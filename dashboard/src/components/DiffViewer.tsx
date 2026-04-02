@@ -1,170 +1,345 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
-import { Card, CardContent } from '@/components/ui/card';
-import { Layers, Image as ImageIcon, Info } from 'lucide-react';
+import { Columns2, Square, Layers, SlidersHorizontal, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type ViewMode = 'both' | 'baseline' | 'current';
 
 interface DiffViewerProps {
   testName: string;
   baselinePath: string;
   currentPath: string;
-  diffPath: string;
+  diffPath?: string;
+  baselineWidth?: number;
+  baselineHeight?: number;
+  currentWidth?: number;
+  currentHeight?: number;
 }
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+const imgUrl = (p: string) =>
+  p ? `/api/image?path=${encodeURIComponent(p)}` : '';
+
+// ─── Image Pane ──────────────────────────────────────────────────────────────
+
+interface ImagePaneProps {
+  label: string;
+  badge: string;
+  badgeClass: string;
+  dotClass: string;
+  src: string;
+  overlaySrc?: string;
+  showOverlay?: boolean;
+  overlayOpacity?: number;
+  width?: number;
+  height?: number;
+  fullWidth?: boolean;
+  panelHeight: string;
+}
+
+function ImagePane({
+  label,
+  badge,
+  badgeClass,
+  dotClass,
+  src,
+  overlaySrc,
+  showOverlay,
+  overlayOpacity = 80,
+  width,
+  height,
+  fullWidth,
+  panelHeight,
+}: ImagePaneProps) {
+  return (
+    <div className={cn('flex flex-col gap-3', fullWidth ? 'w-full' : 'flex-1 min-w-0')}>
+      {/* ── Panel header ── */}
+      <div className="flex items-center justify-between px-0.5 shrink-0">
+        <div className="flex items-center gap-2">
+          <span className={cn('h-2 w-2 rounded-full shrink-0', dotClass)} />
+          <span className="text-sm font-black text-slate-800 tracking-tight">{label}</span>
+          <span
+            className={cn(
+              'text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border',
+              badgeClass,
+            )}
+          >
+            {badge}
+          </span>
+        </div>
+        {width && height && (
+          <span className="text-[10px] font-mono text-slate-400 tabular-nums bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-lg">
+            {width} × {height}
+          </span>
+        )}
+      </div>
+
+      {/* ── Image container — fixed height, no scroll, image contained ── */}
+      <div
+        className="relative rounded-2xl border border-slate-200 bg-slate-50 shadow-sm overflow-hidden"
+        style={{ height: panelHeight }}
+      >
+        {/* Checkerboard transparency indicator */}
+        <div
+          className="absolute inset-0 opacity-[0.15] pointer-events-none z-0"
+          style={{
+            backgroundImage:
+              'repeating-conic-gradient(#94a3b8 0% 25%, transparent 0% 50%)',
+            backgroundSize: '20px 20px',
+          }}
+        />
+
+        {src ? (
+          <>
+            {/* Base image — object-contain so it never overflows the panel */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={src}
+              alt={label}
+              className="absolute inset-0 w-full h-full object-contain z-10"
+              draggable={false}
+            />
+
+            {/* Diff overlay — same contain sizing so it aligns perfectly */}
+            {overlaySrc && showOverlay && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={overlaySrc}
+                alt="diff overlay"
+                className="absolute inset-0 w-full h-full object-contain pointer-events-none z-20"
+                style={{ opacity: overlayOpacity / 100 }}
+                draggable={false}
+              />
+            )}
+          </>
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            <p className="text-xs font-black uppercase tracking-widest text-slate-300">
+              No image
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
 
 const DiffViewer: React.FC<DiffViewerProps> = ({
   testName,
   baselinePath,
   currentPath,
   diffPath,
+  baselineWidth,
+  baselineHeight,
+  currentWidth,
+  currentHeight,
 }) => {
+  const [mode, setMode]               = useState<ViewMode>('both');
   const [showOverlay, setShowOverlay] = useState(true);
+  const [overlayOpacity, setOverlayOpacity] = useState(75);
+
+  const hasDiff = !!diffPath;
+
+  // ─── Image source resolution ───────────────────────────────────────────────
+  //
+  // Per AGENTS Issue 3: the data layer has the paths inverted — baselinePath
+  // currently holds the web screenshot and currentPath holds the Figma export.
+  // We swap here so the display is correct:
+  //   LEFT  "Baseline / Expected" → Figma frame  (currentPath in data)
+  //   RIGHT "Current  / Actual"   → Web snapshot (baselinePath in data)
+  //
+  const figmaSrc = imgUrl(currentPath);   // Figma export (baseline visually)
+  const webSrc   = imgUrl(baselinePath);  // Web screenshot (actual visually)
+  const diffSrc  = hasDiff ? imgUrl(diffPath!) : '';
+
+  // Panel height: slightly taller in single-pane modes for better detail
+  const panelHeight = mode === 'both' ? '62vh' : '74vh';
 
   return (
-    <div className="space-y-12 pb-32">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8 pb-8 border-b border-slate-200">
-        <div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-            Visual Comparison
-            <Info className="h-5 w-5 text-slate-300" />
-          </h2>
-          <p className="text-slate-500 font-medium mt-1">
-            Compare the baseline with the current snapshot to identify
-            regressions.
-          </p>
+    <div className="flex flex-col gap-5">
+
+      {/* ── Toolbar ── */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+
+        {/* View mode tabs */}
+        <div className="flex items-center bg-slate-100 p-1 rounded-2xl gap-0.5">
+          <ViewButton
+            active={mode === 'both'}
+            onClick={() => setMode('both')}
+            icon={<Columns2 className="h-3.5 w-3.5" />}
+            label="Both"
+          />
+          <ViewButton
+            active={mode === 'baseline'}
+            onClick={() => setMode('baseline')}
+            icon={<Square className="h-3.5 w-3.5" />}
+            label="Baseline"
+          />
+          <ViewButton
+            active={mode === 'current'}
+            onClick={() => setMode('current')}
+            icon={<Square className="h-3.5 w-3.5" />}
+            label="Current"
+          />
         </div>
 
-        <div className="flex items-center gap-3 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shadow-inner">
-          <div className="flex items-center gap-2 pl-3 pr-2 text-sm font-black text-slate-600">
-            <Layers className="h-4 w-4" />
-            Diff Overlay
+        {/* Overlay controls — only relevant when Current panel is visible */}
+        {hasDiff && mode !== 'baseline' && (
+          <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-2.5">
+            <Layers className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+            <span className="text-xs font-black text-slate-500 shrink-0">Diff overlay</span>
+
+            {/* ON / OFF pill */}
+            <div className="flex items-center gap-0.5 bg-slate-200/70 p-0.5 rounded-xl">
+              <ToggleButton active={showOverlay} onClick={() => setShowOverlay(true)}>
+                ON
+              </ToggleButton>
+              <ToggleButton active={!showOverlay} onClick={() => setShowOverlay(false)}>
+                OFF
+              </ToggleButton>
+            </div>
+
+            {/* Opacity slider — only when overlay is active */}
+            {showOverlay && (
+              <div className="flex items-center gap-2 pl-1 border-l border-slate-200">
+                <SlidersHorizontal className="h-3 w-3 text-slate-400 shrink-0" />
+                <input
+                  type="range"
+                  min={10}
+                  max={100}
+                  step={5}
+                  value={overlayOpacity}
+                  onChange={(e) => setOverlayOpacity(Number(e.target.value))}
+                  className="w-24 h-1.5 appearance-none cursor-pointer accent-slate-700"
+                  aria-label="Overlay opacity"
+                />
+                <span className="text-[10px] font-mono text-slate-400 w-8 text-right tabular-nums shrink-0">
+                  {overlayOpacity}%
+                </span>
+              </div>
+            )}
           </div>
-          <div className="flex items-center gap-1 bg-slate-200/50 p-1 rounded-xl">
-            <button
-              onClick={() => setShowOverlay(true)}
-              className={cn(
-                'px-4 py-1.5 rounded-lg text-xs font-black transition-all duration-300',
-                showOverlay
-                  ? 'bg-white text-primary shadow-sm ring-1 ring-slate-200'
-                  : 'text-slate-500 hover:text-slate-900'
-              )}
-            >
-              ON
-            </button>
-            <button
-              onClick={() => setShowOverlay(false)}
-              className={cn(
-                'px-4 py-1.5 rounded-lg text-xs font-black transition-all duration-300',
-                !showOverlay
-                  ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200'
-                  : 'text-slate-500 hover:text-slate-900'
-              )}
-            >
-              OFF
-            </button>
-          </div>
-        </div>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ComparisonPanel
-          label="Baseline"
-          path={baselinePath}
-          badge="Expected"
-          description="The approved ground truth from Figma or previous runs."
-        />
-        <ComparisonPanel
-          label="Current"
-          path={currentPath}
-          badge="Actual"
-          description="The screenshot captured from the live application."
-          overlayPath={diffPath}
-          showOverlay={showOverlay}
-        />
+      {/* ── Image panels ── */}
+      <div
+        className={cn(
+          'flex gap-5',
+          mode === 'both' ? 'flex-row items-stretch' : 'flex-col',
+        )}
+      >
+        {/* LEFT / FULL — Figma Baseline (EXPECTED) */}
+        {(mode === 'both' || mode === 'baseline') && (
+          <ImagePane
+            label="Baseline"
+            badge="Expected"
+            badgeClass="bg-blue-50 text-blue-600 border-blue-100"
+            dotClass="bg-blue-400"
+            src={figmaSrc}
+            width={currentWidth}
+            height={currentHeight}
+            fullWidth={mode === 'baseline'}
+            panelHeight={panelHeight}
+          />
+        )}
+
+        {/* RIGHT / FULL — Web Current (ACTUAL) with diff overlay on top */}
+        {(mode === 'both' || mode === 'current') && (
+          <ImagePane
+            label="Current"
+            badge="Actual"
+            badgeClass="bg-amber-50 text-amber-600 border-amber-100"
+            dotClass="bg-amber-400"
+            src={webSrc}
+            overlaySrc={diffSrc || undefined}
+            showOverlay={showOverlay}
+            overlayOpacity={overlayOpacity}
+            width={baselineWidth}
+            height={baselineHeight}
+            fullWidth={mode === 'current'}
+            panelHeight={panelHeight}
+          />
+        )}
       </div>
+
+      {/* ── Viewport mismatch warning ── */}
+      {baselineWidth && currentWidth && baselineWidth !== currentWidth && (
+        <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-100 rounded-2xl">
+          <div className="h-5 w-5 rounded-full bg-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+            <AlertTriangle className="h-3 w-3 text-white" />
+          </div>
+          <div>
+            <p className="text-sm font-black text-amber-800">Viewport size mismatch</p>
+            <p className="text-xs text-amber-600 font-medium mt-0.5">
+              Baseline is {currentWidth}×{currentHeight}px · Current is {baselineWidth}×{baselineHeight}px.{' '}
+              Pixel diff results may be inaccurate — normalize viewports in{' '}
+              <code className="font-mono bg-amber-100 px-1 rounded">playwright.config.ts</code>.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-interface ComparisonPanelProps {
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function ViewButton({
+  active,
+  onClick,
+  icon,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
   label: string;
-  path: string;
-  badge: string;
-  description: string;
-  overlayPath?: string;
-  showOverlay?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        'flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black transition-all',
+        active
+          ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200'
+          : 'text-slate-400 hover:text-slate-600',
+      )}
+    >
+      {icon}
+      {label}
+    </button>
+  );
 }
 
-const ComparisonPanel: React.FC<ComparisonPanelProps> = ({
-  label,
-  path,
-  badge,
-  description,
-  overlayPath,
-  showOverlay,
-}) => {
-  const imageUrl = (path: string) =>
-    `/api/image?path=${encodeURIComponent(path)}`;
-
+function ToggleButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="space-y-6 group">
-      <div className="space-y-2 px-1">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-black text-slate-900 tracking-tight group-hover:text-primary transition-colors">
-            {label}
-          </h3>
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-100 border border-slate-200 px-3 py-1 rounded-full shadow-sm">
-            {badge}
-          </span>
-        </div>
-        <p className="text-xs text-slate-400 font-medium leading-relaxed">
-          {description}
-        </p>
-      </div>
-
-      <Card className="overflow-hidden border-slate-200 shadow-md group-hover:shadow-2xl group-hover:-translate-y-2 transition-all duration-500 rounded-[2rem] bg-white ring-1 ring-slate-100">
-        <CardContent className="p-2 sm:p-4 min-h-100 flex items-center justify-center">
-          {path ? (
-            <div className="w-full h-full bg-white rounded-xl shadow-sm overflow-hidden border border-slate-100 p-1">
-              <div className="relative aspect-auto">
-                <Image
-                  src={imageUrl(path)}
-                  alt={label}
-                  width={1920}
-                  height={1080}
-                  unoptimized
-                  className="w-full h-auto object-contain block"
-                />
-                {overlayPath && (
-                  <Image
-                    src={imageUrl(overlayPath)}
-                    alt={`${label} Overlay`}
-                    width={1920}
-                    height={1080}
-                    unoptimized
-                    className={cn(
-                      'absolute inset-0 w-full h-auto object-contain block mix-blend-multiply transition-opacity duration-300',
-                      showOverlay ? 'opacity-100' : 'opacity-0'
-                    )}
-                  />
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-4 text-slate-200">
-              <div className="p-6 bg-slate-100 rounded-full">
-                <ImageIcon className="h-12 w-12 opacity-50" />
-              </div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                No visual changes
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+    <button
+      onClick={onClick}
+      className={cn(
+        'px-3 py-1 rounded-[10px] text-[11px] font-black transition-all',
+        active
+          ? 'bg-white text-slate-900 shadow-sm'
+          : 'text-slate-400 hover:text-slate-600',
+      )}
+    >
+      {children}
+    </button>
   );
-};
+}
 
 export default DiffViewer;

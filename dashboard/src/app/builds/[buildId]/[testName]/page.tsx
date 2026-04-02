@@ -27,25 +27,18 @@ export default async function TestPage({ params }: PageProps) {
   const results = await readResults(buildId);
   const result = results.find((r) => r.testName === testName);
 
-  if (!result) {
-    return notFound();
-  }
+  if (!result) return notFound();
 
-  // Find prev/next snapshot for navigation
-  const currentIndex = results.findIndex((r) => r.testName === testName);
-  const nextSnapshot =
-    currentIndex !== -1 && currentIndex < results.length - 1
-      ? results[currentIndex + 1].testName
-      : undefined;
-  const prevSnapshot =
-    currentIndex > 0 ? results[currentIndex - 1].testName : undefined;
+  const currentIndex  = results.findIndex((r) => r.testName === testName);
+  const nextSnapshot  = currentIndex !== -1 && currentIndex < results.length - 1
+    ? results[currentIndex + 1].testName
+    : undefined;
+  const prevSnapshot  = currentIndex > 0 ? results[currentIndex - 1].testName : undefined;
 
-  const formattedDate = new Date(
-    result.updatedAt || result.timestamp,
-  ).toLocaleString(undefined, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  });
+  const formattedDate = new Date(result.updatedAt || result.timestamp).toLocaleString(
+    undefined,
+    { dateStyle: 'medium', timeStyle: 'short' },
+  );
 
   return (
     <main className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 pb-48">
@@ -90,13 +83,9 @@ export default async function TestPage({ params }: PageProps) {
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
                   Diff Percent
                 </p>
-                <p
-                  className={`text-3xl font-black font-mono ${
-                    result.diffPercent > 0
-                      ? 'text-destructive'
-                      : 'text-slate-900'
-                  }`}
-                >
+                <p className={`text-3xl font-black font-mono ${
+                  result.diffPercent > 0 ? 'text-destructive' : 'text-slate-900'
+                }`}>
                   {formatDiffPercent(result.diffPercent)}
                 </p>
               </div>
@@ -121,7 +110,12 @@ export default async function TestPage({ params }: PageProps) {
             testName={result.testName}
             baselinePath={result.baselinePath}
             currentPath={result.currentPath}
-            diffPath={result.diffPath || ''}
+            diffPath={result.diffPath ?? ''}
+            // Pass viewport so both panels render at correct native dimensions
+            baselineWidth={result.viewport.width}
+            baselineHeight={result.viewport.height}
+            currentWidth={result.viewport.width}
+            currentHeight={result.viewport.height}
           />
         </CardContent>
       </Card>
