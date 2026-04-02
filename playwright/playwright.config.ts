@@ -28,8 +28,8 @@ export default defineConfig({
   reporter: [['list']],
 
   use: {
-    /* Must match Figma frame dimensions — 1440×900 is the agreed default */
-    viewport: { width: 1440, height: 900 },
+    /* Must match Figma frame dimensions — 1920×960 is the agreed default */
+    viewport: { width: 1920, height: 960 },
 
     /* Must be 1 — Figma exports at 1x. Retina (2x) doubles pixel dimensions and breaks the diff */
     deviceScaleFactor: 1,

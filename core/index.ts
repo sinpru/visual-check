@@ -28,7 +28,7 @@ export { saveSnapshot, approveBaseline, getPaths, getSnapshotsDir } from './src/
 export { readResults, writeResult, updateStatus } from './src/results.ts';
 
 // Builds
-export { readBuilds, createBuild, updateBuild, recalculateBuildStatus } from './src/builds.ts';
+export { readBuilds, createBuild, updateBuild, recalculateBuildStatus, getOrCreateBuild } from './src/builds.ts';
 
 // Projects
 export { readProjects, createProject, updateProject, deleteProject } from './src/projects.ts';

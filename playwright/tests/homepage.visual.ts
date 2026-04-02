@@ -2,8 +2,9 @@ import { test } from '@playwright/test';
 import { visualTest } from '../helpers/visualTest';
 
 test.describe('Homepage Visual Tests', () => {
-  test('homepage hero', async ({ page }) => {
-    await page.goto('http://localhost:3000');
-    await visualTest(page, 'homepage-hero');
+  test('homepage', async ({ page }) => {
+    // Uses baseURL from playwright.config.ts (set via BASE_URL env var)
+    await page.goto('/');
+    await visualTest(page, 'homepage');
   });
 });

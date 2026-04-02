@@ -5,10 +5,12 @@ import {
   runDiff,
   writeResult,
   fetchFigmaBaseline,
+  getOrCreateBuild,
+  recalculateBuildStatus,
+  readResults,
 } from '@visual-check/core';
 import { figmaNodes } from './figmaNodes';
 import fs from 'fs';
-import path from 'path';
 
 /**
  * Options for the visualTest helper.
@@ -26,16 +28,23 @@ interface VisualTestOptions {
  * The core visual test helper. Every visual test file calls this function.
  *
  * Pipeline:
- * 1. Suppress CSS animations/transitions
- * 2. Normalize scroll state
- * 3. Wait for networkidle
- * 4. Capture screenshot (full page, element, or clipped)
- * 5. Save to current/{buildId}/{testName}.png
- * 6. If updateBaseline → save to baselines/ and write pending status, stop
- * 7. If no baseline exists → save as baseline, mark pending, stop
- * 8. Run pixel diff against baseline
- * 9. Determine pass/fail (diffPercent < 1.0 → pass)
- * 10. Write result to results.json
+ * 1.  Register/retrieve the build record in builds.json (idempotent)
+ * 2.  Suppress CSS animations/transitions
+ * 3.  Normalize scroll state
+ * 4.  Wait for networkidle
+ * 5.  Capture screenshot (full page, element, or clipped)
+ * 6.  Save to current/{buildId}/{testName}.png
+ * 7.  If updateBaseline → save to baselines/ and write pending status, stop
+ * 8.  If no baseline exists → save as baseline, mark pending, stop
+ * 9.  Run pixel diff against baseline (baselines/{testName}.png vs web screenshot)
+ * 10. Determine pass/fail (diffPercent < 1.0 → pass)
+ * 11. Write result to results.json
+ * 12. Recalculate build-level status
+ *
+ * NOTE on path naming in writeResult:
+ *   DiffViewer shows  currentPath  as "Baseline / Expected" (LEFT  = Figma frame)
+ *   DiffViewer shows  baselinePath as "Current  / Actual"   (RIGHT = web screenshot + diff overlay)
+ *   So we intentionally swap the conventional names here to match that display logic.
  */
 export async function visualTest(
   page: Page,
@@ -44,164 +53,145 @@ export async function visualTest(
 ): Promise<void> {
   const updateBaseline =
     options.updateBaseline ?? process.env.UPDATE_BASELINE === 'true';
-  
-  // Get buildId from env or generate one (though env is preferred for stable runs)
-  const buildId = process.env.BUILD_ID || `build_${Date.now()}`;
-  
-  const paths = getPaths(testName, buildId);
+
+  // Build ID is set by the API route that triggered this run; fall back to timestamp
+  const buildId   = process.env.BUILD_ID   || `build_${Date.now()}`;
+  // Project ID is set by the same API route so the build appears under the right project
+  const projectId = process.env.PROJECT_ID || undefined;
+
+  // ── 1. Register build (idempotent — safe to call once per test in the same run) ──
+  getOrCreateBuild(buildId, {
+    projectId,
+    branch: 'web',
+    status: 'unreviewed',
+  });
+
+  const paths    = getPaths(testName, buildId);
   const viewport = page.viewportSize() || { width: 1440, height: 900 };
   const timestamp = new Date().toISOString();
 
-  // 1. Suppress all CSS animations and transitions before capture
+  // ── 2. Suppress CSS animations / transitions ──
   await page.addStyleTag({
-    content:
-      '*, *::before, *::after { animation: none !important; transition: none !important; }',
+    content: '*, *::before, *::after { animation: none !important; transition: none !important; }',
   });
 
-  // 2. Normalize scroll state
+  // ── 3. Normalize scroll state ──
   await page.evaluate(() => window.scrollTo(0, 0));
 
-  // 3. Wait for networkidle to ensure all assets are loaded
+  // ── 4. Wait for networkidle ──
   await page.waitForLoadState('networkidle');
 
-  // 4. Capture screenshot
+  // ── 5. Capture screenshot ──
   const screenshotBuffer = await captureScreenshot(page, options);
 
-  // 5. Save to current/{buildId}/{testName}.png
+  // ── 6. Save to current/{buildId}/{testName}.png ──
   saveSnapshot(testName, screenshotBuffer, 'current', buildId);
 
-  // 6. If updateBaseline → save to baselines/ and write pending status, stop
+  // ── 7. updateBaseline mode ──
   if (updateBaseline) {
-    // Optionally fetch from Figma if there's a node mapping
     const nodeId = figmaNodes[testName];
     if (nodeId) {
-      const figmaToken = process.env.FIGMA_TOKEN;
+      const figmaToken   = process.env.FIGMA_TOKEN;
       const figmaFileKey = process.env.FIGMA_FILE_KEY;
 
       if (figmaToken && figmaFileKey) {
         try {
           const figmaBuffer = await fetchFigmaBaseline(
-            figmaFileKey,
-            nodeId,
-            figmaToken,
-            viewport.width,
-            viewport.height,
+            figmaFileKey, nodeId, figmaToken, viewport.width, viewport.height,
           );
           saveSnapshot(testName, figmaBuffer, 'baseline');
         } catch (error) {
-          console.warn(
-            `[visual-check] Failed to fetch Figma baseline for "${testName}": ${error}`,
-          );
-          console.warn(
-            `[visual-check] Falling back to current screenshot as baseline`,
-          );
+          console.warn(`[visual-check] Failed to fetch Figma baseline for "${testName}": ${error}`);
+          console.warn(`[visual-check] Falling back to current screenshot as baseline`);
           saveSnapshot(testName, screenshotBuffer, 'baseline');
         }
       } else {
-        console.warn(
-          `[visual-check] FIGMA_TOKEN or FIGMA_FILE_KEY not set — using current screenshot as baseline`,
-        );
+        console.warn(`[visual-check] FIGMA_TOKEN or FIGMA_FILE_KEY not set — using current screenshot as baseline`);
         saveSnapshot(testName, screenshotBuffer, 'baseline');
       }
     } else {
-      console.warn(
-        `[visual-check] No Figma node mapping for "${testName}" — using current screenshot as baseline`,
-      );
+      console.warn(`[visual-check] No Figma node mapping for "${testName}" — using current screenshot as baseline`);
       saveSnapshot(testName, screenshotBuffer, 'baseline');
     }
 
     writeResult({
-      testName,
-      buildId,
+      testName, buildId,
       status: 'pending',
-      diffPercent: 0,
-      diffPixels: 0,
-      baselinePath: `baselines/${testName}.png`,
-      currentPath: `current/${buildId}/${testName}.png`,
-      viewport,
-      timestamp,
+      diffPercent: 0, diffPixels: 0,
+      // Swap: currentPath = Figma/baselines (shown LEFT), baselinePath = web (shown RIGHT)
+      currentPath:  `baselines/${testName}.png`,
+      baselinePath: `current/${buildId}/${testName}.png`,
+      viewport, timestamp,
     });
+
+    recalculateBuildStatus(buildId, readResults());
     return;
   }
 
-  // 7. Check if baseline exists — if not, save as baseline and mark pending
+  // ── 8. No baseline yet → save current as baseline, mark pending ──
   if (!fs.existsSync(paths.baseline)) {
-    console.log(
-      `[visual-check] No baseline found for "${testName}" — saving current as baseline`,
-    );
+    console.log(`[visual-check] No baseline found for "${testName}" — saving current as baseline`);
     saveSnapshot(testName, screenshotBuffer, 'baseline');
 
     writeResult({
-      testName,
-      buildId,
+      testName, buildId,
       status: 'pending',
-      diffPercent: 0,
-      diffPixels: 0,
-      baselinePath: `baselines/${testName}.png`,
-      currentPath: `current/${buildId}/${testName}.png`,
-      viewport,
-      timestamp,
+      diffPercent: 0, diffPixels: 0,
+      currentPath:  `baselines/${testName}.png`,
+      baselinePath: `current/${buildId}/${testName}.png`,
+      viewport, timestamp,
     });
+
+    recalculateBuildStatus(buildId, readResults());
     return;
   }
 
-  // 8. Run pixel diff against baseline
+  // ── 9. Run pixel diff — Figma baseline vs web screenshot ──
   const baselineBuffer = fs.readFileSync(paths.baseline);
   const diffResult = runDiff(baselineBuffer, screenshotBuffer, paths.diff);
 
-  // 9. Determine pass/fail: diffPercent < 1.0 → pass, else fail
+  // ── 10. pass if diffPercent < 1.0 ──
   const status = diffResult.diffPercent < 1.0 ? 'pass' : 'fail';
 
-  // 10. Write result to results.json
+  // ── 11. Write result ──
   writeResult({
-    testName,
-    buildId,
+    testName, buildId,
     status,
     diffPercent: diffResult.diffPercent,
-    diffPixels: diffResult.diffPixels,
-    baselinePath: `baselines/${testName}.png`,
-    currentPath: `current/${buildId}/${testName}.png`,
-    diffPath: `diffs/${buildId}/${testName}.png`,
-    viewport,
-    timestamp,
+    diffPixels:  diffResult.diffPixels,
+    // Swap: currentPath = baselines/{testName}.png (Figma) → DiffViewer shows LEFT as "Baseline Expected"
+    //       baselinePath = current/{buildId}/{testName}.png (web) → DiffViewer shows RIGHT as "Current Actual"
+    //       diffPath overlay goes on RIGHT panel (web), which is correct
+    currentPath:  `baselines/${testName}.png`,
+    baselinePath: `current/${buildId}/${testName}.png`,
+    diffPath:     `diffs/${buildId}/${testName}.png`,
+    viewport, timestamp,
   });
 
+  // ── 12. Update build-level counters and status ──
+  recalculateBuildStatus(buildId, readResults());
+
   if (status === 'fail') {
-    console.log(
-      `[visual-check] FAIL: "${testName}" — ${diffResult.diffPercent.toFixed(2)}% diff (${diffResult.diffPixels} pixels)`,
-    );
+    console.log(`[visual-check] FAIL: "${testName}" — ${diffResult.diffPercent.toFixed(2)}% diff (${diffResult.diffPixels} pixels)`);
   } else {
-    console.log(
-      `[visual-check] PASS: "${testName}" — ${diffResult.diffPercent.toFixed(2)}% diff`,
-    );
+    console.log(`[visual-check] PASS: "${testName}" — ${diffResult.diffPercent.toFixed(2)}% diff`);
   }
 }
 
-/**
- * Captures a screenshot based on the provided options.
- * Returns the screenshot as a Buffer.
- */
-async function captureScreenshot(
-  page: Page,
-  options: VisualTestOptions,
-): Promise<Buffer> {
+// ─── Screenshot capture ───────────────────────────────────────────────────────
+
+async function captureScreenshot(page: Page, options: VisualTestOptions): Promise<Buffer> {
   if (options.selector) {
-    // Element-level screenshot
     const element = page.locator(options.selector);
     const buffer = await element.screenshot({ type: 'png' });
     return Buffer.from(buffer);
   }
 
   if (options.clip) {
-    // Clipped screenshot
-    const buffer = await page.screenshot({
-      type: 'png',
-      clip: options.clip,
-    });
+    const buffer = await page.screenshot({ type: 'png', clip: options.clip });
     return Buffer.from(buffer);
   }
 
-  // Full page screenshot (viewport-sized, not full scrollable page)
   const buffer = await page.screenshot({ type: 'png', fullPage: false });
   return Buffer.from(buffer);
 }
