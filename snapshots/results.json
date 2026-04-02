@@ -115,7 +115,7 @@
   {
     "testName": "homepage",
     "buildId": "build_1775118584980",
-    "status": "fail",
+    "status": "approved",
     "diffPercent": 4.937337239583333,
     "diffPixels": 91005,
     "currentPath": "baselines/homepage.png",
@@ -125,6 +125,7 @@
       "width": 1920,
       "height": 960
     },
-    "timestamp": "2026-04-02T08:29:49.408Z"
+    "timestamp": "2026-04-02T08:29:49.408Z",
+    "updatedAt": "2026-04-02T10:19:42.623Z"
   }
 ]

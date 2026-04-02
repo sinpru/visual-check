@@ -66,9 +66,9 @@ const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
 
       router.refresh();
       if (nextSnapshot) {
-        router.push(`/builds/${buildId}/${nextSnapshot}`);
+        router.push(`/projects/${projectId}/${buildId}/${nextSnapshot}`);
       } else {
-        router.push(`/builds/${buildId}`);
+        router.push(`/projects/${projectId}/${buildId}`);
       }
     } catch (error) {
       console.error(error);
@@ -106,9 +106,9 @@ const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
 
       router.refresh();
       if (nextSnapshot) {
-        router.push(`/builds/${buildId}/${nextSnapshot}`);
+        router.push(`/projects/${projectId}/${buildId}/${nextSnapshot}`);
       } else {
-        router.push(`/builds/${buildId}`);
+        router.push(`/projects/${projectId}/${buildId}`);
       }
     } catch (error) {
       console.error(error);

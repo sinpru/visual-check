@@ -13,13 +13,13 @@
   {
     "buildId": "build_1775118584980",
     "createdAt": "2026-04-02T08:29:44.980Z",
-    "status": "failed",
+    "status": "passed",
     "totalSnapshots": 1,
     "changedSnapshots": 0,
-    "passedSnapshots": 0,
+    "passedSnapshots": 1,
     "projectId": "project_1775118525237",
     "branch": "web",
-    "finishedAt": "2026-04-02T08:30:03.248Z"
+    "finishedAt": "2026-04-02T10:19:42.623Z"
   },
   {
     "buildId": "build_1775118545204",

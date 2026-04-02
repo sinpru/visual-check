@@ -1,6 +1,9 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useParams } from 'next/navigation';
 import { ResultEntry } from '@visual-check/core';
 import { Card, CardContent } from '@/components/ui/card';
 import StatusBadge from './StatusBadge';
@@ -14,7 +17,10 @@ interface SnapshotCardProps {
   projectId?: string;
 }
 
-const SnapshotCard: React.FC<SnapshotCardProps> = ({ result, buildId, projectId }) => {
+const SnapshotCard: React.FC<SnapshotCardProps> = ({ result, buildId, projectId: propProjectId }) => {
+  const params = useParams();
+  const projectId = propProjectId || (params?.projectId as string);
+
   const imageUrl = (path: string) =>
     `/api/image?path=${encodeURIComponent(path)}`;
 
