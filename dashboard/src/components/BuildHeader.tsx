@@ -51,43 +51,43 @@ const BuildHeader: React.FC<BuildHeaderProps> = ({ build }) => {
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8 mb-8">
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8 mb-8">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
         <div className="space-y-4">
           <div className="flex items-center gap-4">
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+            <h1 className="text-2xl font-bold text-gray-900 tracking-tight font-display">
               {build.buildId}
             </h1>
-            <StatusBadge status={build.status} className="scale-110" />
+            <StatusBadge status={build.status} />
           </div>
 
-          <div className="flex flex-wrap items-center gap-6 text-sm font-medium text-slate-500">
+          <div className="flex flex-wrap items-center gap-6 text-sm font-normal text-gray-500">
             <div className="flex items-center gap-2">
-              <GitBranch className="h-4 w-4 text-slate-400" />
+              <GitBranch className="h-4 w-4 text-gray-400" />
               {build.branch || 'main'}
             </div>
             {build.commitHash && (
               <div className="flex items-center gap-2">
-                <GitCommit className="h-4 w-4 text-slate-400" />
-                {build.commitHash.substring(0, 7)}
+                <GitCommit className="h-4 w-4 text-gray-400" />
+                <span className="font-mono text-xs">{build.commitHash.substring(0, 7)}</span>
               </div>
             )}
             <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-slate-400" />
+              <Calendar className="h-4 w-4 text-gray-400" />
               {relativeTime(build.createdAt)}
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-sm font-bold">
-            <span className="text-slate-900">
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <span className="text-gray-900">
               {build.changedSnapshots} changed
             </span>
-            <span className="text-slate-300">·</span>
-            <span className="text-slate-500">
+            <span className="text-gray-300">·</span>
+            <span className="text-gray-500">
               {build.passedSnapshots} passed
             </span>
-            <span className="text-slate-300">·</span>
-            <span className="text-slate-500">{build.totalSnapshots} total</span>
+            <span className="text-gray-300">·</span>
+            <span className="text-gray-500">{build.totalSnapshots} total</span>
           </div>
         </div>
 
@@ -95,16 +95,16 @@ const BuildHeader: React.FC<BuildHeaderProps> = ({ build }) => {
           <Button
             onClick={handleApproveAll}
             disabled={isApprovingAll}
-            className="rounded-2xl h-14 px-8 font-black text-lg shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            className="rounded-xl h-12 px-6 font-semibold text-base shadow-sm transition-all hover:scale-[1.01] active:scale-[0.99]"
           >
             {isApprovingAll ? (
               <>
-                <Loader2 className="mr-3 h-5 w-5 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Approving All...
               </>
             ) : (
               <>
-                <CheckCircle2 className="mr-3 h-5 w-5" />
+                <CheckCircle2 className="mr-2 h-4 w-4" />
                 Approve all changes
               </>
             )}
@@ -116,3 +116,4 @@ const BuildHeader: React.FC<BuildHeaderProps> = ({ build }) => {
 };
 
 export default BuildHeader;
+

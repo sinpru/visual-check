@@ -17,12 +17,12 @@ export default async function HomePage() {
 	return (
 		<main className="max-w-400 mx-auto py-12 px-6 lg:px-12">
 			{/* Header */}
-			<header className="mb-12 flex items-start justify-between gap-6">
+			<header className="mb-10 flex items-start justify-between gap-6">
 				<div>
-					<h1 className="text-4xl font-black text-slate-900 tracking-tight">
+					<h1 className="text-3xl font-bold text-gray-900 tracking-tight font-display">
 						Projects
 					</h1>
-					<p className="mt-3 text-lg text-slate-500 max-w-2xl font-medium">
+					<p className="mt-2 text-base text-gray-500 max-w-2xl font-normal">
 						Each project groups your visual test builds together for review.
 					</p>
 				</div>
@@ -33,14 +33,14 @@ export default async function HomePage() {
 
 			{/* Empty state */}
 			{sorted.length === 0 ? (
-				<div className="text-center py-24 bg-white rounded-3xl border border-slate-200 shadow-sm">
-					<div className="h-16 w-16 rounded-2xl bg-slate-50 flex items-center justify-center mx-auto mb-6">
-						<Layers className="h-8 w-8 text-slate-300" />
+				<div className="text-center py-24 bg-white rounded-2xl border border-gray-200 shadow-sm">
+					<div className="h-14 w-14 rounded-xl bg-gray-50 flex items-center justify-center mx-auto mb-5">
+						<Layers className="h-7 w-7 text-gray-300" />
 					</div>
-					<h3 className="text-lg font-black text-slate-900 mb-2">
+					<h3 className="text-lg font-bold text-gray-900 mb-2">
 						No projects yet
 					</h3>
-					<p className="text-slate-500 font-medium max-w-sm mx-auto mb-8">
+					<p className="text-gray-500 font-normal max-w-sm mx-auto mb-6">
 						Create your first project to start grouping visual test builds together.
 					</p>
 					<CreateProjectModal />

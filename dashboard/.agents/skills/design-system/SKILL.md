@@ -1,25 +1,25 @@
 ---
-name: dashboard
-description: Dark-themed cloud-platform aesthetic with modular grids, glass-like panels, and strong data hierarchy for productivity dashboards.
+name: clean
+description: Simplicity-focused design with ample whitespace, legible typography, and a limited color palette to reduce visual clutter.
 license: MIT
 metadata:
   author: typeui.sh
 ---
 
 <!-- TYPEUI_SH_MANAGED_START -->
-# Dashboard Design System Skill (Universal)
+# Clean Design System Skill (Universal)
 
 ## Mission
-You are an expert design-system guideline author for Dashboard.
+You are an expert design-system guideline author for Clean.
 Create practical, implementation-ready guidance that can be directly used by engineers and designers.
 
 ## Brand
-Dashboard design emphasizes grids, modular components, and strong visual hierarchy to present complex data in a clear and accessible way. The interface is built for productivity, enabling users to monitor, analyze, and interact with information efficiently.
+Clean design style focuses on simplicity, minimalism, and high usability, using ample whitespace, legible typography, and limited color palettes to reduce visual clutter
 
 ## Style Foundations
-- Visual style: modern, clean, cloud-platform aesthetic (Heroku/Vercel/GitHub inspired), dark theme, subtle gradients, soft shadows, glass-like panels, rounded components
-- Typography scale: 12/14/16/20/24/32 | Fonts: primary=IBM Plex Sans, display=IBM Plex Sans, mono=IBM Plex Sans | weights=100, 200, 300, 400, 500, 600, 700, 800, 900
-- Color palette: primary, neutral, success, warning, danger | Tokens: primary=#0C5CAB, secondary=#0a4a8a, success=#10b981, warning=#f59e0b, danger=#ef4444, surface=#09090b, text=#fafafa
+- Visual style: minimal, clean
+- Typography scale: 12/14/16/20/24/32 | Fonts: primary=Roboto, display=Poppins, mono=Inconsolata | weights=100, 200, 300, 400, 500, 600, 700, 800, 900
+- Color palette: primary, neutral, success, warning, danger | Tokens: primary=#3B82F6, secondary=#8B5CF6, success=#16A34A, warning=#D97706, danger=#DC2626, surface=#FFFFFF, text=#111827
 - Spacing scale: 8pt baseline grid
 
 ## Component Families
@@ -68,26 +68,21 @@ Dashboard design emphasizes grids, modular components, and strong visual hierarc
 - data visualization wrappers
 
 ## Accessibility
-WCAG 2.2 AA, keyboard-first interactions, visible focus states, semantic HTML before ARIA, screen-reader tested labels, reduced-motion support, 44px+ touch targets, high-contrast support
+WCAG 2.2 AA, keyboard-first interactions, visible focus states, semantic HTML before ARIA, screen-reader tested labels, reduced-motion support, 44px+ touch targets
 
 ## Writing Tone
-concise, confident, helpful, clear, friendly, professional, action-oriented, low-jargon
+clear, friendly
 
 ## Rules: Do
 - prefer semantic tokens over raw values
-- preserve visual hierarchy
 - keep interaction states explicit
 - design for empty/loading/error states
-- ensure responsive behavior by default
-- document accessibility rationale
 
 ## Rules: Don't
 - avoid low contrast text
 - avoid inconsistent spacing rhythm
 - avoid decorative motion without purpose
 - avoid ambiguous labels
-- avoid mixing multiple visual metaphors
-- avoid inaccessible hit areas
 
 ## Expected Behavior
 - Follow the foundations first, then component consistency.
@@ -131,4 +126,3 @@ When generating design-system guidance, use this structure:
 - If introducing a new pattern, include migration guidance for existing components.
 
 <!-- TYPEUI_SH_MANAGED_END -->
-

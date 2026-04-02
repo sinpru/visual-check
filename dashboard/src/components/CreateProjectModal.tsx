@@ -51,7 +51,7 @@ export default function CreateProjectModal() {
 			<button
 				onClick={open}
 				className={cn(
-					'flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-black',
+					'flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold',
 					'bg-primary text-white hover:opacity-90 transition-opacity shadow-sm',
 				)}
 			>
@@ -65,7 +65,7 @@ export default function CreateProjectModal() {
 					className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
 					onClick={(e) => { if (e.target === e.currentTarget) close(); }}
 				>
-					<div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
+						<div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
 
 						{/* Header */}
 						<div className="flex items-center justify-between px-7 pt-6 pb-5 border-b border-slate-100">
@@ -74,8 +74,8 @@ export default function CreateProjectModal() {
 									<FolderPlus className="h-4 w-4 text-primary" />
 								</div>
 								<div>
-									<h2 className="text-base font-black text-slate-900">New project</h2>
-									<p className="text-xs text-slate-400 font-medium mt-0.5">
+										<h2 className="text-base font-bold text-gray-900">New project</h2>
+									<p className="text-xs text-gray-400 font-normal mt-0.5">
 										Projects group your visual test builds together
 									</p>
 								</div>
@@ -97,9 +97,9 @@ export default function CreateProjectModal() {
 									<div className="h-14 w-14 rounded-2xl bg-green-50 flex items-center justify-center mx-auto mb-4">
 										<CheckCircle className="h-7 w-7 text-green-500" />
 									</div>
-									<p className="font-black text-slate-900 text-lg mb-1">Project created!</p>
-									<p className="text-sm text-slate-500 font-medium">
-										<span className="font-black text-slate-700">{name}</span> is ready
+									<p className="font-bold text-gray-900 text-lg mb-1">Project created!</p>
+									<p className="text-sm text-gray-500 font-normal">
+										<span className="font-semibold text-gray-700">{name}</span> is ready
 									</p>
 								</div>
 							)}
@@ -108,7 +108,7 @@ export default function CreateProjectModal() {
 							{(step === 'open' || step === 'loading' || step === 'error') && (
 								<form onSubmit={handleSubmit} className="space-y-4">
 									<div>
-										<label className="block text-xs font-black text-slate-700 mb-1.5">
+										<label className="block text-xs font-semibold text-gray-700 mb-1.5">
 											Project name <span className="text-red-400">*</span>
 										</label>
 										<input
@@ -120,8 +120,8 @@ export default function CreateProjectModal() {
 											disabled={step === 'loading'}
 											autoFocus
 											className={cn(
-												'w-full px-4 py-2.5 rounded-xl border text-sm font-medium',
-												'border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-300',
+												'w-full px-4 py-2.5 rounded-lg border text-sm font-normal',
+												'border-gray-200 bg-gray-50 text-gray-900 placeholder:text-gray-400',
 												'focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary',
 												'disabled:opacity-50 disabled:cursor-not-allowed transition-all',
 											)}
@@ -139,8 +139,8 @@ export default function CreateProjectModal() {
 										type="submit"
 										disabled={step === 'loading' || !name.trim()}
 										className={cn(
-											'w-full flex items-center justify-center gap-2 py-3 rounded-2xl',
-											'text-sm font-black text-white transition-colors',
+											'w-full flex items-center justify-center gap-2 py-3 rounded-xl',
+											'text-sm font-semibold text-white transition-colors',
 											step === 'loading' || !name.trim()
 												? 'bg-primary/50 cursor-not-allowed'
 												: 'bg-primary hover:opacity-90',

@@ -195,19 +195,9 @@ const DiffViewer: React.FC<DiffViewerProps> = ({
             <Layers className="h-3.5 w-3.5 text-slate-400 shrink-0" />
             <span className="text-xs font-black text-slate-500 shrink-0">Diff overlay</span>
 
-            {/* ON / OFF pill */}
-            <div className="flex items-center gap-0.5 bg-slate-200/70 p-0.5 rounded-xl">
-              <ToggleButton active={showOverlay} onClick={() => setShowOverlay(true)}>
-                ON
-              </ToggleButton>
-              <ToggleButton active={!showOverlay} onClick={() => setShowOverlay(false)}>
-                OFF
-              </ToggleButton>
-            </div>
-
             {/* Opacity slider — only when overlay is active */}
             {showOverlay && (
-              <div className="flex items-center gap-2 pl-1 border-l border-slate-200">
+              <div className="flex items-center gap-2 pr-3 border-r border-slate-200">
                 <SlidersHorizontal className="h-3 w-3 text-slate-400 shrink-0" />
                 <input
                   type="range"
@@ -224,6 +214,16 @@ const DiffViewer: React.FC<DiffViewerProps> = ({
                 </span>
               </div>
             )}
+
+            {/* ON / OFF pill */}
+            <div className="flex items-center gap-0.5 bg-slate-200/70 p-0.5 rounded-xl">
+              <ToggleButton active={showOverlay} onClick={() => setShowOverlay(true)}>
+                ON
+              </ToggleButton>
+              <ToggleButton active={!showOverlay} onClick={() => setShowOverlay(false)}>
+                OFF
+              </ToggleButton>
+            </div>
           </div>
         )}
       </div>

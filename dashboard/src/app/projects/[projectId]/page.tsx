@@ -26,23 +26,23 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   return (
     <main className="max-w-400 mx-auto py-12 px-6 lg:px-12">
       {/* Back */}
-      <div className="mb-10">
+      <div className="mb-8">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 font-bold transition-all hover:-translate-x-1"
+          className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 font-medium transition-all hover:-translate-x-0.5"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="w-4 h-4" />
           Back to Projects
         </Link>
       </div>
 
       {/* Header */}
-      <header className="mb-12 flex items-start justify-between gap-6">
+      <header className="mb-10 flex items-start justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight font-display">
             {project.name}
           </h1>
-          <p className="mt-3 text-lg text-slate-500 font-medium">
+          <p className="mt-2 text-base text-gray-500 font-normal">
             {projectBuilds.length} build{projectBuilds.length !== 1 ? 's' : ''} · visual regression test runs
           </p>
         </div>
