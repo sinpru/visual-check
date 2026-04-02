@@ -33,7 +33,7 @@ export default function RunPlaywrightButton({ projectId }: RunPlaywrightButtonPr
       setState('done');
 
       // Navigate to the new build after a brief success flash
-      setTimeout(() => router.push(`/builds/${data.buildId}`), 1000);
+      setTimeout(() => router.push(`/projects/${projectId}/${data.buildId}`), 1000);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
       setState('error');

@@ -197,12 +197,10 @@ export default function FigmaSnapshotModal({ projectId, projectName }: FigmaSnap
   // ── Success navigation ───────────────────────────────────────────────────────
 
   function goToBuild() {
-    if (createdBuildId) {
-      router.push(`/builds/${createdBuildId}`);
+    if (createdBuildId && projectId) {
+      router.push(`/projects/${projectId}/${createdBuildId}`);
     } else if (projectId) {
       router.push(`/projects/${projectId}`);
-    } else {
-      router.push('/builds');
     }
     close();
   }

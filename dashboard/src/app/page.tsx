@@ -1,8 +1,7 @@
 import { readProjects, readBuilds } from '@visual-check/core';
-import ProjectCard from '@/components/ProjectCard';
+import ProjectList from '@/components/ProjectList';
 import CreateProjectModal from '@/components/CreateProjectModal';
-import Link from 'next/link';
-import { ArrowRight, Layers } from 'lucide-react';
+import { Layers } from 'lucide-react';
 
 export default async function HomePage() {
 	const [projects, builds] = await Promise.all([
@@ -17,7 +16,6 @@ export default async function HomePage() {
 
 	return (
 		<main className="max-w-400 mx-auto py-12 px-6 lg:px-12">
-
 			{/* Header */}
 			<header className="mb-12 flex items-start justify-between gap-6">
 				<div>
@@ -48,33 +46,8 @@ export default async function HomePage() {
 					<CreateProjectModal />
 				</div>
 			) : (
-				<div className="space-y-4">
-					{sorted.map((project) => {
-						// Pass only builds belonging to this project
-						const projectBuilds = builds.filter(
-							(b) => b.projectId === project.projectId
-						);
-						return (
-							<ProjectCard
-								key={project.projectId}
-								project={project}
-								builds={projectBuilds}
-							/>
-						);
-					})}
-				</div>
+				<ProjectList projects={sorted} builds={builds} />
 			)}
-
-			{/* Footer link to all builds */}
-			<div className="mt-12 flex justify-center">
-				<Link
-					href="/builds"
-					className="inline-flex items-center gap-2 text-sm font-black text-slate-400 hover:text-slate-900 transition-colors"
-				>
-					View all builds
-					<ArrowRight className="h-4 w-4" />
-				</Link>
-			</div>
 		</main>
 	);
 }

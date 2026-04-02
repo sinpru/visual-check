@@ -7,12 +7,13 @@ import { ChevronLeft } from 'lucide-react';
 
 interface BuildPageProps {
   params: Promise<{
+    projectId: string;
     buildId: string;
   }>;
 }
 
 export default async function BuildPage({ params }: BuildPageProps) {
-  const { buildId } = await params;
+  const { projectId, buildId } = await params;
   const builds = await readBuilds();
   const build = builds.find((b) => b.buildId === buildId);
 
@@ -26,11 +27,11 @@ export default async function BuildPage({ params }: BuildPageProps) {
     <main className="max-w-400 mx-auto py-12 px-6 lg:px-12">
       <div className="mb-10">
         <Link
-          href="/builds"
+          href={`/projects/${projectId}`}
           className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 font-bold transition-all hover:-translate-x-1"
         >
           <ChevronLeft className="w-5 h-5" />
-          Back to Builds
+          Back to Project
         </Link>
       </div>
 

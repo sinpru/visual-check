@@ -1,5 +1,16 @@
 [
   {
+    "buildId": "build_1775119031596",
+    "createdAt": "2026-04-02T08:37:11.596Z",
+    "status": "unreviewed",
+    "totalSnapshots": 0,
+    "changedSnapshots": 0,
+    "passedSnapshots": 0,
+    "projectId": "project_1775118525237",
+    "branch": "web",
+    "finishedAt": "2026-04-02T08:37:19.324Z"
+  },
+  {
     "buildId": "build_1775118584980",
     "createdAt": "2026-04-02T08:29:44.980Z",
     "status": "failed",

@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/dialog';
 
 interface ApproveRejectBarProps {
+  projectId: string;
   testName: string;
   buildId: string;
   status: string;
@@ -30,6 +31,7 @@ interface ApproveRejectBarProps {
 }
 
 const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
+  projectId,
   testName,
   buildId,
   status,
@@ -81,6 +83,7 @@ const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
     isApproving,
     isRejecting,
     nextSnapshot,
+    projectId,
     router,
     testName,
   ]);
@@ -120,6 +123,7 @@ const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
     isApproving,
     isRejecting,
     nextSnapshot,
+    projectId,
     router,
     testName,
   ]);
@@ -142,14 +146,14 @@ const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
           break;
         case 'arrowleft':
           if (prevSnapshot) {
-            router.push(`/builds/${buildId}/${prevSnapshot}`);
+            router.push(`/projects/${projectId}/${buildId}/${prevSnapshot}`);
           } else {
-            router.push(`/builds/${buildId}`);
+            router.push(`/projects/${projectId}/${buildId}`);
           }
           break;
         case 'arrowright':
           if (nextSnapshot) {
-            router.push(`/builds/${buildId}/${nextSnapshot}`);
+            router.push(`/projects/${projectId}/${buildId}/${nextSnapshot}`);
           }
           break;
       }
@@ -160,6 +164,8 @@ const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
   }, [
     handleApprove,
     handleReject,
+    handleReject,
+    projectId,
     buildId,
     nextSnapshot,
     prevSnapshot,
@@ -286,8 +292,8 @@ const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
             size="icon"
             onClick={() =>
               prevSnapshot
-                ? router.push(`/builds/${buildId}/${prevSnapshot}`)
-                : router.push(`/builds/${buildId}`)
+                ? router.push(`/projects/${projectId}/${buildId}/${prevSnapshot}`)
+                : router.push(`/projects/${projectId}/${buildId}`)
             }
             className="h-14 w-14 rounded-2xl hover:bg-slate-100"
           >
@@ -298,7 +304,7 @@ const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
             size="icon"
             disabled={!nextSnapshot}
             onClick={() =>
-              nextSnapshot && router.push(`/builds/${buildId}/${nextSnapshot}`)
+              nextSnapshot && router.push(`/projects/${projectId}/${buildId}/${nextSnapshot}`)
             }
             className="h-14 w-14 rounded-2xl hover:bg-slate-100 disabled:opacity-30"
           >

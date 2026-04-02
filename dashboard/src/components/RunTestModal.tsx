@@ -65,7 +65,7 @@ export default function RunTestModal({ projectId, projectName }: RunTestModalPro
 	}
 
 	function goToBuild() {
-		router.push(`/builds/${buildId}`);
+		router.push(`/projects/${projectId}/${buildId}`);
 	}
 
 	return (

@@ -16,13 +16,14 @@ import { formatDiffPercent, relativeTime } from '@/lib/format';
 
 interface PageProps {
   params: Promise<{
+    projectId: string;
     buildId: string;
     testName: string;
   }>;
 }
 
 export default async function TestPage({ params }: PageProps) {
-  const { buildId, testName } = await params;
+  const { projectId, buildId, testName } = await params;
 
   const results = await readResults(buildId);
   const result = results.find((r) => r.testName === testName);
@@ -44,7 +45,7 @@ export default async function TestPage({ params }: PageProps) {
     <main className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 pb-48">
       <div className="mb-10">
         <Link
-          href={`/builds/${buildId}`}
+          href={`/projects/${projectId}/${buildId}`}
           className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 font-bold transition-all hover:-translate-x-1"
         >
           <ChevronLeft className="w-5 h-5" />
@@ -121,6 +122,7 @@ export default async function TestPage({ params }: PageProps) {
       </Card>
 
       <ApproveRejectBar
+        projectId={projectId}
         testName={result.testName}
         buildId={buildId}
         status={result.status}
