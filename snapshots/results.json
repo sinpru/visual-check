@@ -412,5 +412,62 @@
         "domLabel": "nextjs-portal"
       }
     ]
+  },
+  {
+    "testName": "homepage",
+    "buildId": "build_1775201010531",
+    "status": "fail",
+    "diffPercent": 4.937337239583333,
+    "diffPixels": 91005,
+    "currentPath": "baselines/homepage.png",
+    "baselinePath": "current/build_1775201010531/homepage.png",
+    "diffPath": "diffs/build_1775201010531/homepage.png",
+    "viewport": {
+      "width": 1920,
+      "height": 960
+    },
+    "timestamp": "2026-04-03T07:23:39.289Z",
+    "diffRegions": [
+      {
+        "index": 0,
+        "x": 158,
+        "y": 308,
+        "width": 1566,
+        "height": 138,
+        "diffPixels": 52330,
+        "diffPercent": 2.839084201388889,
+        "domLabel": "div.absolute.text-[#2482FF] — \"MedAdvisor for Pharmacy design system\""
+      },
+      {
+        "index": 1,
+        "x": 159,
+        "y": 447,
+        "width": 880,
+        "height": 139,
+        "diffPixels": 30125,
+        "diffPercent": 1.6343858506944444,
+        "domLabel": "div.absolute.text-[#2482FF] — \"MedAdvisor for Pharmacy design system\""
+      },
+      {
+        "index": 2,
+        "x": 156,
+        "y": 609,
+        "width": 1144,
+        "height": 58,
+        "diffPixels": 7631,
+        "diffPercent": 0.4140082465277778,
+        "domLabel": "div.absolute.text-[#001349] — \"A design system built for MedAdvisor’s pharmacy co…\""
+      },
+      {
+        "index": 3,
+        "x": 11,
+        "y": 895,
+        "width": 54,
+        "height": 54,
+        "diffPixels": 919,
+        "diffPercent": 0.049858940972222224,
+        "domLabel": "nextjs-portal"
+      }
+    ]
   }
 ]

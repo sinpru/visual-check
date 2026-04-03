@@ -5,13 +5,15 @@ import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip"
 import { cn } from "@/lib/utils"
 
 function TooltipProvider({
+  delayDuration, // This is to capture the prop from layout.tsx
   delay = 0,
   ...props
-}: TooltipPrimitive.Provider.Props) {
+}: TooltipPrimitive.Provider.Props & { delayDuration?: number }) {
   return (
     <TooltipPrimitive.Provider
       data-slot="tooltip-provider"
-      delay={delay}
+      // Use delayDuration if provided, otherwise fall back to delay
+      delay={delayDuration ?? delay} 
       {...props}
     />
   )

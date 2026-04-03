@@ -42,13 +42,18 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${roboto.variable} ${poppins.variable} ${inconsolata.variable}`}>
       <body className="min-h-screen bg-[#F8FAFC] font-sans text-gray-900 antialiased">
-        <TooltipProvider>
-          <SidebarProvider>
+        <TooltipProvider delayDuration={300}>
+          {/*
+            defaultOpen={false} + collapsible="icon" keeps the sidebar in icon-only
+            mode on first load. The SidebarTrigger in the header can still expand it
+            if needed. AppSidebar must also set collapsible="icon" on its <Sidebar> root.
+          */}
+          <SidebarProvider defaultOpen={false}>
             <AppSidebar />
-            <SidebarInset className="flex flex-col">
-              {/* Mobile Header & Sidebar Trigger */}
-              <header className="h-16 border-b border-gray-200 bg-white/80 backdrop-blur-xl sticky top-0 z-40 flex items-center px-6 gap-4">
-                <SidebarTrigger className="lg:flex" />
+            <SidebarInset className="flex flex-col min-h-screen">
+              {/* Top bar — only shows on mobile / when sidebar is hidden */}
+              <header className="h-12 border-b border-gray-200/80 bg-white/80 backdrop-blur-xl sticky top-0 z-40 flex items-center px-4 gap-3">
+                <SidebarTrigger className="text-slate-400 hover:text-slate-700 transition-colors" />
                 <div className="lg:hidden flex items-center gap-2">
                   <Link href="/" className="flex items-center gap-2">
                     <div className="bg-primary h-6 w-6 rounded-lg flex items-center justify-center">
@@ -62,7 +67,6 @@ export default function RootLayout({
               </header>
 
               <div className="grow">{children}</div>
-
             </SidebarInset>
           </SidebarProvider>
         </TooltipProvider>
