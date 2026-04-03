@@ -13,28 +13,33 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { formatDiffPercent, relativeTime } from '@/lib/format';
+export const dynamic = 'force-dynamic';
 
 interface PageProps {
   params: Promise<{
-    projectId: string;
     buildId: string;
     testName: string;
   }>;
 }
 
 export default async function TestPage({ params }: PageProps) {
-  const { projectId, buildId, testName } = await params;
+  const { buildId, testName } = await params;
 
   const results = await readResults(buildId);
-  const result = results.find((r) => r.testName === testName);
+  const result  = results.find((r) => r.testName === testName);
+
+  console.log('DEBUG: Found Result Keys:', Object.keys(result || {}));
+  console.log('DEBUG: diffRegions length:', result?.diffRegions?.length);
 
   if (!result) return notFound();
 
-  const currentIndex  = results.findIndex((r) => r.testName === testName);
-  const nextSnapshot  = currentIndex !== -1 && currentIndex < results.length - 1
+  const currentIndex = results.findIndex((r) => r.testName === testName);
+  const nextSnapshot = currentIndex !== -1 && currentIndex < results.length - 1
     ? results[currentIndex + 1].testName
     : undefined;
-  const prevSnapshot  = currentIndex > 0 ? results[currentIndex - 1].testName : undefined;
+  const prevSnapshot = currentIndex > 0
+    ? results[currentIndex - 1].testName
+    : undefined;
 
   const formattedDate = new Date(result.updatedAt || result.timestamp).toLocaleString(
     undefined,
@@ -45,7 +50,7 @@ export default async function TestPage({ params }: PageProps) {
     <main className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 pb-48">
       <div className="mb-10">
         <Link
-          href={`/projects/${projectId}/${buildId}`}
+          href={`/builds/${buildId}`}
           className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 font-bold transition-all hover:-translate-x-1"
         >
           <ChevronLeft className="w-5 h-5" />
@@ -102,6 +107,20 @@ export default async function TestPage({ params }: PageProps) {
                   </p>
                 </div>
               </div>
+              {/* Region count badge — only shown when regions were extracted */}
+              {result.diffRegions && result.diffRegions.length > 0 && (
+                <>
+                  <div className="h-10 w-px bg-slate-100" />
+                  <div className="text-center">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                      Regions
+                    </p>
+                    <p className="text-xl font-bold text-orange-500">
+                      {result.diffRegions.length}
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </CardHeader>
@@ -112,23 +131,21 @@ export default async function TestPage({ params }: PageProps) {
             baselinePath={result.baselinePath}
             currentPath={result.currentPath}
             diffPath={result.diffPath ?? ''}
-            // Pass viewport so both panels render at correct native dimensions
             baselineWidth={result.viewport.width}
             baselineHeight={result.viewport.height}
             currentWidth={result.viewport.width}
             currentHeight={result.viewport.height}
+            diffRegions={result.diffRegions ?? []}
           />
         </CardContent>
       </Card>
 
       <ApproveRejectBar
-        projectId={projectId}
-        testName={result.testName}
-        buildId={buildId}
-        status={result.status}
-        nextSnapshot={nextSnapshot}
-        prevSnapshot={prevSnapshot}
-      />
+              testName={result.testName}
+              buildId={buildId}
+              status={result.status}
+              nextSnapshot={nextSnapshot}
+              prevSnapshot={prevSnapshot} projectId={''}      />
     </main>
   );
 }

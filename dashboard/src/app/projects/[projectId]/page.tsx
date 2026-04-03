@@ -5,6 +5,7 @@ import { ChevronLeft } from 'lucide-react';
 import BuildList from '@/components/BuildList';
 import FigmaSnapshotModal from '@/components/FigmaSnapshotModal';
 import RunPlaywrightButton from '@/components/RunPlaywrightButton';
+export const dynamic = 'force-dynamic';
 
 interface ProjectPageProps {
   params: Promise<{ projectId: string }>;

@@ -1,123 +1,89 @@
 [
   {
-    "buildId": "build_1775119031596",
-    "createdAt": "2026-04-02T08:37:11.596Z",
+    "buildId": "build_1775184764463",
+    "createdAt": "2026-04-03T02:52:44.463Z",
     "status": "unreviewed",
-    "totalSnapshots": 0,
-    "changedSnapshots": 0,
+    "totalSnapshots": 1,
+    "changedSnapshots": 1,
     "passedSnapshots": 0,
-    "projectId": "project_1775118525237",
+    "projectId": "project_1775180758027",
     "branch": "web",
-    "finishedAt": "2026-04-02T08:37:19.324Z"
+    "finishedAt": "2026-04-03T02:52:59.072Z"
   },
   {
-    "buildId": "build_1775118584980",
-    "createdAt": "2026-04-02T08:29:44.980Z",
-    "status": "passed",
+    "buildId": "build_1775184158105",
+    "createdAt": "2026-04-03T02:42:38.105Z",
+    "status": "unreviewed",
     "totalSnapshots": 1,
-    "changedSnapshots": 0,
-    "passedSnapshots": 1,
-    "projectId": "project_1775118525237",
+    "changedSnapshots": 1,
+    "passedSnapshots": 0,
+    "projectId": "project_1775180758027",
     "branch": "web",
-    "finishedAt": "2026-04-02T10:19:42.623Z"
+    "finishedAt": "2026-04-03T02:42:56.467Z"
   },
   {
-    "buildId": "build_1775118545204",
-    "createdAt": "2026-04-02T08:29:05.204Z",
-    "status": "passed",
+    "buildId": "build_1775182795183",
+    "createdAt": "2026-04-03T02:19:55.183Z",
+    "status": "unreviewed",
     "totalSnapshots": 1,
-    "changedSnapshots": 0,
-    "passedSnapshots": 1,
-    "projectId": "project_1775118525237",
-    "branch": "figma"
+    "changedSnapshots": 1,
+    "passedSnapshots": 0,
+    "projectId": "project_1775180758027",
+    "branch": "web",
+    "finishedAt": "2026-04-03T02:20:12.396Z"
   },
   {
-    "buildId": "build_1775118425929",
-    "createdAt": "2026-04-02T08:27:05.930Z",
+    "buildId": "build_1775182721149",
+    "createdAt": "2026-04-03T02:18:41.150Z",
+    "status": "unreviewed",
+    "totalSnapshots": 1,
+    "changedSnapshots": 1,
+    "passedSnapshots": 0,
+    "projectId": "project_1775180758027",
+    "branch": "web",
+    "finishedAt": "2026-04-03T02:18:58.352Z"
+  },
+  {
+    "buildId": "build_1775182165041",
+    "createdAt": "2026-04-03T02:09:25.041Z",
     "status": "failed",
     "totalSnapshots": 1,
     "changedSnapshots": 0,
     "passedSnapshots": 0,
-    "projectId": "project_1775115654398",
+    "projectId": "project_1775180758027",
     "branch": "web",
-    "finishedAt": "2026-04-02T08:27:31.145Z"
+    "finishedAt": "2026-04-03T02:14:24.551Z"
   },
   {
-    "buildId": "build_1775117987914",
-    "createdAt": "2026-04-02T08:19:47.917Z",
-    "status": "unreviewed",
-    "totalSnapshots": 0,
+    "buildId": "build_1775181914365",
+    "createdAt": "2026-04-03T02:05:14.365Z",
+    "status": "failed",
+    "totalSnapshots": 1,
     "changedSnapshots": 0,
     "passedSnapshots": 0,
-    "projectId": "project_1775115654398",
+    "projectId": "project_1775180758027",
     "branch": "web",
-    "finishedAt": "2026-04-02T08:20:39.456Z"
+    "finishedAt": "2026-04-03T02:05:32.628Z"
   },
   {
-    "buildId": "build_1775115694456",
-    "createdAt": "2026-04-02T07:41:34.456Z",
-    "status": "unreviewed",
-    "totalSnapshots": 0,
+    "buildId": "build_1775180949740",
+    "createdAt": "2026-04-03T01:49:09.741Z",
+    "status": "failed",
+    "totalSnapshots": 1,
     "changedSnapshots": 0,
     "passedSnapshots": 0,
-    "projectId": "project_1775115654398",
+    "projectId": "project_1775180758027",
     "branch": "web",
-    "finishedAt": "2026-04-02T07:42:27.610Z"
+    "finishedAt": "2026-04-03T01:49:30.448Z"
   },
   {
-    "buildId": "build_1775115672239",
-    "createdAt": "2026-04-02T07:41:12.239Z",
+    "buildId": "build_1775180916565",
+    "createdAt": "2026-04-03T01:48:36.565Z",
     "status": "passed",
     "totalSnapshots": 1,
     "changedSnapshots": 0,
     "passedSnapshots": 1,
-    "projectId": "project_1775115654398",
-    "branch": "figma"
-  },
-  {
-    "buildId": "build_1775113502854",
-    "createdAt": "2026-04-02T07:05:02.854Z",
-    "status": "passed",
-    "totalSnapshots": 1,
-    "changedSnapshots": 0,
-    "passedSnapshots": 1,
-    "branch": "figma"
-  },
-  {
-    "buildId": "build_1775113353890",
-    "createdAt": "2026-04-02T07:02:33.890Z",
-    "status": "passed",
-    "totalSnapshots": 1,
-    "changedSnapshots": 0,
-    "passedSnapshots": 1,
-    "branch": "figma"
-  },
-  {
-    "buildId": "build_1775063396028",
-    "createdAt": "2026-04-01T17:09:56.028Z",
-    "status": "passed",
-    "totalSnapshots": 1,
-    "changedSnapshots": 0,
-    "passedSnapshots": 1,
-    "projectId": "project_1775037315847",
-    "branch": "figma"
-  },
-  {
-    "buildId": "build_1775018868363",
-    "createdAt": "2026-04-01T04:47:48.363Z",
-    "status": "passed",
-    "totalSnapshots": 1,
-    "changedSnapshots": 0,
-    "passedSnapshots": 1,
-    "branch": "figma"
-  },
-  {
-    "buildId": "build_1775016826184",
-    "createdAt": "2026-04-01T04:13:46.184Z",
-    "status": "passed",
-    "totalSnapshots": 1,
-    "changedSnapshots": 0,
-    "passedSnapshots": 1,
+    "projectId": "project_1775180758027",
     "branch": "figma"
   }
 ]
