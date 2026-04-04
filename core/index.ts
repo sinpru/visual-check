@@ -9,6 +9,8 @@ export type {
 	ResultEntry,
 	BuildEntry,
 	ProjectEntry,
+	FigmaNodeDocument,
+	FigmaNodeBoundingBox,
 } from './src/types.ts';
 
 export {
@@ -17,16 +19,34 @@ export {
 } from './src/types.ts';
 
 // Figma
-export { getFrameDimensions, fetchFigmaBaseline } from './src/figma.ts';
+export {
+	getFrameDimensions,
+	fetchFigmaBaseline,
+	fetchFigmaBaselineWithTree,
+	fetchNodeTree,
+	findFigmaNodeForRegion,
+} from './src/figma.ts';
 
 // Diffing
 export { runDiff } from './src/diff.ts';
 
 // Storage
-export { saveSnapshot, approveBaseline, getPaths, getSnapshotsDir } from './src/storage.ts';
+export {
+	saveSnapshot,
+	approveBaseline,
+	getPaths,
+	getSnapshotsDir,
+	saveFigmaNodeTree,
+	loadFigmaNodeTree,
+} from './src/storage.ts';
 
 // Results manifest
-export { readResults, writeResult, updateStatus } from './src/results.ts';
+export {
+	readResults,
+	writeResult,
+	updateStatus,
+	updateRegionAnalysis,
+} from './src/results.ts';
 
 // Builds
 export {
@@ -38,4 +58,9 @@ export {
 } from './src/builds.ts';
 
 // Projects
-export { readProjects, createProject, updateProject, deleteProject } from './src/projects.ts';
+export {
+	readProjects,
+	createProject,
+	updateProject,
+	deleteProject,
+} from './src/projects.ts';

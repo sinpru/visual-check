@@ -106,6 +106,7 @@ export default async function TestPage({ params }: PageProps) {
         <CardContent className="p-0 bg-white">
           <DiffViewerPage
             testName={result.testName}
+            buildId={buildId}
             baselinePath={result.baselinePath}
             currentPath={result.currentPath}
             diffPath={result.diffPath ?? ''}

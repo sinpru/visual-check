@@ -469,5 +469,446 @@
         "domLabel": "nextjs-portal"
       }
     ]
+  },
+  {
+    "testName": "homepage",
+    "buildId": "build_1775202883125",
+    "status": "fail",
+    "diffPercent": 15.789605034722223,
+    "diffPixels": 291034,
+    "currentPath": "baselines/homepage.png",
+    "baselinePath": "current/build_1775202883125/homepage.png",
+    "diffPath": "diffs/build_1775202883125/homepage.png",
+    "viewport": {
+      "width": 1920,
+      "height": 960
+    },
+    "timestamp": "2026-04-03T07:55:01.283Z",
+    "diffRegions": [
+      {
+        "index": 0,
+        "x": 159,
+        "y": 281,
+        "width": 1565,
+        "height": 411,
+        "diffPixels": 156493,
+        "diffPercent": 8.490288628472223,
+        "domLabel": "div.home-section.ibox — \"Meme StreamsAll fun\""
+      },
+      {
+        "index": 1,
+        "x": 0,
+        "y": 0,
+        "width": 1920,
+        "height": 62,
+        "diffPixels": 102459,
+        "diffPercent": 5.558756510416667,
+        "domLabel": "div#panel — \"Create Make a Meme Make a GIF or Short Video Meme …\""
+      },
+      {
+        "index": 2,
+        "x": 432,
+        "y": 66,
+        "width": 1056,
+        "height": 125,
+        "diffPixels": 10173,
+        "diffPercent": 0.5519205729166666,
+        "domLabel": "rect"
+      },
+      {
+        "index": 3,
+        "x": 802,
+        "y": 794,
+        "width": 316,
+        "height": 48,
+        "diffPixels": 9103,
+        "diffPercent": 0.4938693576388889,
+        "domLabel": "button.home-pro-btn.b — \"See Benefits\""
+      },
+      {
+        "index": 4,
+        "x": 930,
+        "y": 609,
+        "width": 370,
+        "height": 58,
+        "diffPixels": 2424,
+        "diffPercent": 0.13151041666666666,
+        "domLabel": "div.home-imgs.home-streams — \"fun\""
+      },
+      {
+        "index": 5,
+        "x": 432,
+        "y": 195,
+        "width": 1056,
+        "height": 82,
+        "diffPixels": 2196,
+        "diffPercent": 0.119140625,
+        "domLabel": "h2 — \"My Creations Log In\""
+      },
+      {
+        "index": 6,
+        "x": 1392,
+        "y": 492,
+        "width": 76,
+        "height": 42,
+        "diffPixels": 1471,
+        "diffPercent": 0.07980685763888888,
+        "domLabel": "a.b.but — \"All\""
+      },
+      {
+        "index": 7,
+        "x": 1392,
+        "y": 215,
+        "width": 76,
+        "height": 42,
+        "diffPixels": 1373,
+        "diffPercent": 0.0744900173611111,
+        "domLabel": "button.show-login.b — \"Log In\""
+      },
+      {
+        "index": 8,
+        "x": 156,
+        "y": 609,
+        "width": 182,
+        "height": 58,
+        "diffPixels": 1194,
+        "diffPercent": 0.06477864583333333
+      },
+      {
+        "index": 9,
+        "x": 782,
+        "y": 696,
+        "width": 356,
+        "height": 166,
+        "diffPixels": 964,
+        "diffPercent": 0.052300347222222224,
+        "domLabel": "div.home-pro-subtitle — \"No watermarks, AI tools, higher quality, and more\""
+      },
+      {
+        "index": 10,
+        "x": 806,
+        "y": 761,
+        "width": 308,
+        "height": 29,
+        "diffPixels": 759,
+        "diffPercent": 0.04117838541666667
+      },
+      {
+        "index": 11,
+        "x": 849,
+        "y": 889,
+        "width": 223,
+        "height": 35,
+        "diffPixels": 671,
+        "diffPercent": 0.03640407986111111
+      },
+      {
+        "index": 12,
+        "x": 782,
+        "y": 866,
+        "width": 356,
+        "height": 94,
+        "diffPixels": 504,
+        "diffPercent": 0.027343750000000003
+      },
+      {
+        "index": 13,
+        "x": 454,
+        "y": 218,
+        "width": 128,
+        "height": 35,
+        "diffPixels": 325,
+        "diffPercent": 0.01763237847222222
+      },
+      {
+        "index": 14,
+        "x": 908,
+        "y": 719,
+        "width": 106,
+        "height": 35,
+        "diffPixels": 298,
+        "diffPercent": 0.016167534722222224
+      }
+    ]
+  },
+  {
+    "testName": "homepage",
+    "buildId": "build_1775206331085",
+    "status": "pass",
+    "diffPercent": 0,
+    "diffPixels": 0,
+    "currentPath": "baselines/homepage.png",
+    "baselinePath": "baselines/homepage.png",
+    "viewport": {
+      "width": 1920,
+      "height": 960
+    },
+    "timestamp": "2026-04-03T08:52:21.851Z"
+  },
+  {
+    "testName": "homepage",
+    "buildId": "build_1775206468876",
+    "status": "fail",
+    "diffPercent": 4.937337239583333,
+    "diffPixels": 91005,
+    "currentPath": "baselines/homepage.png",
+    "baselinePath": "current/build_1775206468876/homepage.png",
+    "diffPath": "diffs/build_1775206468876/homepage.png",
+    "viewport": {
+      "width": 1920,
+      "height": 960
+    },
+    "timestamp": "2026-04-03T08:54:37.429Z",
+    "diffRegions": [
+      {
+        "index": 0,
+        "x": 158,
+        "y": 308,
+        "width": 1566,
+        "height": 138,
+        "diffPixels": 52330,
+        "diffPercent": 2.839084201388889,
+        "domLabel": "div.absolute.text-[#2482FF] — \"MedAdvisor for Pharmacy design system\""
+      },
+      {
+        "index": 1,
+        "x": 159,
+        "y": 447,
+        "width": 880,
+        "height": 139,
+        "diffPixels": 30125,
+        "diffPercent": 1.6343858506944444,
+        "domLabel": "div.absolute.text-[#2482FF] — \"MedAdvisor for Pharmacy design system\""
+      },
+      {
+        "index": 2,
+        "x": 156,
+        "y": 609,
+        "width": 1144,
+        "height": 58,
+        "diffPixels": 7631,
+        "diffPercent": 0.4140082465277778,
+        "domLabel": "div.absolute.text-[#001349] — \"A design system built for MedAdvisor’s pharmacy co…\""
+      },
+      {
+        "index": 3,
+        "x": 11,
+        "y": 895,
+        "width": 54,
+        "height": 54,
+        "diffPixels": 919,
+        "diffPercent": 0.049858940972222224,
+        "domLabel": "nextjs-portal"
+      }
+    ]
+  },
+  {
+    "testName": "homepage",
+    "buildId": "build_1775206782969",
+    "status": "pass",
+    "diffPercent": 0,
+    "diffPixels": 0,
+    "currentPath": "baselines/homepage.png",
+    "baselinePath": "baselines/homepage.png",
+    "viewport": {
+      "width": 1920,
+      "height": 960
+    },
+    "timestamp": "2026-04-03T08:59:57.875Z"
+  },
+  {
+    "testName": "homepage",
+    "buildId": "build_1775206879000",
+    "status": "fail",
+    "diffPercent": 4.937337239583333,
+    "diffPixels": 91005,
+    "currentPath": "baselines/homepage.png",
+    "baselinePath": "current/build_1775206879000/homepage.png",
+    "diffPath": "diffs/build_1775206879000/homepage.png",
+    "viewport": {
+      "width": 1920,
+      "height": 960
+    },
+    "timestamp": "2026-04-03T09:01:27.958Z",
+    "diffRegions": [
+      {
+        "index": 0,
+        "x": 158,
+        "y": 308,
+        "width": 1566,
+        "height": 138,
+        "diffPixels": 52330,
+        "diffPercent": 2.839084201388889,
+        "domLabel": "div.absolute.text-[#2482FF] — \"MedAdvisor for Pharmacy design system\""
+      },
+      {
+        "index": 1,
+        "x": 159,
+        "y": 447,
+        "width": 880,
+        "height": 139,
+        "diffPixels": 30125,
+        "diffPercent": 1.6343858506944444,
+        "domLabel": "div.absolute.text-[#2482FF] — \"MedAdvisor for Pharmacy design system\""
+      },
+      {
+        "index": 2,
+        "x": 156,
+        "y": 609,
+        "width": 1144,
+        "height": 58,
+        "diffPixels": 7631,
+        "diffPercent": 0.4140082465277778,
+        "domLabel": "div.absolute.text-[#001349] — \"A design system built for MedAdvisor’s pharmacy co…\""
+      },
+      {
+        "index": 3,
+        "x": 11,
+        "y": 895,
+        "width": 54,
+        "height": 54,
+        "diffPixels": 919,
+        "diffPercent": 0.049858940972222224,
+        "domLabel": "nextjs-portal"
+      }
+    ]
+  },
+  {
+    "testName": "homepage",
+    "buildId": "build_1775283651520",
+    "status": "pass",
+    "diffPercent": 0,
+    "diffPixels": 0,
+    "currentPath": "baselines/homepage.png",
+    "baselinePath": "baselines/homepage.png",
+    "viewport": {
+      "width": 1920,
+      "height": 960
+    },
+    "timestamp": "2026-04-04T06:20:56.138Z"
+  },
+  {
+    "testName": "homepage",
+    "buildId": "build_1775283684886",
+    "status": "fail",
+    "diffPercent": 4.937337239583333,
+    "diffPixels": 91005,
+    "currentPath": "baselines/homepage.png",
+    "baselinePath": "current/build_1775283684886/homepage.png",
+    "diffPath": "diffs/build_1775283684886/homepage.png",
+    "viewport": {
+      "width": 1920,
+      "height": 960
+    },
+    "timestamp": "2026-04-04T06:21:37.082Z",
+    "diffRegions": [
+      {
+        "index": 0,
+        "x": 158,
+        "y": 308,
+        "width": 1566,
+        "height": 138,
+        "diffPixels": 52330,
+        "diffPercent": 2.839084201388889,
+        "domLabel": "div.absolute.text-[#2482FF] — \"MedAdvisor for Pharmacy design system\"",
+        "figmaLabel": "MedAdvisor for Pharmacy design system"
+      },
+      {
+        "index": 1,
+        "x": 159,
+        "y": 447,
+        "width": 880,
+        "height": 139,
+        "diffPixels": 30125,
+        "diffPercent": 1.6343858506944444,
+        "domLabel": "div.absolute.text-[#2482FF] — \"MedAdvisor for Pharmacy design system\"",
+        "figmaLabel": "MedAdvisor for Pharmacy design system"
+      },
+      {
+        "index": 2,
+        "x": 156,
+        "y": 609,
+        "width": 1144,
+        "height": 58,
+        "diffPixels": 7631,
+        "diffPercent": 0.4140082465277778,
+        "domLabel": "div.absolute.text-[#001349] — \"A design system built for MedAdvisor’s pharmacy co…\"",
+        "figmaLabel": "A design system built for MedAdvisor’s pharmacy console"
+      },
+      {
+        "index": 3,
+        "x": 11,
+        "y": 895,
+        "width": 54,
+        "height": 54,
+        "diffPixels": 919,
+        "diffPercent": 0.049858940972222224,
+        "domLabel": "nextjs-portal"
+      }
+    ]
+  },
+  {
+    "testName": "homepage",
+    "buildId": "build_1775321873301",
+    "status": "fail",
+    "diffPercent": 4.937337239583333,
+    "diffPixels": 91005,
+    "currentPath": "baselines/homepage.png",
+    "baselinePath": "current/build_1775321873301/homepage.png",
+    "diffPath": "diffs/build_1775321873301/homepage.png",
+    "viewport": {
+      "width": 1920,
+      "height": 960
+    },
+    "timestamp": "2026-04-04T16:58:01.663Z",
+    "diffRegions": [
+      {
+        "index": 0,
+        "x": 158,
+        "y": 308,
+        "width": 1566,
+        "height": 138,
+        "diffPixels": 52330,
+        "diffPercent": 2.839084201388889,
+        "domLabel": "div.absolute.text-[#2482FF] — \"MedAdvisor for Pharmacy design system\"",
+        "figmaLabel": "MedAdvisor for Pharmacy design system",
+        "aiDescription": "The web implementation incorrectly uses a serif font instead of the sans-serif font specified in the design. Additionally, the font weight appears lighter than the bold weight shown in the Figma file."
+      },
+      {
+        "index": 1,
+        "x": 159,
+        "y": 447,
+        "width": 880,
+        "height": 139,
+        "diffPixels": 30125,
+        "diffPercent": 1.6343858506944444,
+        "domLabel": "div.absolute.text-[#2482FF] — \"MedAdvisor for Pharmacy design system\"",
+        "figmaLabel": "MedAdvisor for Pharmacy design system",
+        "aiDescription": "The implementation uses a serif font instead of the sans-serif font shown in the design. Additionally, the font size in the web version is smaller than the expected design state."
+      },
+      {
+        "index": 2,
+        "x": 156,
+        "y": 609,
+        "width": 1144,
+        "height": 58,
+        "diffPixels": 7631,
+        "diffPercent": 0.4140082465277778,
+        "domLabel": "div.absolute.text-[#001349] — \"A design system built for MedAdvisor’s pharmacy co…\"",
+        "figmaLabel": "A design system built for MedAdvisor’s pharmacy console"
+      },
+      {
+        "index": 3,
+        "x": 11,
+        "y": 895,
+        "width": 54,
+        "height": 54,
+        "diffPixels": 919,
+        "diffPercent": 0.049858940972222224,
+        "domLabel": "nextjs-portal",
+        "aiDescription": "The web implementation includes an extra dark circular icon with a white \"N\" logo that is missing from the design."
+      }
+    ],
+    "updatedAt": "2026-04-04T17:15:26.587Z"
   }
 ]

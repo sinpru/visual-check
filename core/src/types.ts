@@ -41,14 +41,14 @@ export interface FrameDimensions {
 /**
  * A single changed region found by connected-component labeling on the diff PNG.
  *
- * Coordinates (x, y, width, height) are in image pixel space — the same
- * coordinate system as the baseline/current PNGs. The DiffViewer renders these
- * using an SVG overlay with a matching viewBox so pins align without any JS
- * measurement code.
+ * Coordinates (x, y, width, height) are in image pixel space — same coordinate
+ * system as the baseline/current PNGs. The DiffViewer renders these using an SVG
+ * overlay with a matching viewBox so pins align without any JS measurement code.
  *
- * domLabel   — set by Playwright: tag + id + classes + text snippet
- * figmaLabel — reserved for future Figma node tree lookup
- * deltaX/Y   — reserved for future geometric shift calculation
+ * domLabel    — set by Playwright: tag + id + classes + text snippet
+ * figmaLabel  — set by Playwright: name of the deepest overlapping Figma node
+ * aiDescription — set on-demand: GPT-4o natural language description of the diff
+ * deltaX/Y    — reserved for future geometric shift calculation
  */
 export interface DiffRegion {
 	/** 0-based, sorted by diffPixels descending so region 0 is always the biggest change */
@@ -57,14 +57,16 @@ export interface DiffRegion {
 	y: number;
 	width: number;
 	height: number;
-	/** Actual changed pixels within this region (excluding the dilation padding used for merging) */
+	/** Actual changed pixels within this region */
 	diffPixels: number;
 	/** diffPixels / total image pixels × 100 */
 	diffPercent: number;
 	/** e.g. "button.hero__cta — 'Get started'" — populated by visualTest.ts DOM lookup */
 	domLabel?: string;
-	/** e.g. "Button/Primary" — future: Figma node tree walker */
+	/** e.g. "Button/Primary" — populated by visualTest.ts Figma node tree lookup */
 	figmaLabel?: string;
+	/** Natural language AI description of the visual difference — populated on-demand */
+	aiDescription?: string;
 	/** Future: pixel shift on X axis relative to Figma baseline */
 	deltaX?: number;
 	/** Future: pixel shift on Y axis relative to Figma baseline */
@@ -118,4 +120,21 @@ export interface ProjectEntry {
 	status: ProjectStatus;
 	createdAt: string;
 	updatedAt: string;
+}
+
+// ─── Figma node tree (stored alongside baseline PNGs) ─────────────────────────
+
+export interface FigmaNodeBoundingBox {
+	x: number;
+	y: number;
+	width: number;
+	height: number;
+}
+
+export interface FigmaNodeDocument {
+	id: string;
+	name: string;
+	type: string;
+	absoluteBoundingBox?: FigmaNodeBoundingBox;
+	children?: FigmaNodeDocument[];
 }
