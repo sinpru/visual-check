@@ -1,7 +1,6 @@
-"use client";
+'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { BuildEntry } from '@visual-check/core';
 import StatusBadge from './StatusBadge';
@@ -26,9 +25,7 @@ const BuildList: React.FC<BuildListProps> = ({ builds }) => {
   if (builds.length === 0) {
     return (
       <div className="text-center py-24 bg-white rounded-2xl border border-gray-200 shadow-sm">
-        <h3 className="text-lg font-bold text-gray-900 mb-2">
-          No builds yet
-        </h3>
+        <h3 className="text-lg font-bold text-gray-900 mb-2">No builds yet</h3>
         <p className="text-gray-500 font-normal max-w-sm mx-auto">
           Run your Playwright tests to create the first build and start
           reviewing changes.
@@ -65,7 +62,9 @@ const BuildList: React.FC<BuildListProps> = ({ builds }) => {
               <TableRow
                 key={build.buildId}
                 className="group cursor-pointer hover:bg-gray-50/60 transition-colors"
-                onClick={() => router.push(`/projects/${build.projectId}/${build.buildId}`)}
+                onClick={() =>
+                  router.push(`/projects/${build.projectId}/${build.buildId}`)
+                }
               >
                 <TableCell className="py-3 px-4 max-w-[200px]">
                   <div className="flex flex-col gap-0.5">
@@ -145,7 +144,8 @@ const BuildList: React.FC<BuildListProps> = ({ builds }) => {
                         className="h-full bg-red-500 transition-all duration-700"
                         style={{
                           width: `${
-                            (build.changedSnapshots / build.totalSnapshots) * 100
+                            (build.changedSnapshots / build.totalSnapshots) *
+                            100
                           }%`,
                         }}
                       />
@@ -168,4 +168,3 @@ const BuildList: React.FC<BuildListProps> = ({ builds }) => {
 };
 
 export default BuildList;
-

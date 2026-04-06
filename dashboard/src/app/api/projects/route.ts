@@ -13,7 +13,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
 	try {
-		const body = await req.json() as { name: string };
+		const body = (await req.json()) as { name: string };
 
 		if (!body.name || !body.name.trim()) {
 			return NextResponse.json(
@@ -25,11 +25,13 @@ export async function POST(req: NextRequest) {
 		// Prevent duplicate names
 		const existing = readProjects();
 		const duplicate = existing.find(
-			(p) => p.name.toLowerCase() === body.name.trim().toLowerCase()
+			(p) => p.name.toLowerCase() === body.name.trim().toLowerCase(),
 		);
 		if (duplicate) {
 			return NextResponse.json(
-				{ error: `A project named "${body.name.trim()}" already exists` },
+				{
+					error: `A project named "${body.name.trim()}" already exists`,
+				},
 				{ status: 409 },
 			);
 		}

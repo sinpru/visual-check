@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Columns, Loader2, X, AlertCircle } from 'lucide-react';
+import { useState } from 'react';
+import { Columns, Loader2, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import DiffViewer from './DiffViewer';
 

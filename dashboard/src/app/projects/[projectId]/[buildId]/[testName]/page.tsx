@@ -5,7 +5,11 @@ import StatusBadge from '@/components/StatusBadge';
 import ApproveRejectBar from '@/components/ApproveRejectBar';
 import DiffViewerPage from '@/components/DiffViewerPage';
 import {
-  ChevronLeft, Calendar, Maximize2, FileDigit, Clock,
+  ChevronLeft,
+  Calendar,
+  Maximize2,
+  FileDigit,
+  Clock,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { formatDiffPercent, relativeTime } from '@/lib/format';
@@ -20,16 +24,20 @@ export default async function TestPage({ params }: PageProps) {
   const { projectId, buildId, testName } = await params;
 
   const results = await readResults(buildId);
-  const result  = results.find((r) => r.testName === testName);
+  const result = results.find((r) => r.testName === testName);
   if (!result) return notFound();
 
   const currentIndex = results.findIndex((r) => r.testName === testName);
-  const nextSnapshot = currentIndex < results.length - 1 ? results[currentIndex + 1].testName : undefined;
-  const prevSnapshot = currentIndex > 0                  ? results[currentIndex - 1].testName : undefined;
+  const nextSnapshot =
+    currentIndex < results.length - 1
+      ? results[currentIndex + 1].testName
+      : undefined;
+  const prevSnapshot =
+    currentIndex > 0 ? results[currentIndex - 1].testName : undefined;
 
-  const formattedDate = new Date(result.updatedAt || result.timestamp).toLocaleString(
-    undefined, { dateStyle: 'medium', timeStyle: 'short' },
-  );
+  const formattedDate = new Date(
+    result.updatedAt || result.timestamp,
+  ).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
 
   return (
     <main className="py-10 px-6 lg:px-10 pb-48">
@@ -73,25 +81,37 @@ export default async function TestPage({ params }: PageProps) {
 
             <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-6">
               <div className="text-center">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Diff %</p>
-                <p className={`text-3xl font-black font-mono ${result.diffPercent > 0 ? 'text-destructive' : 'text-slate-900'}`}>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                  Diff %
+                </p>
+                <p
+                  className={`text-3xl font-black font-mono ${result.diffPercent > 0 ? 'text-destructive' : 'text-slate-900'}`}
+                >
                   {formatDiffPercent(result.diffPercent)}
                 </p>
               </div>
               <div className="h-10 w-px bg-slate-100" />
               <div className="text-center">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Pixels</p>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                  Pixels
+                </p>
                 <div className="flex items-center gap-2">
                   <FileDigit className="w-4 h-4 text-slate-400" />
-                  <p className="text-xl font-bold text-slate-900">{result.diffPixels.toLocaleString()}</p>
+                  <p className="text-xl font-bold text-slate-900">
+                    {result.diffPixels.toLocaleString()}
+                  </p>
                 </div>
               </div>
               {result.diffRegions && result.diffRegions.length > 0 && (
                 <>
                   <div className="h-10 w-px bg-slate-100" />
                   <div className="text-center">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Regions</p>
-                    <p className="text-xl font-bold text-orange-500">{result.diffRegions.length}</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                      Regions
+                    </p>
+                    <p className="text-xl font-bold text-orange-500">
+                      {result.diffRegions.length}
+                    </p>
                   </div>
                 </>
               )}
