@@ -1,10 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { MapPin, X, Sparkles, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+import {
+  MapPin,
+  X,
+  Sparkles,
+  Loader2,
+  AlertCircle,
+  RefreshCw,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import DiffViewer from '@/components/DiffViewer';
 import type { DiffRegion } from '@visual-check/core';
+import ReactMarkdown from 'react-markdown';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -28,8 +36,13 @@ type AnalysisState = 'idle' | 'loading' | 'error';
 export default function DiffViewerPage({
   testName,
   buildId,
-  baselinePath, currentPath, diffPath,
-  baselineWidth, baselineHeight, currentWidth, currentHeight,
+  baselinePath,
+  currentPath,
+  diffPath,
+  baselineWidth,
+  baselineHeight,
+  currentWidth,
+  currentHeight,
   diffRegions,
 }: DiffViewerPageProps) {
   const [activeRegion, setActiveRegion] = useState<DiffRegion | null>(null);
@@ -39,9 +52,15 @@ export default function DiffViewerPage({
   // Key: region.index. Value: description string.
   // This means descriptions show immediately after the API call without a page reload,
   // AND come back from the server on the next render (from results.json via props).
-  const [localDescriptions, setLocalDescriptions] = useState<Record<number, string>>({});
-  const [analysisStates, setAnalysisStates]       = useState<Record<number, AnalysisState>>({});
-  const [analysisErrors,  setAnalysisErrors]       = useState<Record<number, string>>({});
+  const [localDescriptions, setLocalDescriptions] = useState<
+    Record<number, string>
+  >({});
+  const [analysisStates, setAnalysisStates] = useState<
+    Record<number, AnalysisState>
+  >({});
+  const [analysisErrors, setAnalysisErrors] = useState<Record<number, string>>(
+    {},
+  );
 
   // ── Active region helpers ─────────────────────────────────────────────────
 
@@ -60,7 +79,11 @@ export default function DiffViewerPage({
 
   async function analyzeRegion(region: DiffRegion) {
     setAnalysisStates((prev) => ({ ...prev, [region.index]: 'loading' }));
-    setAnalysisErrors((prev) => { const n = { ...prev }; delete n[region.index]; return n; });
+    setAnalysisErrors((prev) => {
+      const n = { ...prev };
+      delete n[region.index];
+      return n;
+    });
 
     try {
       const res = await fetch('/api/analyze-region', {
@@ -76,7 +99,10 @@ export default function DiffViewerPage({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? `Server error ${res.status}`);
 
-      setLocalDescriptions((prev) => ({ ...prev, [region.index]: data.description }));
+      setLocalDescriptions((prev) => ({
+        ...prev,
+        [region.index]: data.description,
+      }));
       setAnalysisStates((prev) => ({ ...prev, [region.index]: 'idle' }));
 
       // Keep the active region in sync so the panel re-renders with the new description
@@ -93,106 +119,128 @@ export default function DiffViewerPage({
   // ─────────────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex min-h-0">
+    <div className="flex flex-col min-h-0">
+      <div className="flex flex-1 min-h-0">
+        {/* ── LEFT: DiffViewer ── */}
+        <div className={cn('flex-1 min-w-0 p-8', hasRegions ? 'pr-4' : '')}>
+          <DiffViewer
+            testName={testName}
+            baselinePath={baselinePath}
+            currentPath={currentPath}
+            diffPath={diffPath}
+            baselineWidth={baselineWidth}
+            baselineHeight={baselineHeight}
+            currentWidth={currentWidth}
+            currentHeight={currentHeight}
+            diffRegions={diffRegions}
+            onRegionSelect={setActiveRegion}
+            activeRegionIndex={activeRegion?.index ?? null}
+          />
+        </div>
 
-      {/* ── LEFT: DiffViewer ── */}
-      <div className={cn('flex-1 min-w-0 p-8', hasRegions ? 'pr-4' : '')}>
-        <DiffViewer
-          testName={testName}
-          baselinePath={baselinePath}
-          currentPath={currentPath}
-          diffPath={diffPath}
-          baselineWidth={baselineWidth}
-          baselineHeight={baselineHeight}
-          currentWidth={currentWidth}
-          currentHeight={currentHeight}
-          diffRegions={diffRegions}
-          onRegionSelect={setActiveRegion}
-          activeRegionIndex={activeRegion?.index ?? null}
-        />
+        {/* ── RIGHT: Region list — only when regions exist ── */}
+        {hasRegions && (
+          <div className="w-72 shrink-0 border-l border-slate-100 flex flex-col bg-slate-50/50">
+            {/* Panel header */}
+            <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2 shrink-0 bg-white">
+              <MapPin className="h-3.5 w-3.5 text-slate-400" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                Inspection
+              </span>
+              {activeRegion && (
+                <button
+                  onClick={() => setActiveRegion(null)}
+                  className="ml-auto h-6 w-6 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors"
+                >
+                  <X className="h-3.5 w-3.5 text-slate-400" />
+                </button>
+              )}
+            </div>
+
+            {/* Region list */}
+            <div className="px-4 py-3 flex-1 overflow-y-auto flex flex-col gap-1">
+              {diffRegions.map((region) => {
+                const isActive = activeRegion?.index === region.index;
+                const hasDesc = !!getDescription(region);
+                const isAnalyzing = getAnalysisState(region) === 'loading';
+
+                return (
+                  <button
+                    key={region.index}
+                    onClick={() => setActiveRegion(isActive ? null : region)}
+                    className={cn(
+                      'flex items-center gap-2.5 px-3 py-2 rounded-xl text-left transition-all w-full',
+                      isActive
+                        ? 'bg-orange-500 text-white shadow-sm'
+                        : 'hover:bg-slate-100 text-slate-700 bg-white shadow-sm ring-1 ring-slate-200/50',
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'h-5 w-5 rounded-full flex items-center justify-center text-[9px] font-black shrink-0',
+                        isActive
+                          ? 'bg-white/25 text-white'
+                          : 'bg-orange-100 text-orange-600',
+                      )}
+                    >
+                      {isAnalyzing ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        region.index + 1
+                      )}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p
+                        className={cn(
+                          'text-[11px] font-black truncate',
+                          isActive ? 'text-white' : 'text-slate-700',
+                        )}
+                      >
+                        {region.aiLabel ??
+                          region.figmaLabel ??
+                          (region.domLabel
+                            ? region.domLabel.split(' — ')[0]
+                            : `Region ${region.index + 1}`)}
+                      </p>
+                      <p
+                        className={cn(
+                          'text-[10px] font-mono',
+                          isActive ? 'text-white/70' : 'text-slate-400',
+                        )}
+                      >
+                        {region.diffPixels.toLocaleString()} px
+                        {hasDesc && (
+                          <span
+                            className={cn(
+                              'ml-1.5 text-[9px] font-black',
+                              isActive ? 'text-white/60' : 'text-emerald-500',
+                            )}
+                          >
+                            ✦ AI
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* ── RIGHT: Inspection panel — only when regions exist ── */}
-      {hasRegions && (
-        <div className="w-72 shrink-0 border-l border-slate-100 flex flex-col">
-
-          {/* Panel header */}
-          <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2 shrink-0">
-            <MapPin className="h-3.5 w-3.5 text-slate-400" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-              Inspection
-            </span>
-            {activeRegion && (
-              <button
-                onClick={() => setActiveRegion(null)}
-                className="ml-auto h-6 w-6 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors"
-              >
-                <X className="h-3.5 w-3.5 text-slate-400" />
-              </button>
-            )}
+      {/* ── BOTTOM: Inspection panel for Active Region ── */}
+      {activeRegion && (
+        <div className="border-t border-slate-200 bg-slate-50 overflow-hidden shadow-[inset_0_4px_6px_-4px_rgba(0,0,0,0.05)]">
+          <div className="max-w-7xl mx-auto">
+            <ActiveRegionPanel
+              region={activeRegion}
+              description={getDescription(activeRegion)}
+              analysisState={getAnalysisState(activeRegion)}
+              analysisError={analysisErrors[activeRegion.index]}
+              onAnalyze={() => analyzeRegion(activeRegion)}
+            />
           </div>
-
-          {/* Region list */}
-          <div className="px-4 py-3 border-b border-slate-100 flex flex-col gap-1 shrink-0">
-            {diffRegions.map((region) => {
-              const isActive      = activeRegion?.index === region.index;
-              const hasDesc       = !!getDescription(region);
-              const isAnalyzing   = getAnalysisState(region) === 'loading';
-
-              return (
-                <button
-                  key={region.index}
-                  onClick={() => setActiveRegion(isActive ? null : region)}
-                  className={cn(
-                    'flex items-center gap-2.5 px-3 py-2 rounded-xl text-left transition-all w-full',
-                    isActive
-                      ? 'bg-orange-500 text-white shadow-sm'
-                      : 'hover:bg-slate-50 text-slate-700',
-                  )}
-                >
-                  <span className={cn(
-                    'h-5 w-5 rounded-full flex items-center justify-center text-[9px] font-black shrink-0',
-                    isActive ? 'bg-white/25 text-white' : 'bg-orange-100 text-orange-600',
-                  )}>
-                    {isAnalyzing
-                      ? <Loader2 className="h-3 w-3 animate-spin" />
-                      : region.index + 1}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className={cn('text-[11px] font-black truncate', isActive ? 'text-white' : 'text-slate-700')}>
-                      {region.figmaLabel ?? (region.domLabel
-                        ? region.domLabel.split(' — ')[0]
-                        : `Region ${region.index + 1}`)}
-                    </p>
-                    <p className={cn('text-[10px] font-mono', isActive ? 'text-white/70' : 'text-slate-400')}>
-                      {region.diffPixels.toLocaleString()} px
-                      {hasDesc && (
-                        <span className={cn('ml-1.5 text-[9px] font-black', isActive ? 'text-white/60' : 'text-emerald-500')}>
-                          ✦ AI
-                        </span>
-                      )}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Detail panel */}
-          <div className="flex-1 overflow-y-auto">
-            {activeRegion ? (
-              <ActiveRegionPanel
-                region={activeRegion}
-                description={getDescription(activeRegion)}
-                analysisState={getAnalysisState(activeRegion)}
-                analysisError={analysisErrors[activeRegion.index]}
-                onAnalyze={() => analyzeRegion(activeRegion)}
-              />
-            ) : (
-              <EmptyState />
-            )}
-          </div>
-
         </div>
       )}
     </div>
@@ -215,11 +263,10 @@ function ActiveRegionPanel({
   onAnalyze: () => void;
 }) {
   const isLoading = analysisState === 'loading';
-  const hasDesc   = !!description;
+  const hasDesc = !!description;
 
   return (
     <div className="p-5 space-y-5">
-
       {/* Region heading */}
       <div>
         <div className="flex items-center gap-2 mb-0.5">
@@ -233,44 +280,58 @@ function ActiveRegionPanel({
         </p>
       </div>
 
-      {/* Metrics */}
-      <div className="grid grid-cols-2 gap-2">
-        <MetricCell label="Position" value={`(${region.x}, ${region.y})`} mono />
-        <MetricCell label="Size" value={`${region.width} × ${region.height}px`} mono />
-        <MetricCell
-          label="Changed"
-          value={`${region.diffPixels.toLocaleString()} px`}
-          sub={`${region.diffPercent.toFixed(2)}% of image`}
-          mono
-        />
-      </div>
+      {/* Property Diffs */}
+      {(region.domMetrics || region.figmaMetrics) && (
+        <div className="pt-2">
+          <div className="grid grid-cols-[150px_1fr_1fr] gap-4 text-xs font-black uppercase tracking-widest text-slate-400 mb-2 px-3">
+            <div>Property</div>
+            <div>Figma (Expected)</div>
+            <div>Web (Actual)</div>
+          </div>
+          <div className="space-y-1.5">
+            {Array.from(
+              new Set([
+                ...Object.keys(region.domMetrics || {}),
+                ...Object.keys(region.figmaMetrics || {}),
+              ]),
+            ).map((key) => {
+              const expected =
+                region.figmaMetrics?.[key as keyof typeof region.figmaMetrics];
+              const actual =
+                region.domMetrics?.[key as keyof typeof region.domMetrics];
 
-      {/* Figma node */}
-      {region.figmaLabel && (
-        <DetailRow label="Design node">
-          <code className="text-[11px] text-blue-700 bg-blue-50 px-2.5 py-1.5 rounded-xl break-all block leading-relaxed">
-            {region.figmaLabel}
-          </code>
-        </DetailRow>
-      )}
+              if (expected == null && actual == null) return null;
+              if (
+                expected != null &&
+                actual != null &&
+                String(expected) === String(actual)
+              )
+                return null; // Hide perfect matches to reduce noise
 
-      {/* DOM element */}
-      {region.domLabel && (
-        <DetailRow label="Web element">
-          <code className="text-[11px] text-violet-700 bg-violet-50 px-2.5 py-1.5 rounded-xl break-all block leading-relaxed">
-            {region.domLabel}
-          </code>
-        </DetailRow>
-      )}
-
-      {/* Shift (future) */}
-      {(region.deltaX != null || region.deltaY != null) && (
-        <DetailRow label="Shift">
-          <span className="text-xs font-mono text-slate-700">
-            {region.deltaX != null ? `Δx ${region.deltaX > 0 ? '+' : ''}${region.deltaX}px  ` : ''}
-            {region.deltaY != null ? `Δy ${region.deltaY > 0 ? '+' : ''}${region.deltaY}px` : ''}
-          </span>
-        </DetailRow>
+              return (
+                <div
+                  key={key}
+                  className="grid grid-cols-[150px_1fr_1fr] gap-4 text-sm items-start border border-slate-200 rounded-xl p-3 bg-white shadow-sm"
+                >
+                  <div className="font-bold text-slate-600 capitalize mt-0.5">
+                    {key.replace(/([A-Z])/g, ' $1').trim()}
+                  </div>
+                  <div className="font-mono text-slate-600 break-words whitespace-pre-wrap">
+                    {expected ?? '—'}
+                  </div>
+                  <div
+                    className={cn(
+                      'font-mono break-words whitespace-pre-wrap font-semibold',
+                      expected !== actual ? 'text-red-600' : 'text-slate-700',
+                    )}
+                  >
+                    {actual ?? '—'}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       )}
 
       {/* ── AI Analysis section ── */}
@@ -298,11 +359,20 @@ function ActiveRegionPanel({
             )}
           >
             {isLoading ? (
-              <><Loader2 className="h-3 w-3 animate-spin" />Analyzing…</>
+              <>
+                <Loader2 className="h-3 w-3 animate-spin" />
+                Analyzing…
+              </>
             ) : hasDesc ? (
-              <><RefreshCw className="h-3 w-3" />Re-analyze</>
+              <>
+                <RefreshCw className="h-3 w-3" />
+                Re-analyze
+              </>
             ) : (
-              <><Sparkles className="h-3 w-3" />Analyze</>
+              <>
+                <Sparkles className="h-3 w-3" />
+                Analyze
+              </>
             )}
           </button>
         </div>
@@ -311,7 +381,9 @@ function ActiveRegionPanel({
         {analysisState === 'error' && analysisError && (
           <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-100 rounded-xl mb-3">
             <AlertCircle className="h-3.5 w-3.5 text-red-400 mt-0.5 shrink-0" />
-            <p className="text-[11px] text-red-600 font-medium leading-relaxed">{analysisError}</p>
+            <p className="text-[11px] text-red-600 font-medium leading-relaxed">
+              {analysisError}
+            </p>
           </div>
         )}
 
@@ -326,19 +398,47 @@ function ActiveRegionPanel({
 
         {/* Description */}
         {hasDesc ? (
-          <div className={cn(
-            'text-[12px] text-slate-700 leading-relaxed bg-violet-50/60 border border-violet-100 rounded-xl p-3',
-            isLoading && 'opacity-50',
-          )}>
-            {description}
+          <div
+            className={cn(
+              'text-[13px] text-slate-700 leading-relaxed bg-violet-50 border border-violet-100 rounded-xl p-4',
+              isLoading && 'opacity-50',
+            )}
+          >
+            <ReactMarkdown
+              components={{
+                p: ({ node, ...props }) => (
+                  <p className="mb-2 last:mb-0" {...props} />
+                ),
+                ul: ({ node, ...props }) => (
+                  <ul
+                    className="list-disc pl-4 mb-2 last:mb-0 space-y-1"
+                    {...props}
+                  />
+                ),
+                li: ({ node, ...props }) => <li {...props} />,
+                strong: ({ node, ...props }) => (
+                  <strong className="font-bold text-slate-900" {...props} />
+                ),
+                code: ({ node, ...props }) => (
+                  <code
+                    className="bg-white px-1 py-0.5 rounded border border-slate-200 font-mono text-[11px] text-violet-700"
+                    {...props}
+                  />
+                ),
+              }}
+            >
+              {description}
+            </ReactMarkdown>
           </div>
-        ) : !isLoading && (
-          <p className="text-[11px] text-slate-400 italic leading-relaxed">
-            Click "Analyze" to get an AI description of what's visually different in this region.
-          </p>
+        ) : (
+          !isLoading && (
+            <p className="text-[11px] text-slate-400 italic leading-relaxed">
+              Click &quot;Analyze&quot; to get an AI description of what&apos;s
+              visually different in this region.
+            </p>
+          )
         )}
       </div>
-
     </div>
   );
 }
@@ -353,31 +453,57 @@ function EmptyState() {
       </div>
       <p className="text-xs font-black text-slate-500 mb-1">Select a region</p>
       <p className="text-[11px] text-slate-400 leading-relaxed">
-        Click a numbered pin on the image or a row in the list above to inspect it.
+        Click a numbered pin on the image or a row in the list above to inspect
+        it.
       </p>
     </div>
   );
 }
 
-function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
+function DetailRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div>
-      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1.5">{label}</p>
+      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1.5">
+        {label}
+      </p>
       {children}
     </div>
   );
 }
 
 function MetricCell({
-  label, value, sub, mono,
+  label,
+  value,
+  sub,
+  mono,
 }: {
-  label: string; value: string; sub?: string; mono?: boolean;
+  label: string;
+  value: string;
+  sub?: string;
+  mono?: boolean;
 }) {
   return (
     <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5">
-      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{label}</p>
-      <p className={cn('text-[11px] text-slate-700 font-bold', mono && 'font-mono')}>{value}</p>
-      {sub && <p className="text-[10px] text-slate-400 font-mono mt-0.5">{sub}</p>}
+      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">
+        {label}
+      </p>
+      <p
+        className={cn(
+          'text-[11px] text-slate-700 font-bold',
+          mono && 'font-mono',
+        )}
+      >
+        {value}
+      </p>
+      {sub && (
+        <p className="text-[10px] text-slate-400 font-mono mt-0.5">{sub}</p>
+      )}
     </div>
   );
 }

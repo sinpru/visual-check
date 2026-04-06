@@ -109,6 +109,12 @@ export async function GET(req: NextRequest) {
 		console.error('[api/figma-frames]', message);
 
 		// Handle common Figma API errors gracefully
+		if (
+			message.includes('429') ||
+			message.toLowerCase().includes('rate limit')
+		) {
+			return NextResponse.json({ error: message }, { status: 429 });
+		}
 		if (message.includes('403')) {
 			return NextResponse.json(
 				{ error: 'Invalid Figma token or no access to this file' },

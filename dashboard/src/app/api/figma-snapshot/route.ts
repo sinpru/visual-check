@@ -171,6 +171,14 @@ export async function POST(req: NextRequest) {
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
 		console.error('[figma-snapshot]', message);
+
+		if (
+			message.includes('429') ||
+			message.toLowerCase().includes('rate limit')
+		) {
+			return NextResponse.json({ error: message }, { status: 429 });
+		}
+
 		return NextResponse.json({ error: message }, { status: 500 });
 	}
 }

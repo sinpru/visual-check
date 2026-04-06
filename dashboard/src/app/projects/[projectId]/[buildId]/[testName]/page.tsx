@@ -40,7 +40,7 @@ export default async function TestPage({ params }: PageProps) {
   ).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
 
   return (
-    <main className="py-10 px-6 lg:px-10 pb-48">
+    <main className="py-10 px-6 lg:px-10 pb-32">
       {/* Back */}
       <div className="mb-8">
         <Link
@@ -53,91 +53,89 @@ export default async function TestPage({ params }: PageProps) {
       </div>
 
       {/* Header card */}
-      <Card className="bg-white border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden rounded-3xl mb-8">
-        <CardHeader className="border-b border-slate-200/60 p-6 sm:p-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="space-y-3">
-              <div className="flex items-center gap-4">
-                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                  {result.testName}
-                </h1>
-                <StatusBadge status={result.status} className="scale-110" />
-              </div>
-              <div className="flex flex-wrap items-center gap-6 text-slate-500 font-medium text-sm">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-slate-400" />
-                  {relativeTime(result.timestamp)}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-slate-400" />
-                  {formattedDate}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Maximize2 className="w-4 h-4 text-slate-400" />
-                  {result.viewport.width} × {result.viewport.height}
-                </div>
-              </div>
+      <div className="mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-3">
+            <div className="flex items-center gap-4">
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                {result.testName}
+              </h1>
+              <StatusBadge status={result.status} className="scale-110" />
             </div>
-
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-6">
-              <div className="text-center">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                  Diff %
-                </p>
-                <p
-                  className={`text-3xl font-black font-mono ${result.diffPercent > 0 ? 'text-destructive' : 'text-slate-900'}`}
-                >
-                  {formatDiffPercent(result.diffPercent)}
-                </p>
+            <div className="flex flex-wrap items-center gap-6 text-slate-500 font-medium text-sm">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-slate-400" />
+                {relativeTime(result.timestamp)}
               </div>
-              <div className="h-10 w-px bg-slate-100" />
-              <div className="text-center">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                  Pixels
-                </p>
-                <div className="flex items-center gap-2">
-                  <FileDigit className="w-4 h-4 text-slate-400" />
-                  <p className="text-xl font-bold text-slate-900">
-                    {result.diffPixels.toLocaleString()}
-                  </p>
-                </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-slate-400" />
+                {formattedDate}
               </div>
-              {result.diffRegions && result.diffRegions.length > 0 && (
-                <>
-                  <div className="h-10 w-px bg-slate-100" />
-                  <div className="text-center">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                      Regions
-                    </p>
-                    <p className="text-xl font-bold text-orange-500">
-                      {result.diffRegions.length}
-                    </p>
-                  </div>
-                </>
-              )}
+              <div className="flex items-center gap-2">
+                <Maximize2 className="w-4 h-4 text-slate-400" />
+                {result.viewport.width} × {result.viewport.height}
+              </div>
             </div>
           </div>
-        </CardHeader>
 
-        {/*
-          DiffViewerPage is a 'use client' component that owns the region selection
-          state and renders the two-column layout: DiffViewer (left) + InspectionPanel (right).
-        */}
-        <CardContent className="p-0 bg-white">
-          <DiffViewerPage
-            testName={result.testName}
-            buildId={buildId}
-            baselinePath={result.baselinePath}
-            currentPath={result.currentPath}
-            diffPath={result.diffPath ?? ''}
-            baselineWidth={result.viewport.width}
-            baselineHeight={result.viewport.height}
-            currentWidth={result.viewport.width}
-            currentHeight={result.viewport.height}
-            diffRegions={result.diffRegions ?? []}
-          />
-        </CardContent>
-      </Card>
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-6">
+            <div className="text-center">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                Diff %
+              </p>
+              <p
+                className={`text-3xl font-black font-mono ${result.diffPercent > 0 ? 'text-destructive' : 'text-slate-900'}`}
+              >
+                {formatDiffPercent(result.diffPercent)}
+              </p>
+            </div>
+            <div className="h-10 w-px bg-slate-100" />
+            <div className="text-center">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                Pixels
+              </p>
+              <div className="flex items-center gap-2">
+                <FileDigit className="w-4 h-4 text-slate-400" />
+                <p className="text-xl font-bold text-slate-900">
+                  {result.diffPixels.toLocaleString()}
+                </p>
+              </div>
+            </div>
+            {result.diffRegions && result.diffRegions.length > 0 && (
+              <>
+                <div className="h-10 w-px bg-slate-100" />
+                <div className="text-center">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                    Regions
+                  </p>
+                  <p className="text-xl font-bold text-orange-500">
+                    {result.diffRegions.length}
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/*
+        DiffViewerPage is a 'use client' component that owns the region selection
+        state and renders the two-column layout: DiffViewer (left) + InspectionPanel (right).
+      */}
+      <div className="-mx-6 lg:-mx-10 border-y border-slate-200 bg-white">
+        <DiffViewerPage
+          testName={result.testName}
+          buildId={buildId}
+          baselinePath={result.baselinePath}
+          currentPath={result.currentPath}
+          diffPath={result.diffPath ?? ''}
+          baselineWidth={result.viewport.width}
+          baselineHeight={result.viewport.height}
+          currentWidth={result.viewport.width}
+          currentHeight={result.viewport.height}
+          diffRegions={result.diffRegions ?? []}
+        />
+      </div>
 
       <ApproveRejectBar
         testName={result.testName}

@@ -7,10 +7,7 @@ import type {
 	FigmaImagesResponse,
 	FigmaNodeData,
 } from './types.ts';
-import {
-	FigmaAssetFetchError,
-	FigmaNodeNotFoundError,
-} from './types.ts';
+import { FigmaAssetFetchError, FigmaNodeNotFoundError } from './types.ts';
 import { getCache, setCache } from './cache.ts';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -53,7 +50,7 @@ export async function figmaGet<T>(
 		if (retryAfter > 60) {
 			throw new Error(
 				`Figma rate limit exceeded. Retry-After: ${retryAfter}s (~${Math.round(retryAfter / 3600)}h). ` +
-				`This is a Starter-plan / View-seat limit — the quota resets in a few days.`
+					`This is a Starter-plan / View-seat limit — the quota resets in a few days.`,
 			);
 		}
 		await sleep(Math.min(retryAfter * 1000, 30_000) * attempt);
@@ -84,8 +81,12 @@ function normalizeNodeId(id: string): string {
 // ─── Node types excluded from Figma label matching ───────────────────────────
 
 const EXCLUDED_LABEL_TYPES = new Set([
-	'DOCUMENT', 'CANVAS', 'FRAME', 'SECTION',
-	'COMPONENT_SET', 'GROUP',
+	'DOCUMENT',
+	'CANVAS',
+	'FRAME',
+	'SECTION',
+	'COMPONENT_SET',
+	'GROUP',
 ]);
 
 // ─── Public API ───────────────────────────────────────────────────────────────
@@ -108,30 +109,35 @@ export async function fetchFigmaFile(
 export async function fetchNodesBatch(
 	fileKey: string,
 	nodeIds: string[],
-	token:   string,
-	ttlMs =  FIGMA_TTL.NODE,
+	token: string,
+	ttlMs = FIGMA_TTL.NODE,
 ): Promise<Record<string, FigmaNodeData>> {
 	if (nodeIds.length === 0) return {};
 
 	const normIds = nodeIds.map(normalizeNodeId);
-	const path    = `/files/${fileKey}/nodes?ids=${encodeURIComponent(normIds.join(','))}`;
+	const path = `/files/${fileKey}/nodes?ids=${encodeURIComponent(normIds.join(','))}`;
 
 	const data = await figmaGet<FigmaNodesResponse>(path, token, ttlMs);
 	const out: Record<string, FigmaNodeData> = {};
 
 	for (const id of nodeIds) {
 		const normId = normalizeNodeId(id);
-		const entry  = data.nodes[normId];
-		const bb     = entry?.document?.absoluteBoundingBox;
+		const entry = data.nodes[normId];
+		const bb = entry?.document?.absoluteBoundingBox;
 
 		if (!entry || !bb) {
-			console.warn(`[figma] Node ${id} not found in batch for ${fileKey}`);
+			console.warn(
+				`[figma] Node ${id} not found in batch for ${fileKey}`,
+			);
 			continue;
 		}
 
 		out[id] = {
-			dimensions: { width: Math.round(bb.width), height: Math.round(bb.height) },
-			tree:       entry.document,
+			dimensions: {
+				width: Math.round(bb.width),
+				height: Math.round(bb.height),
+			},
+			tree: entry.document,
 		};
 	}
 
@@ -143,11 +149,11 @@ export async function fetchNodesBatch(
  */
 async function fetchNodeData(
 	fileKey: string,
-	nodeId:  string,
-	token:   string,
+	nodeId: string,
+	token: string,
 ): Promise<FigmaNodeData> {
 	const batch = await fetchNodesBatch(fileKey, [nodeId], token);
-	const data  = batch[nodeId];
+	const data = batch[nodeId];
 	if (!data) throw new FigmaNodeNotFoundError(nodeId);
 	return data;
 }
@@ -159,14 +165,14 @@ async function fetchNodeData(
 export async function fetchImagesBatch(
 	fileKey: string,
 	nodeIds: string[],
-	scale:   number,
-	token:   string,
-	ttlMs =  FIGMA_TTL.IMAGE,
+	scale: number,
+	token: string,
+	ttlMs = FIGMA_TTL.IMAGE,
 ): Promise<Record<string, string>> {
 	if (nodeIds.length === 0) return {};
 
 	const normIds = nodeIds.map(normalizeNodeId);
-	const path    = `/images/${fileKey}?ids=${encodeURIComponent(normIds.join(','))}&format=png&scale=${scale}`;
+	const path = `/images/${fileKey}?ids=${encodeURIComponent(normIds.join(','))}&format=png&scale=${scale}`;
 
 	const data = await figmaGet<FigmaImagesResponse>(path, token, ttlMs);
 
@@ -177,7 +183,7 @@ export async function fetchImagesBatch(
 	const out: Record<string, string> = {};
 	for (const id of nodeIds) {
 		const normId = normalizeNodeId(id);
-		const url    = data.images[normId];
+		const url = data.images[normId];
 		if (url) out[id] = url;
 	}
 
@@ -189,8 +195,8 @@ export async function fetchImagesBatch(
  */
 export async function getFrameDimensions(
 	fileKey: string,
-	nodeId:  string,
-	token:   string,
+	nodeId: string,
+	token: string,
 ): Promise<FrameDimensions> {
 	const { dimensions } = await fetchNodeData(fileKey, nodeId, token);
 	return dimensions;
@@ -201,8 +207,8 @@ export async function getFrameDimensions(
  */
 export async function fetchNodeTree(
 	fileKey: string,
-	nodeId:  string,
-	token:   string,
+	nodeId: string,
+	token: string,
 ): Promise<FigmaNodeDocument | null> {
 	try {
 		const { tree } = await fetchNodeData(fileKey, nodeId, token);
@@ -218,16 +224,16 @@ export async function fetchNodeTree(
  * Uses cached batch calls internally.
  */
 export async function fetchFigmaBaselineWithTree(
-	fileKey:      string,
-	nodeId:       string,
-	token:        string,
-	targetWidth:  number,
+	fileKey: string,
+	nodeId: string,
+	token: string,
+	targetWidth: number,
 	targetHeight: number,
 ): Promise<{ buffer: Buffer; tree: FigmaNodeDocument }> {
 	const { dimensions, tree } = await fetchNodeData(fileKey, nodeId, token);
 
 	const rawScale = targetWidth / dimensions.width;
-	const scale    = Math.min(4, Math.max(0.01, rawScale));
+	const scale = Math.min(4, Math.max(0.01, rawScale));
 
 	const images = await fetchImagesBatch(fileKey, [nodeId], scale, token);
 	const cdnUrl = images[nodeId];
@@ -259,14 +265,18 @@ export async function fetchFigmaBaselineWithTree(
  * Fetches a Figma frame as a PNG buffer only.
  */
 export async function fetchFigmaBaseline(
-	fileKey:      string,
-	nodeId:       string,
-	token:        string,
-	targetWidth:  number,
+	fileKey: string,
+	nodeId: string,
+	token: string,
+	targetWidth: number,
 	targetHeight: number,
 ): Promise<Buffer> {
 	const { buffer } = await fetchFigmaBaselineWithTree(
-		fileKey, nodeId, token, targetWidth, targetHeight,
+		fileKey,
+		nodeId,
+		token,
+		targetWidth,
+		targetHeight,
 	);
 	return buffer;
 }
@@ -276,16 +286,16 @@ export async function fetchFigmaBaseline(
  * returns the deepest meaningful Figma node whose absoluteBoundingBox overlaps.
  */
 export function findFigmaNodeForRegion(
-	tree:   FigmaNodeDocument,
+	tree: FigmaNodeDocument,
 	region: { x: number; y: number; width: number; height: number },
-): { name: string; type: string; id: string } | null {
+): FigmaNodeDocument | null {
 	const frameBB = tree.absoluteBoundingBox;
 	if (!frameBB) return null;
 
 	const originX = frameBB.x;
 	const originY = frameBB.y;
 
-	const matches: { name: string; type: string; id: string; area: number }[] = [];
+	const matches: { node: FigmaNodeDocument; area: number }[] = [];
 
 	function walk(node: FigmaNodeDocument): void {
 		const bb = node.absoluteBoundingBox;
@@ -295,13 +305,13 @@ export function findFigmaNodeForRegion(
 		const relY = bb.y - originY;
 
 		const overlaps =
-			relX < region.x + region.width  &&
-			relX + bb.width  > region.x     &&
+			relX < region.x + region.width &&
+			relX + bb.width > region.x &&
 			relY < region.y + region.height &&
 			relY + bb.height > region.y;
 
 		if (overlaps && !EXCLUDED_LABEL_TYPES.has(node.type)) {
-			matches.push({ name: node.name, type: node.type, id: node.id, area: bb.width * bb.height });
+			matches.push({ node, area: bb.width * bb.height });
 		}
 
 		for (const child of node.children ?? []) walk(child);
@@ -312,6 +322,5 @@ export function findFigmaNodeForRegion(
 	if (matches.length === 0) return null;
 
 	matches.sort((a, b) => a.area - b.area);
-	const best = matches[0];
-	return { name: best.name, type: best.type, id: best.id };
+	return matches[0].node;
 }

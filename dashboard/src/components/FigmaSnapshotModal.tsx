@@ -2,16 +2,31 @@
 
 import React, { useState } from 'react';
 import {
-  Loader2, X, CheckCircle, AlertCircle,
-  ImagePlus, ChevronRight, ChevronLeft,
-  Search, LayoutGrid, Check,
+  Loader2,
+  X,
+  CheckCircle,
+  AlertCircle,
+  ImagePlus,
+  ChevronRight,
+  ChevronLeft,
+  Search,
+  LayoutGrid,
+  Check,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Step = 'idle' | 'step1' | 'discovering' | 'step2' | 'pulling' | 'success' | 'error';
+type Step =
+  | 'idle'
+  | 'step1'
+  | 'discovering'
+  | 'error-step1'
+  | 'step2'
+  | 'pulling'
+  | 'error-step2'
+  | 'success';
 
 interface DiscoveredFrame {
   id: string;
@@ -56,24 +71,27 @@ function parseFileKey(input: string): string {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function FigmaSnapshotModal({ projectId, projectName }: FigmaSnapshotModalProps) {
+export default function FigmaSnapshotModal({
+  projectId,
+  projectName,
+}: FigmaSnapshotModalProps) {
   const router = useRouter();
 
-  const [step, setStep]                       = useState<Step>('idle');
-  const [error, setError]                     = useState('');
+  const [step, setStep] = useState<Step>('idle');
+  const [error, setError] = useState('');
 
   // Step 1
-  const [fileInput, setFileInput]             = useState('');
-  const [token, setToken]                     = useState('');
-  const [fileName, setFileName]               = useState('');
+  const [fileInput, setFileInput] = useState('');
+  const [token, setToken] = useState('');
+  const [fileName, setFileName] = useState('');
   const [resolvedFileKey, setResolvedFileKey] = useState('');
 
   // Step 2
-  const [frames, setFrames]                   = useState<DiscoveredFrame[]>([]);
-  const [selected, setSelected]               = useState<SelectedFrame[]>([]);
-  const [search, setSearch]                   = useState('');
-  const [savedCount, setSavedCount]           = useState(0);
-  const [createdBuildId, setCreatedBuildId]   = useState('');
+  const [frames, setFrames] = useState<DiscoveredFrame[]>([]);
+  const [selected, setSelected] = useState<SelectedFrame[]>([]);
+  const [search, setSearch] = useState('');
+  const [savedCount, setSavedCount] = useState(0);
+  const [createdBuildId, setCreatedBuildId] = useState('');
 
   // ── Open / close ─────────────────────────────────────────────────────────────
 
@@ -114,12 +132,16 @@ export default function FigmaSnapshotModal({ projectId, projectName }: FigmaSnap
 
       const discovered: DiscoveredFrame[] = data.frames;
       if (discovered.length === 0) {
-        throw new Error('No eligible frames found in this file. Make sure the file contains FRAME or COMPONENT nodes.');
+        throw new Error(
+          'No eligible frames found in this file. Make sure the file contains FRAME or COMPONENT nodes.',
+        );
       }
 
       setFileName(data.fileName);
       setFrames(discovered);
-      setSelected(discovered.map((f) => ({ ...f, testName: toTestName(f.name) })));
+      setSelected(
+        discovered.map((f) => ({ ...f, testName: toTestName(f.name) })),
+      );
       setStep('step2');
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -141,13 +163,15 @@ export default function FigmaSnapshotModal({ projectId, projectName }: FigmaSnap
     if (selected.length === filteredFrames.length) {
       setSelected([]);
     } else {
-      setSelected(filteredFrames.map((f) => ({ ...f, testName: toTestName(f.name) })));
+      setSelected(
+        filteredFrames.map((f) => ({ ...f, testName: toTestName(f.name) })),
+      );
     }
   }
 
   function updateTestName(frameId: string, testName: string) {
     setSelected((prev) =>
-      prev.map((s) => (s.id === frameId ? { ...s, testName } : s))
+      prev.map((s) => (s.id === frameId ? { ...s, testName } : s)),
     );
   }
 
@@ -174,10 +198,10 @@ export default function FigmaSnapshotModal({ projectId, projectName }: FigmaSnap
           // ← projectId attached here so the build gets tagged with this project
           ...(projectId ? { projectId } : {}),
           frames: selected.map((s) => ({
-            nodeId:   s.id,
+            nodeId: s.id,
             testName: s.testName,
-            width:    s.width,
-            height:   s.height,
+            width: s.width,
+            height: s.height,
           })),
         }),
       });
@@ -185,12 +209,21 @@ export default function FigmaSnapshotModal({ projectId, projectName }: FigmaSnap
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? `Server error ${res.status}`);
 
+      if (data.errors && data.errors.length > 0) {
+        const errorList = data.errors
+          .map((e: any) => `${e.testName}: ${e.error}`)
+          .join('\n');
+        setError(`Failed to pull some frames:\n${errorList}`);
+        setStep('error-step2');
+        return;
+      }
+
       setSavedCount(data.saved?.length ?? selected.length);
       setCreatedBuildId(data.build?.buildId ?? '');
       setStep('success');
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
-      setStep('error' as Step);
+      setStep('error-step2');
     }
   }
 
@@ -245,12 +278,16 @@ export default function FigmaSnapshotModal({ projectId, projectName }: FigmaSnap
       {step !== 'idle' && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
-          onClick={(e) => { if (e.target === e.currentTarget) close(); }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) close();
+          }}
         >
           <div
             className={cn(
               'bg-white rounded-3xl shadow-2xl w-full overflow-hidden flex flex-col',
-              step === 'step2' || step === 'pulling' ? 'max-w-2xl max-h-[85vh]' : 'max-w-md',
+              step === 'step2' || step === 'pulling'
+                ? 'max-w-2xl max-h-[85vh]'
+                : 'max-w-md',
             )}
           >
             {/* Header */}
@@ -269,8 +306,8 @@ export default function FigmaSnapshotModal({ projectId, projectName }: FigmaSnap
                     {step === 'step2' || step === 'pulling'
                       ? `${selected.length} of ${frames.length} selected`
                       : projectName
-                      ? `Baselines for ${projectName}`
-                      : 'Snapshot frames will be saved as baselines'}
+                        ? `Baselines for ${projectName}`
+                        : 'Snapshot frames will be saved as baselines'}
                   </p>
                 </div>
               </div>
@@ -284,16 +321,18 @@ export default function FigmaSnapshotModal({ projectId, projectName }: FigmaSnap
 
             {/* Body */}
             <div className="flex flex-col overflow-hidden grow">
-
               {/* ── Success ── */}
               {step === 'success' && (
                 <div className="px-7 py-8 text-center">
                   <div className="h-14 w-14 rounded-2xl bg-green-50 flex items-center justify-center mx-auto mb-4">
                     <CheckCircle className="h-7 w-7 text-green-500" />
                   </div>
-                  <p className="font-black text-slate-900 text-lg mb-1">Baselines saved!</p>
+                  <p className="font-black text-slate-900 text-lg mb-1">
+                    Baselines saved!
+                  </p>
                   <p className="text-sm text-slate-500 font-medium mb-6">
-                    {savedCount} frame{savedCount !== 1 ? 's' : ''} pulled from Figma
+                    {savedCount} frame{savedCount !== 1 ? 's' : ''} pulled from
+                    Figma
                     {projectName ? ` for ${projectName}` : ''}
                   </p>
                   <div className="flex flex-col gap-2.5">
@@ -319,7 +358,9 @@ export default function FigmaSnapshotModal({ projectId, projectName }: FigmaSnap
               )}
 
               {/* ── Step 1: credentials ── */}
-              {(step === 'step1' || step === 'discovering' || (step as string) === 'error-step1') && (
+              {(step === 'step1' ||
+                step === 'discovering' ||
+                (step as string) === 'error-step1') && (
                 <form onSubmit={handleDiscover} className="px-7 py-6 space-y-4">
                   <Field
                     label="Figma file URL or file key"
@@ -357,16 +398,24 @@ export default function FigmaSnapshotModal({ projectId, projectName }: FigmaSnap
                     )}
                   >
                     {step === 'discovering' ? (
-                      <><Loader2 className="h-4 w-4 animate-spin" />Discovering frames…</>
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Discovering frames…
+                      </>
                     ) : (
-                      <><ChevronRight className="h-4 w-4" />Discover frames</>
+                      <>
+                        <ChevronRight className="h-4 w-4" />
+                        Discover frames
+                      </>
                     )}
                   </button>
                 </form>
               )}
 
               {/* ── Step 2: frame picker ── */}
-              {(step === 'step2' || step === 'pulling') && (
+              {(step === 'step2' ||
+                step === 'pulling' ||
+                step === 'error-step2') && (
                 <>
                   {/* Search + select-all bar */}
                   <div className="px-7 py-4 border-b border-slate-100 shrink-0 flex items-center gap-3">
@@ -388,77 +437,95 @@ export default function FigmaSnapshotModal({ projectId, projectName }: FigmaSnap
                       onClick={toggleAll}
                       className="shrink-0 text-xs font-black text-violet-600 hover:text-violet-700 px-3 py-2 rounded-xl hover:bg-violet-50 transition-colors"
                     >
-                      {selected.length === filteredFrames.length ? 'Deselect all' : 'Select all'}
+                      {selected.length === filteredFrames.length
+                        ? 'Deselect all'
+                        : 'Select all'}
                     </button>
                   </div>
 
                   {/* Frame list */}
                   <div className="overflow-y-auto grow px-7 py-4 space-y-5">
-                    {Object.entries(framesByPage).map(([pageName, pageFrames]) => (
-                      <div key={pageName}>
-                        <div className="flex items-center gap-2 mb-2">
-                          <LayoutGrid className="h-3 w-3 text-slate-400" />
-                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                            {pageName}
-                          </span>
-                        </div>
-                        <div className="space-y-1.5">
-                          {pageFrames.map((frame) => {
-                            const sel = selected.find((s) => s.id === frame.id);
-                            return (
-                              <div
-                                key={frame.id}
-                                className={cn(
-                                  'flex items-center gap-3 p-3 rounded-2xl border transition-all cursor-pointer',
-                                  isSelected(frame.id)
-                                    ? 'border-violet-200 bg-violet-50'
-                                    : 'border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50',
-                                )}
-                                onClick={() => toggleFrame(frame)}
-                              >
-                                {/* Checkbox */}
+                    {Object.entries(framesByPage).map(
+                      ([pageName, pageFrames]) => (
+                        <div key={pageName}>
+                          <div className="flex items-center gap-2 mb-2">
+                            <LayoutGrid className="h-3 w-3 text-slate-400" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                              {pageName}
+                            </span>
+                          </div>
+                          <div className="space-y-1.5">
+                            {pageFrames.map((frame) => {
+                              const sel = selected.find(
+                                (s) => s.id === frame.id,
+                              );
+                              return (
                                 <div
+                                  key={frame.id}
                                   className={cn(
-                                    'h-5 w-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors',
-                                    isSelected(frame.id) ? 'border-violet-600 bg-violet-600' : 'border-slate-300',
+                                    'flex items-center gap-3 p-3 rounded-2xl border transition-all cursor-pointer',
+                                    isSelected(frame.id)
+                                      ? 'border-violet-200 bg-violet-50'
+                                      : 'border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50',
                                   )}
+                                  onClick={() => toggleFrame(frame)}
                                 >
-                                  {isSelected(frame.id) && <Check className="h-3 w-3 text-white" />}
-                                </div>
-
-                                {/* Frame info */}
-                                <div className="grow min-w-0">
-                                  <p className="text-sm font-black text-slate-900 truncate">{frame.name}</p>
-                                  <p className="text-xs text-slate-400 font-medium">
-                                    {frame.width}×{frame.height}px
-                                  </p>
-                                </div>
-
-                                {/* Editable test name */}
-                                {sel && (
-                                  <input
-                                    type="text"
-                                    value={sel.testName}
-                                    onChange={(e) => { e.stopPropagation(); updateTestName(frame.id, e.target.value); }}
-                                    onClick={(e) => e.stopPropagation()}
-                                    placeholder="test-name"
+                                  {/* Checkbox */}
+                                  <div
                                     className={cn(
-                                      'w-40 px-3 py-1.5 rounded-xl border text-xs font-mono shrink-0',
-                                      'border-slate-200 bg-white text-slate-700',
-                                      'focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500',
+                                      'h-5 w-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors',
+                                      isSelected(frame.id)
+                                        ? 'border-violet-600 bg-violet-600'
+                                        : 'border-slate-300',
                                     )}
-                                  />
-                                )}
-                              </div>
-                            );
-                          })}
+                                  >
+                                    {isSelected(frame.id) && (
+                                      <Check className="h-3 w-3 text-white" />
+                                    )}
+                                  </div>
+
+                                  {/* Frame info */}
+                                  <div className="grow min-w-0">
+                                    <p className="text-sm font-black text-slate-900 truncate">
+                                      {frame.name}
+                                    </p>
+                                    <p className="text-xs text-slate-400 font-medium">
+                                      {frame.width}×{frame.height}px
+                                    </p>
+                                  </div>
+
+                                  {/* Editable test name */}
+                                  {sel && (
+                                    <input
+                                      type="text"
+                                      value={sel.testName}
+                                      onChange={(e) => {
+                                        e.stopPropagation();
+                                        updateTestName(
+                                          frame.id,
+                                          e.target.value,
+                                        );
+                                      }}
+                                      onClick={(e) => e.stopPropagation()}
+                                      placeholder="test-name"
+                                      className={cn(
+                                        'w-40 px-3 py-1.5 rounded-xl border text-xs font-mono shrink-0',
+                                        'border-slate-200 bg-white text-slate-700',
+                                        'focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500',
+                                      )}
+                                    />
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ),
+                    )}
                   </div>
 
                   {/* Error */}
-                  {step === ('error' as Step) && error && (
+                  {step === 'error-step2' && error && (
                     <div className="px-7 pb-4">
                       <ErrorBox message={error} />
                     </div>
@@ -467,7 +534,10 @@ export default function FigmaSnapshotModal({ projectId, projectName }: FigmaSnap
                   {/* Footer */}
                   <div className="px-7 py-5 border-t border-slate-100 shrink-0 flex items-center gap-3">
                     <button
-                      onClick={() => { setStep('step1'); setError(''); }}
+                      onClick={() => {
+                        setStep('step1');
+                        setError('');
+                      }}
                       disabled={step === 'pulling'}
                       className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-sm font-black text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors disabled:opacity-50"
                     >
@@ -487,15 +557,22 @@ export default function FigmaSnapshotModal({ projectId, projectName }: FigmaSnap
                       )}
                     >
                       {step === 'pulling' ? (
-                        <><Loader2 className="h-4 w-4 animate-spin" />Pulling {selected.length} frame{selected.length !== 1 ? 's' : ''}…</>
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Pulling {selected.length} frame
+                          {selected.length !== 1 ? 's' : ''}…
+                        </>
                       ) : (
-                        <><ImagePlus className="h-4 w-4" />Pull {selected.length} baseline{selected.length !== 1 ? 's' : ''}</>
+                        <>
+                          <ImagePlus className="h-4 w-4" />
+                          Pull {selected.length} baseline
+                          {selected.length !== 1 ? 's' : ''}
+                        </>
                       )}
                     </button>
                   </div>
                 </>
               )}
-
             </div>
           </div>
         </div>
@@ -517,14 +594,25 @@ interface FieldProps {
   type?: string;
 }
 
-function Field({ label, hint, value, onChange, placeholder, required, disabled, type = 'text' }: FieldProps) {
+function Field({
+  label,
+  hint,
+  value,
+  onChange,
+  placeholder,
+  required,
+  disabled,
+  type = 'text',
+}: FieldProps) {
   return (
     <div>
       <label className="block text-xs font-black text-slate-700 mb-1.5">
         {label}
         {required && <span className="text-red-400 ml-0.5">*</span>}
       </label>
-      {hint && <p className="text-[11px] text-slate-400 font-medium mb-1.5">{hint}</p>}
+      {hint && (
+        <p className="text-[11px] text-slate-400 font-medium mb-1.5">{hint}</p>
+      )}
       <input
         type={type}
         value={value}

@@ -61,10 +61,16 @@ export interface DiffRegion {
 	figmaLabel?: string;
 	/** Natural language AI description of the visual difference — populated on-demand */
 	aiDescription?: string;
+	/** Short 3-6 word summary generated automatically during test run */
+	aiLabel?: string;
 	/** Future: pixel shift on X axis relative to Figma baseline */
 	deltaX?: number;
 	/** Future: pixel shift on Y axis relative to Figma baseline */
 	deltaY?: number;
+	/** Extracted DOM metrics for the region */
+	domMetrics?: Record<string, string | number>;
+	/** Extracted Figma metrics for the region */
+	figmaMetrics?: Record<string, string | number>;
 }
 
 export interface DiffResult {
@@ -131,6 +137,9 @@ export interface FigmaNodeDocument {
 	type: string;
 	absoluteBoundingBox?: FigmaNodeBoundingBox;
 	children?: FigmaNodeDocument[];
+	characters?: string;
+	fills?: any[];
+	style?: any;
 }
 
 // ─── Figma API Responses ──────────────────────────────────────────────────────

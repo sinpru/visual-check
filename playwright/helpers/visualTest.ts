@@ -10,6 +10,7 @@ import {
 	readResults,
 	loadFigmaNodeTree,
 	findFigmaNodeForRegion,
+	generateRegionLabel,
 } from '@visual-check/core';
 import type { DiffRegion } from '@visual-check/core';
 import { figmaNodes } from './figmaNodes';
@@ -18,8 +19,8 @@ import fs from 'fs';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface VisualTestOptions {
-	selector?:      string;
-	clip?:          { x: number; y: number; width: number; height: number };
+	selector?: string;
+	clip?: { x: number; y: number; width: number; height: number };
 	updateBaseline?: boolean;
 }
 
@@ -55,19 +56,24 @@ export async function visualTest(
 	const updateBaseline =
 		options.updateBaseline ?? process.env.UPDATE_BASELINE === 'true';
 
-	const buildId   = process.env.BUILD_ID   || `build_${Date.now()}`;
+	const buildId = process.env.BUILD_ID || `build_${Date.now()}`;
 	const projectId = process.env.PROJECT_ID || undefined;
 
 	// ── 1. Register build ──────────────────────────────────────────────────────
-	getOrCreateBuild(buildId, { projectId, branch: 'web', status: 'unreviewed' });
+	getOrCreateBuild(buildId, {
+		projectId,
+		branch: 'web',
+		status: 'unreviewed',
+	});
 
-	const paths     = getPaths(testName, buildId);
-	const viewport  = page.viewportSize() || { width: 1440, height: 900 };
+	const paths = getPaths(testName, buildId);
+	const viewport = page.viewportSize() || { width: 1440, height: 900 };
 	const timestamp = new Date().toISOString();
 
 	// ── 2. Suppress animations ─────────────────────────────────────────────────
 	await page.addStyleTag({
-		content: '*, *::before, *::after { animation: none !important; transition: none !important; }',
+		content:
+			'*, *::before, *::after { animation: none !important; transition: none !important; }',
 	});
 
 	// ── 3. Normalize scroll ────────────────────────────────────────────────────
@@ -86,25 +92,40 @@ export async function visualTest(
 		if (nodeId && process.env.FIGMA_TOKEN && process.env.FIGMA_FILE_KEY) {
 			try {
 				const figmaBuffer = await fetchFigmaBaseline(
-					process.env.FIGMA_FILE_KEY, nodeId, process.env.FIGMA_TOKEN,
-					viewport.width, viewport.height,
+					process.env.FIGMA_FILE_KEY,
+					nodeId,
+					process.env.FIGMA_TOKEN,
+					viewport.width,
+					viewport.height,
 				);
 				saveSnapshot(testName, figmaBuffer, 'baseline');
 			} catch (err) {
-				console.warn(`[visual-check] Figma fetch failed for "${testName}": ${err} — using screenshot`);
+				console.warn(
+					`[visual-check] Figma fetch failed for "${testName}": ${err} — using screenshot`,
+				);
 				saveSnapshot(testName, screenshotBuffer, 'baseline');
 			}
 		} else {
-			if (nodeId) console.warn(`[visual-check] FIGMA_TOKEN or FIGMA_FILE_KEY not set — using screenshot`);
-			else        console.warn(`[visual-check] No Figma node mapping for "${testName}" — using screenshot`);
+			if (nodeId)
+				console.warn(
+					`[visual-check] FIGMA_TOKEN or FIGMA_FILE_KEY not set — using screenshot`,
+				);
+			else
+				console.warn(
+					`[visual-check] No Figma node mapping for "${testName}" — using screenshot`,
+				);
 			saveSnapshot(testName, screenshotBuffer, 'baseline');
 		}
 		writeResult({
-			testName, buildId, status: 'pending',
-			diffPercent: 0, diffPixels: 0,
-			currentPath:  `baselines/${testName}.png`,
+			testName,
+			buildId,
+			status: 'pending',
+			diffPercent: 0,
+			diffPixels: 0,
+			currentPath: `baselines/${testName}.png`,
 			baselinePath: `current/${buildId}/${testName}.png`,
-			viewport, timestamp,
+			viewport,
+			timestamp,
 		});
 		recalculateBuildStatus(buildId, readResults());
 		return;
@@ -112,14 +133,20 @@ export async function visualTest(
 
 	// ── 8. No baseline yet ─────────────────────────────────────────────────────
 	if (!fs.existsSync(paths.baseline)) {
-		console.log(`[visual-check] No baseline for "${testName}" — saving current as baseline`);
+		console.log(
+			`[visual-check] No baseline for "${testName}" — saving current as baseline`,
+		);
 		saveSnapshot(testName, screenshotBuffer, 'baseline');
 		writeResult({
-			testName, buildId, status: 'pending',
-			diffPercent: 0, diffPixels: 0,
-			currentPath:  `baselines/${testName}.png`,
+			testName,
+			buildId,
+			status: 'pending',
+			diffPercent: 0,
+			diffPixels: 0,
+			currentPath: `baselines/${testName}.png`,
 			baselinePath: `current/${buildId}/${testName}.png`,
-			viewport, timestamp,
+			viewport,
+			timestamp,
 		});
 		recalculateBuildStatus(buildId, readResults());
 		return;
@@ -127,24 +154,48 @@ export async function visualTest(
 
 	// ── 9. Diff ────────────────────────────────────────────────────────────────
 	const baselineBuffer = fs.readFileSync(paths.baseline);
-	const diffResult     = runDiff(baselineBuffer, screenshotBuffer, paths.diff);
-	const status         = diffResult.diffPercent < 1.0 ? 'pass' : 'fail';
+	const diffResult = runDiff(baselineBuffer, screenshotBuffer, paths.diff);
+	const status = diffResult.diffPercent < 1.0 ? 'pass' : 'fail';
 
 	// ── 10. DOM label lookup ───────────────────────────────────────────────────
-	let diffRegions = await annotateDomLabels(page, diffResult.regions, viewport);
+	let diffRegions = await annotateDomLabels(
+		page,
+		diffResult.regions,
+		viewport,
+	);
 
 	// ── 11. Figma node label lookup ────────────────────────────────────────────
 	diffRegions = annotateFigmaLabels(testName, diffRegions);
 
+	// ── 11b. AI Label Generation ───────────────────────────────────────────────
+	if (diffRegions.length > 0) {
+		console.log(
+			`[visual-check] Generating AI labels for ${diffRegions.length} region${diffRegions.length !== 1 ? 's' : ''}...`,
+		);
+		for (const region of diffRegions) {
+			try {
+				region.aiLabel = await generateRegionLabel(region);
+			} catch (err) {
+				console.warn(
+					`[visual-check] Failed to generate AI label for region ${region.index}: ${err}`,
+				);
+				region.aiLabel = 'Label generation failed';
+			}
+		}
+	}
+
 	// ── 12. Write result ───────────────────────────────────────────────────────
 	writeResult({
-		testName, buildId, status,
+		testName,
+		buildId,
+		status,
 		diffPercent: diffResult.diffPercent,
-		diffPixels:  diffResult.diffPixels,
-		currentPath:  `baselines/${testName}.png`,
+		diffPixels: diffResult.diffPixels,
+		currentPath: `baselines/${testName}.png`,
 		baselinePath: `current/${buildId}/${testName}.png`,
-		diffPath:     `diffs/${buildId}/${testName}.png`,
-		viewport, timestamp,
+		diffPath: `diffs/${buildId}/${testName}.png`,
+		viewport,
+		timestamp,
 		diffRegions: diffRegions.length > 0 ? diffRegions : undefined,
 	});
 
@@ -154,15 +205,19 @@ export async function visualTest(
 	if (status === 'fail') {
 		console.log(
 			`[visual-check] FAIL: "${testName}" — ${diffResult.diffPercent.toFixed(2)}% diff ` +
-			`(${diffResult.diffPixels.toLocaleString()} px · ${diffRegions.length} region${diffRegions.length !== 1 ? 's' : ''})`,
+				`(${diffResult.diffPixels.toLocaleString()} px · ${diffRegions.length} region${diffRegions.length !== 1 ? 's' : ''})`,
 		);
 		diffRegions.forEach((r) => {
-			const dom   = r.domLabel   ? ` DOM: ${r.domLabel}`   : '';
+			const dom = r.domLabel ? ` DOM: ${r.domLabel}` : '';
 			const figma = r.figmaLabel ? ` Figma: ${r.figmaLabel}` : '';
-			console.log(`  Region ${r.index + 1}: ${r.diffPixels}px at (${r.x},${r.y}) ${r.width}×${r.height}${dom}${figma}`);
+			console.log(
+				`  Region ${r.index + 1}: ${r.diffPixels}px at (${r.x},${r.y}) ${r.width}×${r.height}${dom}${figma}`,
+			);
 		});
 	} else {
-		console.log(`[visual-check] PASS: "${testName}" — ${diffResult.diffPercent.toFixed(2)}% diff`);
+		console.log(
+			`[visual-check] PASS: "${testName}" — ${diffResult.diffPercent.toFixed(2)}% diff`,
+		);
 	}
 }
 
@@ -175,12 +230,17 @@ export async function visualTest(
  * Synchronous — no API calls. Reads the .figma.json saved at baseline-pull time.
  * Gracefully skips if the file doesn't exist.
  */
-function annotateFigmaLabels(testName: string, regions: DiffRegion[]): DiffRegion[] {
+function annotateFigmaLabels(
+	testName: string,
+	regions: DiffRegion[],
+): DiffRegion[] {
 	if (regions.length === 0) return regions;
 
 	const tree = loadFigmaNodeTree(testName);
 	if (!tree) {
-		console.warn(`[visual-check] No Figma node tree for "${testName}" — pull Figma baselines via the dashboard to enable Figma labels`);
+		console.warn(
+			`[visual-check] No Figma node tree for "${testName}" — pull Figma baselines via the dashboard to enable Figma labels`,
+		);
 		return regions;
 	}
 
@@ -188,10 +248,57 @@ function annotateFigmaLabels(testName: string, regions: DiffRegion[]): DiffRegio
 		const node = findFigmaNodeForRegion(tree, region);
 		if (!node) return region;
 		// Format: "ComponentName (TYPE)" e.g. "CTA Button (COMPONENT)"
-		const figmaLabel = node.type !== 'TEXT' && node.type !== 'INSTANCE'
-			? `${node.name} (${node.type})`
-			: node.name;
-		return { ...region, figmaLabel };
+		const figmaLabel =
+			node.type !== 'TEXT' && node.type !== 'INSTANCE'
+				? `${node.name} (${node.type})`
+				: node.name;
+
+		const figmaMetrics: Record<string, string | number> = {};
+		if (node.absoluteBoundingBox) {
+			figmaMetrics.width = Math.round(node.absoluteBoundingBox.width);
+			figmaMetrics.height = Math.round(node.absoluteBoundingBox.height);
+		}
+		if (node.characters) {
+			figmaMetrics.text =
+				node.characters.length > 50
+					? `${node.characters.slice(0, 50)}…`
+					: node.characters;
+		}
+		if (node.fills && Array.isArray(node.fills) && node.fills.length > 0) {
+			const fill = node.fills[0];
+			if (fill.type === 'SOLID' && fill.color) {
+				const r = Math.round(fill.color.r * 255);
+				const g = Math.round(fill.color.g * 255);
+				const b = Math.round(fill.color.b * 255);
+				const a = fill.color.a ?? 1;
+				const colorString =
+					a < 1
+						? `rgba(${r}, ${g}, ${b}, ${a.toFixed(2)})`
+						: `rgb(${r}, ${g}, ${b})`;
+				if (node.type === 'TEXT') {
+					figmaMetrics.color = colorString;
+				} else {
+					figmaMetrics.backgroundColor = colorString;
+				}
+			}
+		}
+		if (node.style) {
+			if (node.style.fontSize)
+				figmaMetrics.fontSize = `${node.style.fontSize}px`;
+			if (node.style.fontWeight)
+				figmaMetrics.fontWeight = node.style.fontWeight;
+			if (node.style.fontFamily)
+				figmaMetrics.fontFamily = node.style.fontFamily;
+			if (node.style.letterSpacing)
+				figmaMetrics.letterSpacing = `${node.style.letterSpacing}px`;
+			if (node.style.lineHeightPx)
+				figmaMetrics.lineHeight = `${node.style.lineHeightPx}px`;
+			if (node.style.textAlignHorizontal)
+				figmaMetrics.textAlign =
+					node.style.textAlignHorizontal.toLowerCase();
+		}
+
+		return { ...region, figmaLabel, figmaMetrics };
 	});
 }
 
@@ -205,35 +312,85 @@ async function annotateDomLabels(
 	if (regions.length === 0) return regions;
 
 	const annotated = [...regions];
-	const limit     = Math.min(annotated.length, MAX_DOM_LOOKUPS);
+	const limit = Math.min(annotated.length, MAX_DOM_LOOKUPS);
 
 	for (let i = 0; i < limit; i++) {
 		const region = annotated[i];
-		const cx = Math.round(region.x + region.width  / 2);
+		const cx = Math.round(region.x + region.width / 2);
 		const cy = Math.round(region.y + region.height / 2);
 
-		if (cx < 0 || cy < 0 || cx >= viewport.width || cy >= viewport.height) continue;
+		if (cx < 0 || cy < 0 || cx >= viewport.width || cy >= viewport.height)
+			continue;
 
 		try {
-			const label = await page.evaluate(
+			const result = await page.evaluate(
 				({ x, y }: { x: number; y: number }) => {
 					const el = document.elementFromPoint(x, y);
-					if (!el || el === document.documentElement || el === document.body) return null;
+					if (
+						!el ||
+						el === document.documentElement ||
+						el === document.body
+					)
+						return null;
 
-					const tag     = el.tagName.toLowerCase();
-					const id      = el.id ? `#${el.id}` : '';
-					const classes = Array.from(el.classList).slice(0, 2).map((c) => `.${c}`).join('');
-					const role    = el.getAttribute('role') ? `[role="${el.getAttribute('role')}"]` : '';
-					const raw     = (el.textContent ?? '').replace(/\s+/g, ' ').trim();
-					const text    = raw ? ` — "${raw.slice(0, 50)}${raw.length > 50 ? '…' : ''}"` : '';
+					const tag = el.tagName.toLowerCase();
+					const id = el.id ? `#${el.id}` : '';
+					const classes = Array.from(el.classList)
+						.slice(0, 2)
+						.map((c) => `.${c}`)
+						.join('');
+					const role = el.getAttribute('role')
+						? `[role="${el.getAttribute('role')}"]`
+						: '';
 
-					return `${tag}${id}${classes}${role}${text}`;
+					const textContent =
+						tag === 'input' || tag === 'textarea'
+							? (el as HTMLInputElement | HTMLTextAreaElement)
+									.value
+							: el.textContent;
+					const raw = (textContent ?? '').replace(/\s+/g, ' ').trim();
+					const text = raw
+						? ` — "${raw.slice(0, 50)}${raw.length > 50 ? '…' : ''}"`
+						: '';
+
+					const rect = el.getBoundingClientRect();
+					const style = window.getComputedStyle(el);
+
+					const domMetrics: Record<string, string | number> = {
+						width: Math.round(rect.width),
+						height: Math.round(rect.height),
+						color: style.color,
+						backgroundColor: style.backgroundColor,
+						fontSize: style.fontSize,
+						fontWeight: style.fontWeight,
+						fontFamily: style.fontFamily,
+						lineHeight: style.lineHeight,
+						letterSpacing: style.letterSpacing,
+						textAlign: style.textAlign,
+					};
+					if (raw) {
+						domMetrics.text =
+							raw.length > 50 ? `${raw.slice(0, 50)}…` : raw;
+					}
+
+					return {
+						label: `${tag}${id}${classes}${role}${text}`,
+						metrics: domMetrics,
+					};
 				},
 				{ x: cx, y: cy },
 			);
-			if (label) annotated[i] = { ...region, domLabel: label };
+			if (result) {
+				annotated[i] = {
+					...region,
+					domLabel: result.label,
+					domMetrics: result.metrics,
+				};
+			}
 		} catch (err) {
-			console.warn(`[visual-check] DOM lookup failed for region ${i}: ${err}`);
+			console.warn(
+				`[visual-check] DOM lookup failed for region ${i}: ${err}`,
+			);
 		}
 	}
 
@@ -242,9 +399,14 @@ async function annotateDomLabels(
 
 // ─── Screenshot capture ───────────────────────────────────────────────────────
 
-async function captureScreenshot(page: Page, options: VisualTestOptions): Promise<Buffer> {
+async function captureScreenshot(
+	page: Page,
+	options: VisualTestOptions,
+): Promise<Buffer> {
 	if (options.selector) {
-		const buf = await page.locator(options.selector).screenshot({ type: 'png' });
+		const buf = await page
+			.locator(options.selector)
+			.screenshot({ type: 'png' });
 		return Buffer.from(buf);
 	}
 	if (options.clip) {
