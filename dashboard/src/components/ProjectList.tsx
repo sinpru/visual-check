@@ -1,11 +1,18 @@
-"use client";
+'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProjectEntry, BuildEntry } from '@visual-check/core';
 import StatusBadge from './StatusBadge';
 import { relativeTime } from '@/lib/format';
-import { ChevronRight, GitBranch, Layers, ImagePlus } from 'lucide-react';
+import {
+  ChevronRight,
+  GitBranch,
+  Layers,
+  ImagePlus,
+  Trash2,
+  Loader2,
+} from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -14,6 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
 
 interface ProjectListProps {
   projects: ProjectEntry[];
@@ -22,6 +30,32 @@ interface ProjectListProps {
 
 const ProjectList: React.FC<ProjectListProps> = ({ projects, builds }) => {
   const router = useRouter();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDelete = async (e: React.MouseEvent, projectId: string) => {
+    e.stopPropagation();
+    if (
+      !confirm(
+        'Are you sure you want to delete this project? All associated builds and data will be permanently removed.',
+      )
+    ) {
+      return;
+    }
+
+    setDeletingId(projectId);
+    try {
+      const res = await fetch(`/api/projects/${projectId}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete project');
+      router.refresh();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to delete project');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   if (projects.length === 0) {
     return null;
@@ -32,7 +66,7 @@ const ProjectList: React.FC<ProjectListProps> = ({ projects, builds }) => {
       <Table>
         <TableHeader>
           <TableRow className="bg-gray-50 hover:bg-gray-50 [&_th]:border-b-0">
-            <TableHead className="w-[280px] font-semibold uppercase tracking-wider text-[10px] text-gray-500 py-3 px-4">
+            <TableHead className="w-70 font-semibold uppercase tracking-wider text-[10px] text-gray-500 py-3 px-4">
               Project
             </TableHead>
             <TableHead className="font-semibold uppercase tracking-wider text-[10px] text-gray-500 py-3">
@@ -44,14 +78,18 @@ const ProjectList: React.FC<ProjectListProps> = ({ projects, builds }) => {
             <TableHead className="text-right font-semibold uppercase tracking-wider text-[10px] text-gray-500 py-3">
               Stats
             </TableHead>
-            <TableHead className="w-[50px] py-3 px-4"></TableHead>
+            <TableHead className="w-25 py-3 px-4"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {projects.map((project) => {
-            const projectBuilds = builds.filter((b) => b.projectId === project.projectId);
+            const projectBuilds = builds.filter(
+              (b) => b.projectId === project.projectId,
+            );
             const sortedBuilds = [...projectBuilds].sort(
-              (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+              (a, b) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime(),
             );
             const latest = sortedBuilds[0];
             const buildCount = projectBuilds.length;
@@ -63,7 +101,7 @@ const ProjectList: React.FC<ProjectListProps> = ({ projects, builds }) => {
                 className="group cursor-pointer hover:bg-gray-50/60 transition-colors"
                 onClick={() => router.push(`/projects/${project.projectId}`)}
               >
-                <TableCell className="py-3 px-4 max-w-[200px]">
+                <TableCell className="py-3 px-4 max-w-50">
                   <div className="flex flex-col gap-0.5">
                     <span className="font-semibold text-gray-900 group-hover:text-primary transition-colors tracking-tight text-sm truncate">
                       {project.name}
@@ -78,7 +116,9 @@ const ProjectList: React.FC<ProjectListProps> = ({ projects, builds }) => {
                   <div className="flex items-center gap-5">
                     <div className="flex items-center gap-1.5 text-[13px] font-medium text-gray-600">
                       <Layers className="h-3.5 w-3.5 text-gray-400" />
-                      <span>{buildCount} build{buildCount !== 1 ? 's' : ''}</span>
+                      <span>
+                        {buildCount} build{buildCount !== 1 ? 's' : ''}
+                      </span>
                     </div>
 
                     {latest && (
@@ -91,7 +131,7 @@ const ProjectList: React.FC<ProjectListProps> = ({ projects, builds }) => {
                         ) : (
                           <>
                             <GitBranch className="h-3.5 w-3.5 text-gray-400" />
-                            <span className="truncate max-w-[120px]">
+                            <span className="truncate max-w-30">
                               {latest.branch || 'main'}
                             </span>
                           </>
@@ -102,10 +142,14 @@ const ProjectList: React.FC<ProjectListProps> = ({ projects, builds }) => {
                 </TableCell>
 
                 <TableCell className="py-3">
-                  {latest ? <StatusBadge status={latest.status} /> : <span className="text-xs text-gray-400">No builds</span>}
+                  {latest ? (
+                    <StatusBadge status={latest.status} />
+                  ) : (
+                    <span className="text-xs text-gray-400">No builds</span>
+                  )}
                 </TableCell>
 
-                <TableCell className="py-3 text-right w-[140px]">
+                <TableCell className="py-3 text-right w-35">
                   {latest ? (
                     <div className="flex flex-col gap-1.5">
                       <div className="flex items-center justify-end gap-2 text-sm">
@@ -149,8 +193,23 @@ const ProjectList: React.FC<ProjectListProps> = ({ projects, builds }) => {
                 </TableCell>
 
                 <TableCell className="py-3 px-4 text-right">
-                  <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white group-hover:shadow-sm border border-transparent group-hover:border-gray-200 transition-all">
-                    <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors" />
+                  <div className="flex items-center justify-end gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                      onClick={(e) => handleDelete(e, project.projectId)}
+                      disabled={deletingId === project.projectId}
+                    >
+                      {deletingId === project.projectId ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                    </Button>
+                    <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white group-hover:shadow-sm border border-transparent group-hover:border-gray-200 transition-all">
+                      <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors" />
+                    </div>
                   </div>
                 </TableCell>
               </TableRow>
@@ -163,4 +222,3 @@ const ProjectList: React.FC<ProjectListProps> = ({ projects, builds }) => {
 };
 
 export default ProjectList;
-

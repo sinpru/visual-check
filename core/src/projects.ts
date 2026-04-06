@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ProjectEntry, ProjectStatus } from './types.ts';
+import { readBuilds, deleteBuild } from './builds.ts';
 
 // ─── Path resolution ──────────────────────────────────────────────────────────
 
@@ -48,8 +49,8 @@ export function createProject(name: string): ProjectEntry {
 
 	const project: ProjectEntry = {
 		projectId: `project_${Date.now()}`,
-		name:      name.trim(),
-		status:    'active',
+		name: name.trim(),
+		status: 'active',
 		createdAt: new Date().toISOString(),
 		updatedAt: new Date().toISOString(),
 	};
@@ -65,7 +66,7 @@ export function createProject(name: string): ProjectEntry {
  */
 export function updateProject(
 	projectId: string,
-	data: Partial<Pick<ProjectEntry, 'name' | 'status'>>
+	data: Partial<Pick<ProjectEntry, 'name' | 'status'>>,
 ): void {
 	const projects = readProjects();
 	const idx = projects.findIndex((p) => p.projectId === projectId);
@@ -82,9 +83,15 @@ export function updateProject(
 
 /**
  * Permanently removes a project from projects.json.
- * Does NOT delete associated builds — caller is responsible for that.
+ * Also deletes all associated builds.
  */
 export function deleteProject(projectId: string): void {
 	const projects = readProjects();
 	writeProjects(projects.filter((p) => p.projectId !== projectId));
+
+	// Delete associated builds
+	const builds = readBuilds().filter((b) => b.projectId === projectId);
+	for (const build of builds) {
+		deleteBuild(build.buildId);
+	}
 }

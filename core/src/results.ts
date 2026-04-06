@@ -6,7 +6,7 @@ import { ResultEntry, ResultStatus } from './types.ts';
 // ─── Path resolution ──────────────────────────────────────────────────────────
 
 const __filename = fileURLToPath(import.meta.url);
-const REPO_ROOT  = path.resolve(path.dirname(__filename), '..', '..');
+const REPO_ROOT = path.resolve(path.dirname(__filename), '..', '..');
 
 function getResultsPath(): string {
 	const dir = process.env.SNAPSHOTS_DIR;
@@ -35,7 +35,7 @@ export function readResults(buildId?: string): ResultEntry[] {
 
 export function writeResult(entry: ResultEntry): void {
 	const filePath = getResultsPath();
-	const results  = readResults();
+	const results = readResults();
 	const idx = results.findIndex(
 		(r) => r.testName === entry.testName && r.buildId === entry.buildId,
 	);
@@ -47,14 +47,18 @@ export function writeResult(entry: ResultEntry): void {
 	atomicWrite(filePath, results);
 }
 
-export function updateStatus(testName: string, buildId: string, status: ResultStatus): void {
+export function updateStatus(
+	testName: string,
+	buildId: string,
+	status: ResultStatus,
+): void {
 	const filePath = getResultsPath();
-	const results  = readResults();
-	const entry    = results.find(
+	const results = readResults();
+	const entry = results.find(
 		(r) => r.testName === testName && r.buildId === buildId,
 	);
 	if (!entry) return;
-	entry.status    = status;
+	entry.status = status;
 	entry.updatedAt = new Date().toISOString();
 	atomicWrite(filePath, results);
 }
@@ -73,8 +77,8 @@ export function updateRegionAnalysis(
 	description: string,
 ): void {
 	const filePath = getResultsPath();
-	const results  = readResults();
-	const entry    = results.find(
+	const results = readResults();
+	const entry = results.find(
 		(r) => r.testName === testName && r.buildId === buildId,
 	);
 	if (!entry) return;
@@ -84,6 +88,16 @@ export function updateRegionAnalysis(
 	if (!region) return;
 
 	region.aiDescription = description;
-	entry.updatedAt      = new Date().toISOString();
+	entry.updatedAt = new Date().toISOString();
 	atomicWrite(filePath, results);
+}
+
+/**
+ * Removes all result entries associated with a specific buildId.
+ */
+export function deleteResultsForBuild(buildId: string): void {
+	const filePath = getResultsPath();
+	const results = readResults();
+	const filtered = results.filter((r) => r.buildId !== buildId);
+	atomicWrite(filePath, filtered);
 }

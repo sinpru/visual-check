@@ -35,7 +35,7 @@ export function saveSnapshot(
 	type: 'baseline' | 'current',
 	buildId?: string,
 ): void {
-	const paths      = getPaths(testName, buildId);
+	const paths = getPaths(testName, buildId);
 	const targetPath = type === 'baseline' ? paths.baseline : paths.current;
 	fs.mkdirSync(path.dirname(targetPath), { recursive: true });
 	fs.writeFileSync(targetPath, buffer);
@@ -45,7 +45,9 @@ export function approveBaseline(testName: string, buildId: string): void {
 	const paths = getPaths(testName, buildId);
 
 	if (!fs.existsSync(paths.current)) {
-		throw new Error(`Current snapshot not found for ${testName} in build ${buildId}`);
+		throw new Error(
+			`Current snapshot not found for ${testName} in build ${buildId}`,
+		);
 	}
 
 	fs.mkdirSync(path.dirname(paths.baseline), { recursive: true });
@@ -65,8 +67,11 @@ export function approveBaseline(testName: string, buildId: string): void {
  * Call this immediately after saving the baseline PNG so the diff step can
  * resolve Figma node names for changed regions without an extra API call.
  */
-export function saveFigmaNodeTree(testName: string, tree: FigmaNodeDocument): void {
-	const dir      = path.join(getSnapshotsDir(), 'baselines');
+export function saveFigmaNodeTree(
+	testName: string,
+	tree: FigmaNodeDocument,
+): void {
+	const dir = path.join(getSnapshotsDir(), 'baselines');
 	const filePath = path.join(dir, `${testName}.figma.json`);
 	fs.mkdirSync(dir, { recursive: true });
 	fs.writeFileSync(filePath, JSON.stringify(tree, null, 2));
@@ -78,11 +83,33 @@ export function saveFigmaNodeTree(testName: string, tree: FigmaNodeDocument): vo
  * graceful degradation (figmaLabel stays undefined for all regions).
  */
 export function loadFigmaNodeTree(testName: string): FigmaNodeDocument | null {
-	const filePath = path.join(getSnapshotsDir(), 'baselines', `${testName}.figma.json`);
+	const filePath = path.join(
+		getSnapshotsDir(),
+		'baselines',
+		`${testName}.figma.json`,
+	);
 	if (!fs.existsSync(filePath)) return null;
 	try {
-		return JSON.parse(fs.readFileSync(filePath, 'utf-8')) as FigmaNodeDocument;
+		return JSON.parse(
+			fs.readFileSync(filePath, 'utf-8'),
+		) as FigmaNodeDocument;
 	} catch {
 		return null;
+	}
+}
+
+/**
+ * Deletes the snapshot directories (current/ and diffs/) for a given buildId.
+ */
+export function deleteBuildFiles(buildId: string): void {
+	const snapshotsDir = getSnapshotsDir();
+	const currentDir = path.join(snapshotsDir, 'current', buildId);
+	const diffDir = path.join(snapshotsDir, 'diffs', buildId);
+
+	if (fs.existsSync(currentDir)) {
+		fs.rmSync(currentDir, { recursive: true, force: true });
+	}
+	if (fs.existsSync(diffDir)) {
+		fs.rmSync(diffDir, { recursive: true, force: true });
 	}
 }

@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { BuildEntry, BuildStatus } from './types';
+import { deleteResultsForBuild } from './results.ts';
+import { deleteBuildFiles } from './storage.ts';
 
 // ─── Path resolution ──────────────────────────────────────────────────────────
 
@@ -108,6 +110,18 @@ export function recalculateBuildStatus(buildId: string, results: any[]): void {
 		status,
 		finishedAt:       new Date().toISOString(),
 	});
+}
+
+/**
+ * Permanently removes a build, its result entries, and its snapshot files.
+ */
+export function deleteBuild(buildId: string): void {
+	const builds = readBuilds();
+	writeBuilds(builds.filter((b) => b.buildId !== buildId));
+
+	// Cleanup associated data
+	deleteResultsForBuild(buildId);
+	deleteBuildFiles(buildId);
 }
 
 function writeBuilds(builds: BuildEntry[]): void {

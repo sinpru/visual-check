@@ -1,5 +1,9 @@
 // AI reasoning
-export { callAI, generateRegionDescription } from './src/ai-reasoning.ts';
+export {
+	callAI,
+	generateRegionDescription,
+	generateRegionLabel,
+} from './src/ai-reasoning.ts';
 
 // Types
 export type {
@@ -20,10 +24,7 @@ export type {
 	FigmaNodeData,
 } from './src/types.ts';
 
-export {
-	FigmaNodeNotFoundError,
-	FigmaAssetFetchError,
-} from './src/types.ts';
+export { FigmaNodeNotFoundError, FigmaAssetFetchError } from './src/types.ts';
 
 // Figma
 export {
@@ -67,6 +68,7 @@ export {
 	updateBuild,
 	getOrCreateBuild,
 	recalculateBuildStatus,
+	deleteBuild,
 } from './src/builds.ts';
 
 // Projects

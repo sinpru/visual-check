@@ -10,6 +10,7 @@ import {
   GitBranch,
   GitCommit,
   Calendar,
+  Trash2,
 } from 'lucide-react';
 import { relativeTime } from '@/lib/format';
 import { useRouter } from 'next/navigation';
@@ -21,6 +22,7 @@ interface BuildHeaderProps {
 const BuildHeader: React.FC<BuildHeaderProps> = ({ build }) => {
   const router = useRouter();
   const [isApprovingAll, setIsApprovingAll] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleApproveAll = async () => {
     if (
@@ -47,6 +49,26 @@ const BuildHeader: React.FC<BuildHeaderProps> = ({ build }) => {
       alert('Failed to approve all snapshots.');
     } finally {
       setIsApprovingAll(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this build? This action cannot be undone.')) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/builds/${build.buildId}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete build');
+      router.push(`/projects/${build.projectId}`);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to delete build');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -91,25 +113,43 @@ const BuildHeader: React.FC<BuildHeaderProps> = ({ build }) => {
           </div>
         </div>
 
-        {build.status === 'unreviewed' && (
+        <div className="flex items-center gap-3">
           <Button
-            onClick={handleApproveAll}
-            disabled={isApprovingAll}
-            className="rounded-xl h-12 px-6 font-semibold text-base shadow-sm transition-all hover:scale-[1.01] active:scale-[0.99]"
+            variant="outline"
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="rounded-xl h-12 px-5 font-semibold text-gray-600 hover:text-red-600 hover:bg-red-50 hover:border-red-200 shadow-sm transition-all"
           >
-            {isApprovingAll ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Approving All...
-              </>
+            {isDeleting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <>
-                <CheckCircle2 className="mr-2 h-4 w-4" />
-                Approve all changes
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete build
               </>
             )}
           </Button>
-        )}
+
+          {build.status === 'unreviewed' && (
+            <Button
+              onClick={handleApproveAll}
+              disabled={isApprovingAll}
+              className="rounded-xl h-12 px-6 font-semibold text-base shadow-sm transition-all hover:scale-[1.01] active:scale-[0.99]"
+            >
+              {isApprovingAll ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Approving All...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                  Approve all changes
+                </>
+              )}
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
