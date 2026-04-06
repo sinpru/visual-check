@@ -23,15 +23,9 @@ export type ResultStatus =
 	| 'approved'
 	| 'rejected';
 
-export type BuildStatus =
-	| 'unreviewed'
-	| 'approved'
-	| 'failed'
-	| 'passed';
+export type BuildStatus = 'unreviewed' | 'approved' | 'failed' | 'passed';
 
-export type ProjectStatus =
-	| 'active'
-	| 'archived';
+export type ProjectStatus = 'active' | 'archived';
 
 export interface FrameDimensions {
 	width: number;
@@ -137,4 +131,25 @@ export interface FigmaNodeDocument {
 	type: string;
 	absoluteBoundingBox?: FigmaNodeBoundingBox;
 	children?: FigmaNodeDocument[];
+}
+
+// ─── Figma API Responses ──────────────────────────────────────────────────────
+
+export interface FigmaFileResponse {
+	name: string;
+	document: { children: FigmaNodeDocument[] };
+}
+
+export interface FigmaNodesResponse {
+	nodes: Record<string, { document: FigmaNodeDocument } | null>;
+}
+
+export interface FigmaImagesResponse {
+	err: string | null;
+	images: Record<string, string | null>;
+}
+
+export interface FigmaNodeData {
+	dimensions: FrameDimensions;
+	tree: FigmaNodeDocument;
 }

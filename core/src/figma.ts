@@ -1,28 +1,55 @@
 import sharp from 'sharp';
-import type { FigmaNodeDocument, FigmaNodeBoundingBox } from './types.ts';
+import type {
+	FigmaNodeDocument,
+	FrameDimensions,
+	FigmaFileResponse,
+	FigmaNodesResponse,
+	FigmaImagesResponse,
+	FigmaNodeData,
+} from './types.ts';
 import {
 	FigmaAssetFetchError,
 	FigmaNodeNotFoundError,
-	FrameDimensions,
 } from './types.ts';
+import { getCache, setCache } from './cache.ts';
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// ─── Constants ───────────────────────────────────────────────────────────────
 
 const FIGMA_BASE = 'https://api.figma.com/v1';
 
-async function figmaGet<T>(
+/**
+ * Default TTLs for different types of Figma API calls.
+ */
+export const FIGMA_TTL = {
+	FILE: 3600 * 1000, // 1 hour for the whole file tree (discovery)
+	NODE: 3600 * 1000, // 1 hour for node dimensions/tree
+	IMAGE: 600 * 1000, // 10 minutes for CDN image URLs
+};
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+/**
+ * Low-level GET with automatic retries, 429 handling, and file-based caching.
+ */
+export async function figmaGet<T>(
 	path: string,
 	token: string,
+	ttlMs = 0,
 	attempt = 1,
 ): Promise<T> {
+	const cacheKey = `GET:${path}`;
+
+	if (ttlMs > 0 && attempt === 1) {
+		const cached = getCache<T>(cacheKey, ttlMs);
+		if (cached) return cached;
+	}
+
 	const res = await fetch(`${FIGMA_BASE}${path}`, {
 		headers: { 'X-Figma-Token': token },
 	});
 
 	if (res.status === 429 && attempt <= 3) {
 		const retryAfter = Number(res.headers.get('Retry-After') ?? 10);
-		// Cap backoff at 30s so we don't hang forever during a demo.
-		// If the Retry-After is multi-day (Starter plan), we give up fast.
 		if (retryAfter > 60) {
 			throw new Error(
 				`Figma rate limit exceeded. Retry-After: ${retryAfter}s (~${Math.round(retryAfter / 3600)}h). ` +
@@ -30,14 +57,20 @@ async function figmaGet<T>(
 			);
 		}
 		await sleep(Math.min(retryAfter * 1000, 30_000) * attempt);
-		return figmaGet<T>(path, token, attempt + 1);
+		return figmaGet<T>(path, token, ttlMs, attempt + 1);
 	}
 
 	if (!res.ok) {
 		throw new Error(`Figma API responded ${res.status} for ${path}`);
 	}
 
-	return res.json() as Promise<T>;
+	const data = (await res.json()) as T;
+
+	if (ttlMs > 0) {
+		setCache(cacheKey, data);
+	}
+
+	return data;
 }
 
 function sleep(ms: number): Promise<void> {
@@ -55,51 +88,104 @@ const EXCLUDED_LABEL_TYPES = new Set([
 	'COMPONENT_SET', 'GROUP',
 ]);
 
-// ─── Internal: single API call that returns BOTH dimensions and the node tree ─
+// ─── Public API ───────────────────────────────────────────────────────────────
 
-interface NodeResponse {
-	dimensions: FrameDimensions;
-	tree:       FigmaNodeDocument;
+/**
+ * Fetches the whole Figma file document tree. Used for frame discovery.
+ */
+export async function fetchFigmaFile(
+	fileKey: string,
+	token: string,
+	ttlMs = FIGMA_TTL.FILE,
+): Promise<FigmaFileResponse> {
+	return figmaGet<FigmaFileResponse>(`/files/${fileKey}`, token, ttlMs);
 }
 
 /**
- * Single GET /v1/files/{fileKey}/nodes?ids={nodeId} call.
- * Returns both the bounding box dimensions AND the full node document tree.
- *
- * All public functions that need either piece call this once and destructure.
- * This is the key to staying within Figma's rate limits — one call, not two.
+ * Fetches dimensions and node trees for a batch of Figma nodes.
+ * Uses a single GET /v1/files/{fileKey}/nodes?ids=ID1,ID2... call.
+ */
+export async function fetchNodesBatch(
+	fileKey: string,
+	nodeIds: string[],
+	token:   string,
+	ttlMs =  FIGMA_TTL.NODE,
+): Promise<Record<string, FigmaNodeData>> {
+	if (nodeIds.length === 0) return {};
+
+	const normIds = nodeIds.map(normalizeNodeId);
+	const path    = `/files/${fileKey}/nodes?ids=${encodeURIComponent(normIds.join(','))}`;
+
+	const data = await figmaGet<FigmaNodesResponse>(path, token, ttlMs);
+	const out: Record<string, FigmaNodeData> = {};
+
+	for (const id of nodeIds) {
+		const normId = normalizeNodeId(id);
+		const entry  = data.nodes[normId];
+		const bb     = entry?.document?.absoluteBoundingBox;
+
+		if (!entry || !bb) {
+			console.warn(`[figma] Node ${id} not found in batch for ${fileKey}`);
+			continue;
+		}
+
+		out[id] = {
+			dimensions: { width: Math.round(bb.width), height: Math.round(bb.height) },
+			tree:       entry.document,
+		};
+	}
+
+	return out;
+}
+
+/**
+ * Internal: used by single-node functions.
  */
 async function fetchNodeData(
 	fileKey: string,
 	nodeId:  string,
 	token:   string,
-): Promise<NodeResponse> {
-	type NodesResponse = {
-		nodes: Record<string, { document: FigmaNodeDocument } | null>;
-	};
-
-	const normId = normalizeNodeId(nodeId);
-	const data   = await figmaGet<NodesResponse>(
-		`/files/${fileKey}/nodes?ids=${encodeURIComponent(normId)}`,
-		token,
-	);
-
-	const entry = data.nodes[normId];
-	const bb    = entry?.document?.absoluteBoundingBox;
-
-	if (!entry || !bb) throw new FigmaNodeNotFoundError(nodeId);
-
-	return {
-		dimensions: { width: Math.round(bb.width), height: Math.round(bb.height) },
-		tree:       entry.document,
-	};
+): Promise<FigmaNodeData> {
+	const batch = await fetchNodesBatch(fileKey, [nodeId], token);
+	const data  = batch[nodeId];
+	if (!data) throw new FigmaNodeNotFoundError(nodeId);
+	return data;
 }
 
-// ─── Public API ───────────────────────────────────────────────────────────────
+/**
+ * Fetches CDN render URLs for a batch of Figma nodes at a specific scale.
+ * Uses a single GET /v1/images/{fileKey}?ids=ID1,ID2... call.
+ */
+export async function fetchImagesBatch(
+	fileKey: string,
+	nodeIds: string[],
+	scale:   number,
+	token:   string,
+	ttlMs =  FIGMA_TTL.IMAGE,
+): Promise<Record<string, string>> {
+	if (nodeIds.length === 0) return {};
+
+	const normIds = nodeIds.map(normalizeNodeId);
+	const path    = `/images/${fileKey}?ids=${encodeURIComponent(normIds.join(','))}&format=png&scale=${scale}`;
+
+	const data = await figmaGet<FigmaImagesResponse>(path, token, ttlMs);
+
+	if (data.err) {
+		throw new FigmaAssetFetchError(`Figma image render error: ${data.err}`);
+	}
+
+	const out: Record<string, string> = {};
+	for (const id of nodeIds) {
+		const normId = normalizeNodeId(id);
+		const url    = data.images[normId];
+		if (url) out[id] = url;
+	}
+
+	return out;
+}
 
 /**
  * Returns the native pixel dimensions of a Figma frame node.
- * Uses a single /nodes API call — no separate tree fetch.
  */
 export async function getFrameDimensions(
 	fileKey: string,
@@ -112,10 +198,6 @@ export async function getFrameDimensions(
 
 /**
  * Fetches the full node document tree for a given frame node.
- * Uses the same single /nodes API call as getFrameDimensions.
- *
- * Returns null on error (graceful degradation) — callers should
- * treat a missing tree as Figma labels being unavailable, not a crash.
  */
 export async function fetchNodeTree(
 	fileKey: string,
@@ -132,14 +214,8 @@ export async function fetchNodeTree(
 }
 
 /**
- * Fetches BOTH the node tree AND the PNG in two API calls total:
- *   1. GET /v1/files/{fileKey}/nodes  → dimensions + tree (one call)
- *   2. GET /v1/images/{fileKey}       → CDN URL           (one call)
- *   3. fetch(cdnUrl)                  → raw bytes         (CDN, not Figma API)
- *
- * Returns { buffer, tree } so the caller saves both without any extra calls.
- * This is the function figma-snapshot/route.ts should use — it replaces the
- * old pattern of calling fetchFigmaBaseline + fetchNodeTree separately.
+ * Fetches BOTH the node tree AND the PNG buffer.
+ * Uses cached batch calls internally.
  */
 export async function fetchFigmaBaselineWithTree(
 	fileKey:      string,
@@ -148,36 +224,20 @@ export async function fetchFigmaBaselineWithTree(
 	targetWidth:  number,
 	targetHeight: number,
 ): Promise<{ buffer: Buffer; tree: FigmaNodeDocument }> {
-	// ── 1 API call: dimensions + tree ──────────────────────────────────────
 	const { dimensions, tree } = await fetchNodeData(fileKey, nodeId, token);
 
 	const rawScale = targetWidth / dimensions.width;
 	const scale    = Math.min(4, Math.max(0.01, rawScale));
 
-	// ── 2nd API call: CDN URL from Figma render API ─────────────────────────
-	type ImagesResponse = {
-		err: string | null;
-		images: Record<string, string | null>;
-	};
+	const images = await fetchImagesBatch(fileKey, [nodeId], scale, token);
+	const cdnUrl = images[nodeId];
 
-	const normId  = normalizeNodeId(nodeId);
-	const imgData = await figmaGet<ImagesResponse>(
-		`/images/${fileKey}?ids=${encodeURIComponent(normId)}&format=png&scale=${scale}`,
-		token,
-	);
-
-	if (imgData.err) {
-		throw new FigmaAssetFetchError(`Figma image render error: ${imgData.err}`);
-	}
-
-	const cdnUrl = imgData.images[normId];
 	if (!cdnUrl) {
 		throw new FigmaAssetFetchError(
 			`Figma returned no CDN URL for node ${nodeId} (invisible or zero-opacity?)`,
 		);
 	}
 
-	// ── CDN fetch (not Figma API, doesn't count toward rate limit) ──────────
 	const cdnRes = await fetch(cdnUrl);
 	if (!cdnRes.ok) {
 		throw new FigmaAssetFetchError(
@@ -196,9 +256,7 @@ export async function fetchFigmaBaselineWithTree(
 }
 
 /**
- * Fetches a Figma frame as a PNG buffer only (no tree).
- * Kept for backward compatibility — uses 2 Figma API calls (nodes + images).
- * Prefer fetchFigmaBaselineWithTree when you also need Figma labels.
+ * Fetches a Figma frame as a PNG buffer only.
  */
 export async function fetchFigmaBaseline(
 	fileKey:      string,

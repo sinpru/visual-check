@@ -1,3 +1,6 @@
+// AI reasoning
+export { callAI, generateRegionDescription } from './src/ai-reasoning.ts';
+
 // Types
 export type {
 	ResultStatus,
@@ -11,6 +14,10 @@ export type {
 	ProjectEntry,
 	FigmaNodeDocument,
 	FigmaNodeBoundingBox,
+	FigmaFileResponse,
+	FigmaNodesResponse,
+	FigmaImagesResponse,
+	FigmaNodeData,
 } from './src/types.ts';
 
 export {
@@ -25,6 +32,11 @@ export {
 	fetchFigmaBaselineWithTree,
 	fetchNodeTree,
 	findFigmaNodeForRegion,
+	fetchFigmaFile,
+	fetchNodesBatch,
+	fetchImagesBatch,
+	figmaGet,
+	FIGMA_TTL,
 } from './src/figma.ts';
 
 // Diffing
