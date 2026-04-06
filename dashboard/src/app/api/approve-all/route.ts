@@ -4,11 +4,17 @@ import {
 	updateStatus,
 	readResults,
 	recalculateBuildStatus,
+	logger,
 } from '@visual-check/core';
 
+const log = logger.child('api:approve-all');
+
 export async function POST(request: NextRequest) {
+	let buildId: string | undefined;
+
 	try {
-		const { buildId } = await request.json();
+		const body = await request.json();
+		buildId = body.buildId;
 
 		if (!buildId) {
 			return NextResponse.json(
@@ -17,13 +23,20 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
+		log.info(`Approve-all request for build ${buildId}`);
+
 		const results = await readResults(buildId);
 		const toApprove = results.filter(
 			(r) => r.status === 'fail' || r.status === 'pending',
 		);
 
+		log.info(
+			`Approving ${toApprove.length} snapshots for build ${buildId}`,
+		);
+
 		// Sequential approval to avoid race conditions on results.json
 		for (const result of toApprove) {
+			log.debug(`Approving "${result.testName}" in build ${buildId}`);
 			await approveBaseline(result.testName, buildId);
 			await updateStatus(result.testName, buildId, 'approved');
 		}
@@ -34,7 +47,7 @@ export async function POST(request: NextRequest) {
 
 		return NextResponse.json({ ok: true, approvedCount: toApprove.length });
 	} catch (error) {
-		console.error('Approve all failed:', error);
+		log.error(`Approve-all failed for build ${buildId}`, { error });
 		return NextResponse.json(
 			{ error: 'Approve all failed' },
 			{ status: 500 },

@@ -4,11 +4,19 @@ import {
 	updateStatus,
 	readResults,
 	recalculateBuildStatus,
+	logger,
 } from '@visual-check/core';
 
+const log = logger.child('api:approve');
+
 export async function POST(request: NextRequest) {
+	let testName: string | undefined;
+	let buildId: string | undefined;
+
 	try {
-		const { testName, buildId } = await request.json();
+		const body = await request.json();
+		testName = body.testName;
+		buildId = body.buildId;
 
 		if (!testName || !buildId) {
 			return NextResponse.json(
@@ -16,6 +24,8 @@ export async function POST(request: NextRequest) {
 				{ status: 400 },
 			);
 		}
+
+		log.info(`Approve request for "${testName}" (build: ${buildId})`);
 
 		// 1. Approve baseline (copy current to baseline)
 		await approveBaseline(testName, buildId);
@@ -29,7 +39,9 @@ export async function POST(request: NextRequest) {
 
 		return NextResponse.json({ ok: true });
 	} catch (error) {
-		console.error('Approve failed:', error);
+		log.error(`Approve failed for "${testName}" (build: ${buildId})`, {
+			error,
+		});
 		return NextResponse.json({ error: 'Approve failed' }, { status: 500 });
 	}
 }

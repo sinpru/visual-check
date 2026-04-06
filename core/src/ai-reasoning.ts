@@ -1,5 +1,8 @@
 import sharp from 'sharp';
 import type { ResultEntry } from './types.ts';
+import { logger } from './logger.ts';
+
+const log = logger.child('ai');
 
 // ─── AI calling logic ────────────────────────────────────────────────────────
 
@@ -14,9 +17,15 @@ async function callAIPovider(
 		process.env.AI_API_URL ?? 'https://api.openai.com/v1/chat/completions';
 	const model = process.env.AI_MODEL ?? 'gpt-4o';
 
-	if (!apiKey) throw new Error('AI_API_KEY is not set in environment');
+	if (!apiKey) {
+		log.error('AI_API_KEY is not set in environment');
+		throw new Error('AI_API_KEY is not set in environment');
+	}
 
 	const isGoogle = apiUrl.includes('googleapis.com');
+	log.debug(
+		`Calling AI provider: ${isGoogle ? 'Gemini' : 'OpenAI-compatible'} (model: ${model})`,
+	);
 
 	if (isGoogle) {
 		// ── Google Gemini API ────────────────────────────────────────────────
@@ -28,36 +37,44 @@ async function callAIPovider(
 					? ':generateContent'
 					: `/models/${model}:generateContent`);
 
+		const payload = {
+			contents: [
+				{
+					role: 'user',
+					parts: [
+						{ text: systemPrompt },
+						...images.map((img) => ({
+							inline_data: {
+								mime_type: img.mimeType,
+								data: img.base64,
+							},
+						})),
+						{ text: prompt },
+					],
+				},
+			],
+			generationConfig: {
+				maxOutputTokens: maxTokens,
+			},
+		};
+
 		const res = await fetch(endpoint, {
 			method: 'POST',
 			headers: {
 				'x-goog-api-key': apiKey,
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify({
-				contents: [
-					{
-						role: 'user',
-						parts: [
-							{ text: systemPrompt },
-							...images.map((img) => ({
-								inline_data: {
-									mime_type: img.mimeType,
-									data: img.base64,
-								},
-							})),
-							{ text: prompt },
-						],
-					},
-				],
-				generationConfig: {
-					maxOutputTokens: maxTokens,
-				},
-			}),
+			body: JSON.stringify(payload),
 		});
 
 		if (!res.ok) {
 			const body = await res.text().catch(() => '');
+			log.error(`Gemini API error ${res.status}`, {
+				status: res.status,
+				body,
+				endpoint,
+				prompt: prompt.slice(0, 500),
+			});
 			throw new Error(
 				`Gemini API error ${res.status}: ${body.slice(0, 300)}`,
 			);
@@ -66,45 +83,54 @@ async function callAIPovider(
 		const data = (await res.json()) as {
 			candidates?: { content: { parts: { text: string }[] } }[];
 		};
-		return (
-			data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ??
-			'(no response)'
-		);
+		const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+		if (!text) {
+			log.warn('Gemini returned empty response', { data });
+		}
+		return text ?? '(no response)';
 	} else {
 		// ── OpenAI-compatible API ────────────────────────────────────────────
+		const payload = {
+			model,
+			max_tokens: maxTokens,
+			messages: [
+				{
+					role: 'system',
+					content: systemPrompt,
+				},
+				{
+					role: 'user',
+					content: [
+						...images.map((img) => ({
+							type: 'image_url' as const,
+							image_url: {
+								url: `data:${img.mimeType};base64,${img.base64}`,
+								detail: 'high' as const,
+							},
+						})),
+						{ type: 'text' as const, text: prompt },
+					],
+				},
+			],
+		};
+
 		const res = await fetch(apiUrl, {
 			method: 'POST',
 			headers: {
 				Authorization: `Bearer ${apiKey}`,
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify({
-				model,
-				max_tokens: maxTokens,
-				messages: [
-					{
-						role: 'system',
-						content: systemPrompt,
-					},
-					{
-						role: 'user',
-						content: [
-							...images.map((img) => ({
-								type: 'image_url' as const,
-								image_url: {
-									url: `data:${img.mimeType};base64,${img.base64}`,
-									detail: 'high' as const,
-								},
-							})),
-							{ type: 'text' as const, text: prompt },
-						],
-					},
-				],
-			}),
+			body: JSON.stringify(payload),
 		});
 
 		if (!res.ok) {
 			const body = await res.text().catch(() => '');
+			log.error(`OpenAI API error ${res.status}`, {
+				status: res.status,
+				body,
+				apiUrl,
+				model,
+			});
 			throw new Error(
 				`AI API error ${res.status}: ${body.slice(0, 300)}`,
 			);
@@ -113,7 +139,11 @@ async function callAIPovider(
 		const data = (await res.json()) as {
 			choices: { message: { content: string } }[];
 		};
-		return data.choices[0]?.message?.content?.trim() ?? '(no response)';
+		const text = data.choices[0]?.message?.content?.trim();
+		if (!text) {
+			log.warn('OpenAI returned empty response', { data });
+		}
+		return text ?? '(no response)';
 	}
 }
 

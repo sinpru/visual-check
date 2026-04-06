@@ -3,6 +3,9 @@ import path from 'node:path';
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
 import { DiffRegion, DiffResult } from './types';
+import { logger } from './logger.ts';
+
+const log = logger.child('diff');
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -41,13 +44,23 @@ export function runDiff(
 			: 0.1);
 
 	const baseline = PNG.sync.read(baselineBuffer);
-	const current  = PNG.sync.read(currentBuffer);
+	const current = PNG.sync.read(currentBuffer);
 
-	if (baseline.width !== current.width || baseline.height !== current.height) {
+	log.info(
+		`Running diff: ${baseline.width}×${baseline.height} at threshold ${resolvedThreshold}`,
+	);
+
+	if (
+		baseline.width !== current.width ||
+		baseline.height !== current.height
+	) {
+		log.error(
+			`Dimension mismatch: baseline is ${baseline.width}×${baseline.height} but current is ${current.width}×${current.height}`,
+		);
 		throw new Error(
 			`Dimension mismatch: baseline is ${baseline.width}×${baseline.height} ` +
-			`but current is ${current.width}×${current.height}. ` +
-			`Run sharp normalisation before diffing.`,
+				`but current is ${current.width}×${current.height}. ` +
+				`Run sharp normalisation before diffing.`,
 		);
 	}
 
@@ -63,6 +76,10 @@ export function runDiff(
 		{ threshold: resolvedThreshold },
 	);
 
+	log.debug(
+		`Diff result: ${diffPixels} pixels changed (${((diffPixels / (width * height)) * 100).toFixed(2)}%)`,
+	);
+
 	fs.mkdirSync(path.dirname(diffOutputPath), { recursive: true });
 	fs.writeFileSync(diffOutputPath, PNG.sync.write(diff));
 
@@ -70,9 +87,17 @@ export function runDiff(
 
 	// Only extract regions when there are actual differences — skip the
 	// BFS entirely for passing snapshots.
-	const regions = diffPixels > 0
-		? extractDiffRegions(diff.data as Buffer, width, height)
-		: [];
+	if (diffPixels > 0) {
+		log.debug('Extracting diff regions...');
+	}
+	const regions =
+		diffPixels > 0
+			? extractDiffRegions(diff.data as Buffer, width, height)
+			: [];
+
+	if (regions.length > 0) {
+		log.info(`Extracted ${regions.length} regions`);
+	}
 
 	return { diffPixels, diffPercent, width, height, regions };
 }
@@ -128,7 +153,10 @@ function extractDiffRegions(
 	// ── 3. BFS flood-fill on dilated mask ────────────────────────────────────
 	const visited = new Uint8Array(total);
 	const raw: Array<{
-		minX: number; maxX: number; minY: number; maxY: number;
+		minX: number;
+		maxX: number;
+		minY: number;
+		maxY: number;
 		actualPixels: number;
 	}> = [];
 
@@ -141,7 +169,10 @@ function extractDiffRegions(
 			const queue: number[] = [si];
 			visited[si] = 1;
 			let head = 0;
-			let minX = sx, maxX = sx, minY = sy, maxY = sy;
+			let minX = sx,
+				maxX = sx,
+				minY = sy,
+				maxY = sy;
 			let actualPixels = 0;
 
 			while (head < queue.length) {
@@ -156,10 +187,34 @@ function extractDiffRegions(
 				if (changed[curr]) actualPixels++;
 
 				// 4-connectivity
-				if (cx > 0)          { const n = curr - 1;     if (dilated[n] && !visited[n]) { visited[n] = 1; queue.push(n); } }
-				if (cx < width - 1)  { const n = curr + 1;     if (dilated[n] && !visited[n]) { visited[n] = 1; queue.push(n); } }
-				if (cy > 0)          { const n = curr - width;  if (dilated[n] && !visited[n]) { visited[n] = 1; queue.push(n); } }
-				if (cy < height - 1) { const n = curr + width;  if (dilated[n] && !visited[n]) { visited[n] = 1; queue.push(n); } }
+				if (cx > 0) {
+					const n = curr - 1;
+					if (dilated[n] && !visited[n]) {
+						visited[n] = 1;
+						queue.push(n);
+					}
+				}
+				if (cx < width - 1) {
+					const n = curr + 1;
+					if (dilated[n] && !visited[n]) {
+						visited[n] = 1;
+						queue.push(n);
+					}
+				}
+				if (cy > 0) {
+					const n = curr - width;
+					if (dilated[n] && !visited[n]) {
+						visited[n] = 1;
+						queue.push(n);
+					}
+				}
+				if (cy < height - 1) {
+					const n = curr + width;
+					if (dilated[n] && !visited[n]) {
+						visited[n] = 1;
+						queue.push(n);
+					}
+				}
 			}
 
 			if (actualPixels < MIN_REGION_PIXELS) continue;
@@ -173,13 +228,15 @@ function extractDiffRegions(
 	return raw
 		.sort((a, b) => b.actualPixels - a.actualPixels)
 		.slice(0, MAX_REGIONS)
-		.map((r, i): DiffRegion => ({
-			index:       i,
-			x:           r.minX,
-			y:           r.minY,
-			width:       r.maxX - r.minX + 1,
-			height:      r.maxY - r.minY + 1,
-			diffPixels:  r.actualPixels,
-			diffPercent: (r.actualPixels / total) * 100,
-		}));
+		.map(
+			(r, i): DiffRegion => ({
+				index: i,
+				x: r.minX,
+				y: r.minY,
+				width: r.maxX - r.minX + 1,
+				height: r.maxY - r.minY + 1,
+				diffPixels: r.actualPixels,
+				diffPercent: (r.actualPixels / total) * 100,
+			}),
+		);
 }

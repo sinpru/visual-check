@@ -1,3 +1,5 @@
+export { logger } from './src/logger.ts';
+
 // AI reasoning
 export {
 	callAI,

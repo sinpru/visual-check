@@ -11,10 +11,13 @@ import {
 	loadFigmaNodeTree,
 	findFigmaNodeForRegion,
 	generateRegionLabel,
+	logger,
 } from '@visual-check/core';
 import type { DiffRegion } from '@visual-check/core';
 import { figmaNodes } from './figmaNodes';
 import fs from 'fs';
+
+const log = logger.child('playwright');
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -70,24 +73,31 @@ export async function visualTest(
 	const viewport = page.viewportSize() || { width: 1440, height: 900 };
 	const timestamp = new Date().toISOString();
 
+	log.info(`Starting visual test: "${testName}" (build: ${buildId})`);
+
 	// ── 2. Suppress animations ─────────────────────────────────────────────────
+	log.debug(`Suppressing animations and transitions for "${testName}"`);
 	await page.addStyleTag({
 		content:
 			'*, *::before, *::after { animation: none !important; transition: none !important; }',
 	});
 
 	// ── 3. Normalize scroll ────────────────────────────────────────────────────
+	log.debug(`Normalizing scroll for "${testName}"`);
 	await page.evaluate(() => window.scrollTo(0, 0));
 
 	// ── 4. Wait for network ────────────────────────────────────────────────────
+	log.debug(`Waiting for network idle for "${testName}"`);
 	await page.waitForLoadState('networkidle');
 
 	// ── 5 & 6. Screenshot + save ───────────────────────────────────────────────
+	log.debug(`Capturing screenshot for "${testName}"`);
 	const screenshotBuffer = await captureScreenshot(page, options);
 	saveSnapshot(testName, screenshotBuffer, 'current', buildId);
 
 	// ── 7. updateBaseline mode ─────────────────────────────────────────────────
 	if (updateBaseline) {
+		log.info(`Updating baseline for "${testName}"...`);
 		const nodeId = figmaNodes[testName];
 		if (nodeId && process.env.FIGMA_TOKEN && process.env.FIGMA_FILE_KEY) {
 			try {
@@ -99,20 +109,21 @@ export async function visualTest(
 					viewport.height,
 				);
 				saveSnapshot(testName, figmaBuffer, 'baseline');
+				log.info(`Saved Figma baseline for "${testName}"`);
 			} catch (err) {
-				console.warn(
-					`[visual-check] Figma fetch failed for "${testName}": ${err} — using screenshot`,
+				log.warn(
+					`Figma fetch failed for "${testName}": ${err} — using screenshot as baseline instead`,
 				);
 				saveSnapshot(testName, screenshotBuffer, 'baseline');
 			}
 		} else {
 			if (nodeId)
-				console.warn(
-					`[visual-check] FIGMA_TOKEN or FIGMA_FILE_KEY not set — using screenshot`,
+				log.warn(
+					`FIGMA_TOKEN or FIGMA_FILE_KEY not set — using screenshot as baseline`,
 				);
 			else
-				console.warn(
-					`[visual-check] No Figma node mapping for "${testName}" — using screenshot`,
+				log.warn(
+					`No Figma node mapping for "${testName}" — using screenshot as baseline`,
 				);
 			saveSnapshot(testName, screenshotBuffer, 'baseline');
 		}
@@ -133,9 +144,7 @@ export async function visualTest(
 
 	// ── 8. No baseline yet ─────────────────────────────────────────────────────
 	if (!fs.existsSync(paths.baseline)) {
-		console.log(
-			`[visual-check] No baseline for "${testName}" — saving current as baseline`,
-		);
+		log.info(`No baseline for "${testName}" — saving current as baseline`);
 		saveSnapshot(testName, screenshotBuffer, 'baseline');
 		writeResult({
 			testName,
@@ -169,19 +178,24 @@ export async function visualTest(
 
 	// ── 11b. AI Label Generation ───────────────────────────────────────────────
 	if (diffRegions.length > 0) {
-		console.log(
-			`[visual-check] Generating AI labels for ${diffRegions.length} region${diffRegions.length !== 1 ? 's' : ''}...`,
+		log.info(
+			`Generating AI labels for ${diffRegions.length} region${diffRegions.length !== 1 ? 's' : ''}...`,
 		);
 		for (const region of diffRegions) {
 			try {
 				region.aiLabel = await generateRegionLabel(region);
+				log.debug(
+					`Generated AI label for region ${region.index}: ${region.aiLabel}`,
+				);
 			} catch (err) {
-				console.warn(
-					`[visual-check] Failed to generate AI label for region ${region.index}: ${err}`,
+				log.error(
+					`Failed to generate AI label for region ${region.index}`,
+					{ error: err },
 				);
 				region.aiLabel = 'Label generation failed';
 			}
 		}
+		log.info(`Finished AI label generation for "${testName}"`);
 	}
 
 	// ── 12. Write result ───────────────────────────────────────────────────────
@@ -203,20 +217,20 @@ export async function visualTest(
 	recalculateBuildStatus(buildId, readResults());
 
 	if (status === 'fail') {
-		console.log(
-			`[visual-check] FAIL: "${testName}" — ${diffResult.diffPercent.toFixed(2)}% diff ` +
+		log.warn(
+			`FAIL: "${testName}" — ${diffResult.diffPercent.toFixed(2)}% diff ` +
 				`(${diffResult.diffPixels.toLocaleString()} px · ${diffRegions.length} region${diffRegions.length !== 1 ? 's' : ''})`,
 		);
 		diffRegions.forEach((r) => {
 			const dom = r.domLabel ? ` DOM: ${r.domLabel}` : '';
 			const figma = r.figmaLabel ? ` Figma: ${r.figmaLabel}` : '';
-			console.log(
+			log.debug(
 				`  Region ${r.index + 1}: ${r.diffPixels}px at (${r.x},${r.y}) ${r.width}×${r.height}${dom}${figma}`,
 			);
 		});
 	} else {
-		console.log(
-			`[visual-check] PASS: "${testName}" — ${diffResult.diffPercent.toFixed(2)}% diff`,
+		log.info(
+			`PASS: "${testName}" — ${diffResult.diffPercent.toFixed(2)}% diff`,
 		);
 	}
 }
@@ -238,8 +252,8 @@ function annotateFigmaLabels(
 
 	const tree = loadFigmaNodeTree(testName);
 	if (!tree) {
-		console.warn(
-			`[visual-check] No Figma node tree for "${testName}" — pull Figma baselines via the dashboard to enable Figma labels`,
+		log.warn(
+			`No Figma node tree for "${testName}" — pull Figma baselines via the dashboard to enable Figma labels`,
 		);
 		return regions;
 	}
@@ -368,6 +382,7 @@ async function annotateDomLabels(
 						letterSpacing: style.letterSpacing,
 						textAlign: style.textAlign,
 					};
+
 					if (raw) {
 						domMetrics.text =
 							raw.length > 50 ? `${raw.slice(0, 50)}…` : raw;
@@ -380,6 +395,7 @@ async function annotateDomLabels(
 				},
 				{ x: cx, y: cy },
 			);
+
 			if (result) {
 				annotated[i] = {
 					...region,
@@ -388,9 +404,7 @@ async function annotateDomLabels(
 				};
 			}
 		} catch (err) {
-			console.warn(
-				`[visual-check] DOM lookup failed for region ${i}: ${err}`,
-			);
+			log.warn(`DOM lookup failed for region ${i}`, { error: err });
 		}
 	}
 

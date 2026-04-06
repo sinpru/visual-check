@@ -9,6 +9,9 @@ import type {
 } from './types.ts';
 import { FigmaAssetFetchError, FigmaNodeNotFoundError } from './types.ts';
 import { getCache, setCache } from './cache.ts';
+import { logger } from './logger.ts';
+
+const log = logger.child('figma');
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -47,17 +50,23 @@ export async function figmaGet<T>(
 
 	if (res.status === 429 && attempt <= 3) {
 		const retryAfter = Number(res.headers.get('Retry-After') ?? 10);
+		log.warn(
+			`Figma rate limit hit (429). Retry-After: ${retryAfter}s. Attempt: ${attempt}/3`,
+		);
 		if (retryAfter > 60) {
 			throw new Error(
 				`Figma rate limit exceeded. Retry-After: ${retryAfter}s (~${Math.round(retryAfter / 3600)}h). ` +
 					`This is a Starter-plan / View-seat limit — the quota resets in a few days.`,
 			);
 		}
-		await sleep(Math.min(retryAfter * 1000, 30_000) * attempt);
+		const waitMs = Math.min(retryAfter * 1000, 30_000) * attempt;
+		log.debug(`Sleeping for ${waitMs}ms before retry...`);
+		await sleep(waitMs);
 		return figmaGet<T>(path, token, ttlMs, attempt + 1);
 	}
 
 	if (!res.ok) {
+		log.error(`Figma API responded ${res.status} for ${path}`);
 		throw new Error(`Figma API responded ${res.status} for ${path}`);
 	}
 
@@ -117,6 +126,7 @@ export async function fetchNodesBatch(
 	const normIds = nodeIds.map(normalizeNodeId);
 	const path = `/files/${fileKey}/nodes?ids=${encodeURIComponent(normIds.join(','))}`;
 
+	log.info(`Fetching nodes batch (${nodeIds.length}) for file ${fileKey}`);
 	const data = await figmaGet<FigmaNodesResponse>(path, token, ttlMs);
 	const out: Record<string, FigmaNodeData> = {};
 
@@ -126,9 +136,7 @@ export async function fetchNodesBatch(
 		const bb = entry?.document?.absoluteBoundingBox;
 
 		if (!entry || !bb) {
-			console.warn(
-				`[figma] Node ${id} not found in batch for ${fileKey}`,
-			);
+			log.warn(`Node ${id} not found in batch for ${fileKey}`);
 			continue;
 		}
 
@@ -174,9 +182,13 @@ export async function fetchImagesBatch(
 	const normIds = nodeIds.map(normalizeNodeId);
 	const path = `/images/${fileKey}?ids=${encodeURIComponent(normIds.join(','))}&format=png&scale=${scale}`;
 
+	log.info(
+		`Fetching images batch (${nodeIds.length}) at scale ${scale.toFixed(2)}`,
+	);
 	const data = await figmaGet<FigmaImagesResponse>(path, token, ttlMs);
 
 	if (data.err) {
+		log.error(`Figma image render error: ${data.err}`);
 		throw new FigmaAssetFetchError(`Figma image render error: ${data.err}`);
 	}
 
@@ -214,7 +226,7 @@ export async function fetchNodeTree(
 		const { tree } = await fetchNodeData(fileKey, nodeId, token);
 		return tree;
 	} catch (err) {
-		console.warn(`[figma] fetchNodeTree failed for ${nodeId}:`, err);
+		log.warn(`fetchNodeTree failed for ${nodeId}`, { error: err });
 		return null;
 	}
 }

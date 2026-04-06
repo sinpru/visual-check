@@ -2,6 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ResultEntry, ResultStatus } from './types.ts';
+import { logger } from './logger.ts';
+
+const log = logger.child('results');
 
 // ─── Path resolution ──────────────────────────────────────────────────────────
 
@@ -35,6 +38,9 @@ export function readResults(buildId?: string): ResultEntry[] {
 
 export function writeResult(entry: ResultEntry): void {
 	const filePath = getResultsPath();
+	log.debug(
+		`Writing result for "${entry.testName}" (build: ${entry.buildId})`,
+	);
 	const results = readResults();
 	const idx = results.findIndex(
 		(r) => r.testName === entry.testName && r.buildId === entry.buildId,
@@ -53,11 +59,17 @@ export function updateStatus(
 	status: ResultStatus,
 ): void {
 	const filePath = getResultsPath();
+	log.info(
+		`Updating status to "${status}" for "${testName}" (build: ${buildId})`,
+	);
 	const results = readResults();
 	const entry = results.find(
 		(r) => r.testName === testName && r.buildId === buildId,
 	);
-	if (!entry) return;
+	if (!entry) {
+		log.warn(`Result not found for "${testName}" in build ${buildId}`);
+		return;
+	}
 	entry.status = status;
 	entry.updatedAt = new Date().toISOString();
 	atomicWrite(filePath, results);
@@ -77,15 +89,29 @@ export function updateRegionAnalysis(
 	description: string,
 ): void {
 	const filePath = getResultsPath();
+	log.info(
+		`Updating region ${regionIndex} analysis for "${testName}" (build: ${buildId})`,
+	);
 	const results = readResults();
 	const entry = results.find(
 		(r) => r.testName === testName && r.buildId === buildId,
 	);
-	if (!entry) return;
+	if (!entry) {
+		log.warn(`Result not found for "${testName}" in build ${buildId}`);
+		return;
+	}
 
-	if (!entry.diffRegions) return;
+	if (!entry.diffRegions) {
+		log.warn(`No diffRegions found for "${testName}" in build ${buildId}`);
+		return;
+	}
 	const region = entry.diffRegions.find((r) => r.index === regionIndex);
-	if (!region) return;
+	if (!region) {
+		log.warn(
+			`Region index ${regionIndex} not found for "${testName}" in build ${buildId}`,
+		);
+		return;
+	}
 
 	region.aiDescription = description;
 	entry.updatedAt = new Date().toISOString();

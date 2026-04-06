@@ -8,7 +8,10 @@ import {
 	createBuild,
 	writeResult,
 	FigmaAssetFetchError,
+	logger,
 } from '@visual-check/core';
+
+const log = logger.child('api:figma-snapshot');
 
 interface FrameInput {
 	nodeId: string;
@@ -147,10 +150,7 @@ export async function POST(req: NextRequest) {
 									? err.message
 									: String(err);
 							errors.push({ testName, error: message });
-							console.error(
-								`[figma-snapshot] Failed for "${testName}":`,
-								message,
-							);
+							log.error(`Failed for "${testName}": ${message}`);
 						}
 					}),
 				);
@@ -160,17 +160,14 @@ export async function POST(req: NextRequest) {
 				for (const frame of group) {
 					errors.push({ testName: frame.testName, error: message });
 				}
-				console.error(
-					`[figma-snapshot] Failed batch for scale ${scale}:`,
-					message,
-				);
+				log.error(`Failed batch for scale ${scale}: ${message}`);
 			}
 		}
 
 		return NextResponse.json({ ok: true, build, saved, errors });
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
-		console.error('[figma-snapshot]', message);
+		log.error(`API failure: ${message}`);
 
 		if (
 			message.includes('429') ||

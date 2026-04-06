@@ -2,6 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { FigmaNodeDocument } from './types.ts';
+import { logger } from './logger.ts';
+
+const log = logger.child('storage');
 
 // ─── Path resolution ──────────────────────────────────────────────────────────
 
@@ -37,14 +40,17 @@ export function saveSnapshot(
 ): void {
 	const paths = getPaths(testName, buildId);
 	const targetPath = type === 'baseline' ? paths.baseline : paths.current;
+	log.debug(`Saving ${type} snapshot: ${targetPath}`);
 	fs.mkdirSync(path.dirname(targetPath), { recursive: true });
 	fs.writeFileSync(targetPath, buffer);
 }
 
 export function approveBaseline(testName: string, buildId: string): void {
 	const paths = getPaths(testName, buildId);
+	log.info(`Approving baseline for "${testName}" (build: ${buildId})`);
 
 	if (!fs.existsSync(paths.current)) {
+		log.error(`Current snapshot not found: ${paths.current}`);
 		throw new Error(
 			`Current snapshot not found for ${testName} in build ${buildId}`,
 		);
@@ -52,9 +58,11 @@ export function approveBaseline(testName: string, buildId: string): void {
 
 	fs.mkdirSync(path.dirname(paths.baseline), { recursive: true });
 	fs.copyFileSync(paths.current, paths.baseline);
+	log.debug(`Copied ${paths.current} to ${paths.baseline}`);
 
 	if (fs.existsSync(paths.diff)) {
 		fs.unlinkSync(paths.diff);
+		log.debug(`Deleted diff: ${paths.diff}`);
 	}
 }
 
@@ -73,6 +81,7 @@ export function saveFigmaNodeTree(
 ): void {
 	const dir = path.join(getSnapshotsDir(), 'baselines');
 	const filePath = path.join(dir, `${testName}.figma.json`);
+	log.debug(`Saving Figma node tree to ${filePath}`);
 	fs.mkdirSync(dir, { recursive: true });
 	fs.writeFileSync(filePath, JSON.stringify(tree, null, 2));
 }
@@ -88,12 +97,17 @@ export function loadFigmaNodeTree(testName: string): FigmaNodeDocument | null {
 		'baselines',
 		`${testName}.figma.json`,
 	);
-	if (!fs.existsSync(filePath)) return null;
+	if (!fs.existsSync(filePath)) {
+		log.debug(`Figma node tree not found: ${filePath}`);
+		return null;
+	}
 	try {
+		log.debug(`Loading Figma node tree from ${filePath}`);
 		return JSON.parse(
 			fs.readFileSync(filePath, 'utf-8'),
 		) as FigmaNodeDocument;
-	} catch {
+	} catch (err) {
+		log.error(`Failed to load Figma node tree: ${err}`);
 		return null;
 	}
 }

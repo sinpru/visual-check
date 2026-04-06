@@ -6,7 +6,10 @@ import {
 	updateRegionAnalysis,
 	getSnapshotsDir,
 	generateRegionDescription,
+	logger,
 } from '@visual-check/core';
+
+const log = logger.child('api:analyze-region');
 
 export async function POST(req: NextRequest) {
 	try {
@@ -17,6 +20,10 @@ export async function POST(req: NextRequest) {
 		};
 
 		const { testName, buildId, regionIndex } = body;
+
+		log.info(
+			`Analyzing region ${regionIndex} for "${testName}" (build: ${buildId})`,
+		);
 
 		if (!testName || !buildId || regionIndex == null) {
 			return NextResponse.json(
@@ -102,7 +109,7 @@ export async function POST(req: NextRequest) {
 		return NextResponse.json({ ok: true, description });
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
-		console.error('[api/analyze-region]', message);
+		log.error(`API Error`, { error: err });
 		return NextResponse.json({ error: message }, { status: 500 });
 	}
 }

@@ -3,6 +3,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ProjectEntry, ProjectStatus } from './types.ts';
 import { readBuilds, deleteBuild } from './builds.ts';
+import { logger } from './logger.ts';
+
+const log = logger.child('projects');
 
 // ─── Path resolution ──────────────────────────────────────────────────────────
 
@@ -55,6 +58,7 @@ export function createProject(name: string): ProjectEntry {
 		updatedAt: new Date().toISOString(),
 	};
 
+	log.info(`Creating project "${project.name}" (${project.projectId})`);
 	projects.push(project);
 	writeProjects(projects);
 	return project;
@@ -70,8 +74,12 @@ export function updateProject(
 ): void {
 	const projects = readProjects();
 	const idx = projects.findIndex((p) => p.projectId === projectId);
-	if (idx === -1) return;
+	if (idx === -1) {
+		log.warn(`Project not found for update: ${projectId}`);
+		return;
+	}
 
+	log.debug(`Updating project ${projectId}`, data);
 	projects[idx] = {
 		...projects[idx],
 		...data,
@@ -87,10 +95,15 @@ export function updateProject(
  */
 export function deleteProject(projectId: string): void {
 	const projects = readProjects();
+	const project = projects.find((p) => p.projectId === projectId);
+	if (!project) return;
+
+	log.info(`Deleting project "${project.name}" (${projectId})`);
 	writeProjects(projects.filter((p) => p.projectId !== projectId));
 
 	// Delete associated builds
 	const builds = readBuilds().filter((b) => b.projectId === projectId);
+	log.debug(`Deleting ${builds.length} builds for project ${projectId}`);
 	for (const build of builds) {
 		deleteBuild(build.buildId);
 	}

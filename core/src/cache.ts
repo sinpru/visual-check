@@ -2,6 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { getSnapshotsDir } from './storage.ts';
+import { logger } from './logger.ts';
+
+const log = logger.child('cache');
 
 interface CacheEntry<T> {
 	data: T;
@@ -44,7 +47,7 @@ export function getCache<T>(key: string, ttlMs: number): T | null {
 
 		return entry.data;
 	} catch (err) {
-		console.warn(`[cache] Failed to read cache for key ${key}:`, err);
+		log.warn(`Failed to read cache for key ${key}`, { error: err });
 		return null;
 	}
 }
@@ -64,7 +67,7 @@ export function setCache<T>(key: string, data: T): void {
 	try {
 		fs.writeFileSync(filePath, JSON.stringify(entry, null, 2));
 	} catch (err) {
-		console.error(`[cache] Failed to write cache for key ${key}:`, err);
+		log.error(`Failed to write cache for key ${key}`, { error: err });
 	}
 }
 
@@ -77,7 +80,7 @@ export function clearCache(key: string): void {
 		try {
 			fs.unlinkSync(filePath);
 		} catch (err) {
-			console.error(`[cache] Failed to clear cache for key ${key}:`, err);
+			log.error(`Failed to clear cache for key ${key}`, { error: err });
 		}
 	}
 }
