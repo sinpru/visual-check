@@ -1,5 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const REPO_ROOT = path.resolve(path.dirname(__filename), '..', '..');
 
 type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
 
@@ -27,10 +31,14 @@ class Logger {
 			(process.env.LOG_LEVEL?.toUpperCase() as LogLevel) || 'INFO';
 		this.level = LOG_LEVELS[envLevel] ?? LOG_LEVELS.INFO;
 
-		// Ensure snapshots/logs directory exists if we have a SNAPSHOTS_DIR
-		const snapshotsDir = process.env.SNAPSHOTS_DIR;
-		if (snapshotsDir) {
-			const logsDir = path.resolve(snapshotsDir, 'logs');
+		// Ensure snapshots/logs directory exists
+		const snapshotsDir = process.env.SNAPSHOTS_DIR || './snapshots';
+		const resolvedSnapshotsDir = path.isAbsolute(snapshotsDir)
+			? snapshotsDir
+			: path.resolve(REPO_ROOT, snapshotsDir);
+
+		if (resolvedSnapshotsDir) {
+			const logsDir = path.resolve(resolvedSnapshotsDir, 'logs');
 			try {
 				if (!fs.existsSync(logsDir)) {
 					fs.mkdirSync(logsDir, { recursive: true });

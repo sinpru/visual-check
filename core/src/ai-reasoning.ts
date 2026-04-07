@@ -168,14 +168,14 @@ export async function callAI(
 			{ base64: figmaBase64, mimeType: 'image/png' },
 			{ base64: webBase64, mimeType: 'image/png' },
 		],
-		5000,
+		10000,
 	);
 }
 
 export async function callAIText(prompt: string): Promise<string> {
 	const systemPrompt =
 		'You are a visual QA assistant. You evaluate metric differences between Figma (Expected) and Web (Actual). ' +
-		'Return a short, punchy 3-8 word summary of the main discrepancy. ' +
+		`Return a short, punchy 3-8 word summary of the main discrepancy. If there's an extra element on the web, mention it. ` +
 		'Examples: "Font weight is too bold", "Text content mismatch", "Width is 20px smaller", "Missing background color". ' +
 		'Be specific. Do not say "Visual mismatch" or "UI difference". If multiple things changed, pick the most obvious one.';
 
