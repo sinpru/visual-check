@@ -107,8 +107,7 @@ export default function RunPlaywrightModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'cancel' }),
       });
-    } catch (err) {
-    }
+    } catch (err) {}
     setIsCapturingAuth(false);
     setCaptureStatus('idle');
   }
