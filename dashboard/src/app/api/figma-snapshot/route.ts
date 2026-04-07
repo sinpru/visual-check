@@ -5,6 +5,7 @@ import {
 	saveFigmaNodeTree,
 	createBuild,
 	writeResult,
+	baselineRelPath,
 } from '@visual-check/core';
 
 interface FrameInput {
@@ -57,18 +58,18 @@ export async function POST(req: NextRequest) {
 		for (const frame of frames) {
 			const { nodeId, testName, width, height } = frame;
 			try {
-				// ── Single combined call: gets PNG + node tree together ──────────
-				// fetchFigmaBaselineWithTree uses exactly 2 Figma API calls total:
-				//   1. GET /v1/files/{fileKey}/nodes  (dimensions + tree)
-				//   2. GET /v1/images/{fileKey}       (CDN render URL)
-				// The CDN download is NOT a Figma API call — no rate limit cost.
-				// Previously we were making 3 calls (nodes × 2 + images × 1).
 				const { buffer, tree } = await fetchFigmaBaselineWithTree(
 					fileKey, nodeId, token, width, height,
 				);
 
-				saveSnapshot(testName, buffer, 'baseline');
-				saveFigmaNodeTree(testName, tree);
+				// ── Save baseline scoped to this project ──────────────────────
+				// baselines/{projectId}/{testName}.png
+				saveSnapshot(testName, buffer, 'baseline', undefined, projectId);
+				saveFigmaNodeTree(testName, tree, projectId);
+
+				// Relative path stored in results.json — used by /api/image and
+				// /api/analyze-region. Must match the scoped layout.
+				const bPath = baselineRelPath(testName, projectId);
 
 				writeResult({
 					testName,
@@ -76,8 +77,9 @@ export async function POST(req: NextRequest) {
 					status:       'pass',
 					diffPercent:  0,
 					diffPixels:   0,
-					currentPath:  `baselines/${testName}.png`,
-					baselinePath: `baselines/${testName}.png`,
+					// Both sides point to the Figma PNG for a baseline-only build
+					currentPath:  bPath,
+					baselinePath: bPath,
 					viewport:     { width, height },
 					timestamp:    new Date().toISOString(),
 				});

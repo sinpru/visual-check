@@ -2,6 +2,7 @@ import type { Page } from '@playwright/test';
 import {
 	saveSnapshot,
 	getPaths,
+	baselineRelPath,
 	runDiff,
 	writeResult,
 	fetchFigmaBaseline,
@@ -18,8 +19,8 @@ import fs from 'fs';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface VisualTestOptions {
-	selector?:      string;
-	clip?:          { x: number; y: number; width: number; height: number };
+	selector?:       string;
+	clip?:           { x: number; y: number; width: number; height: number };
 	updateBaseline?: boolean;
 }
 
@@ -29,6 +30,7 @@ const MAX_DOM_LOOKUPS = 10;
 
 /**
  * Steps:
+ * 0.  JWT injection — if AUTH_JWT is set, inject into localStorage before navigation
  * 1.  getOrCreateBuild — register build (idempotent)
  * 2.  Suppress CSS animations/transitions
  * 3.  Normalize scroll
@@ -39,9 +41,18 @@ const MAX_DOM_LOOKUPS = 10;
  * 8.  [no baseline] save current as baseline → write pending, stop
  * 9.  runDiff(figmaBaseline, webScreenshot) → DiffResult with regions[]
  * 10. DOM lookup — attaches domLabel to each region
- * 11. Figma node lookup — attaches figmaLabel to each region (uses saved .figma.json)
+ * 11. Figma node lookup — attaches figmaLabel to each region
  * 12. writeResult with diffRegions
  * 13. recalculateBuildStatus
+ *
+ * Baseline scoping:
+ *   Baselines are stored under baselines/{projectId}/{testName}.png so that
+ *   different projects with the same testName never overwrite each other.
+ *   PROJECT_ID is set by the dashboard run route before spawning Playwright.
+ *
+ * Auth:
+ *   storageState loaded automatically from snapshots/auth.json by playwright.config.ts.
+ *   JWT fallback: AUTH_JWT injected into localStorage[AUTH_JWT_KEY] via addInitScript.
  *
  * Path naming swap (intentional — see AGENTS.md):
  *   currentPath  → Figma frame (LEFT  "Baseline / Expected")
@@ -58,10 +69,26 @@ export async function visualTest(
 	const buildId   = process.env.BUILD_ID   || `build_${Date.now()}`;
 	const projectId = process.env.PROJECT_ID || undefined;
 
+	// ── 0. JWT injection ───────────────────────────────────────────────────────
+	const authJwt    = process.env.AUTH_JWT;
+	const authJwtKey = process.env.AUTH_JWT_KEY || 'token';
+
+	if (authJwt) {
+		await page.addInitScript(
+			({ key, value }: { key: string; value: string }) => {
+				localStorage.setItem(key, value);
+			},
+			{ key: authJwtKey, value: authJwt },
+		);
+		console.log(`[visual-check] JWT injected into localStorage["${authJwtKey}"]`);
+	}
+
 	// ── 1. Register build ──────────────────────────────────────────────────────
 	getOrCreateBuild(buildId, { projectId, branch: 'web', status: 'unreviewed' });
 
-	const paths     = getPaths(testName, buildId);
+	// All baseline paths scoped by projectId
+	const paths     = getPaths(testName, buildId, projectId);
+	const bPath     = baselineRelPath(testName, projectId);   // relative, stored in results.json
 	const viewport  = page.viewportSize() || { width: 1440, height: 900 };
 	const timestamp = new Date().toISOString();
 
@@ -89,20 +116,20 @@ export async function visualTest(
 					process.env.FIGMA_FILE_KEY, nodeId, process.env.FIGMA_TOKEN,
 					viewport.width, viewport.height,
 				);
-				saveSnapshot(testName, figmaBuffer, 'baseline');
+				saveSnapshot(testName, figmaBuffer, 'baseline', undefined, projectId);
 			} catch (err) {
 				console.warn(`[visual-check] Figma fetch failed for "${testName}": ${err} — using screenshot`);
-				saveSnapshot(testName, screenshotBuffer, 'baseline');
+				saveSnapshot(testName, screenshotBuffer, 'baseline', undefined, projectId);
 			}
 		} else {
 			if (nodeId) console.warn(`[visual-check] FIGMA_TOKEN or FIGMA_FILE_KEY not set — using screenshot`);
 			else        console.warn(`[visual-check] No Figma node mapping for "${testName}" — using screenshot`);
-			saveSnapshot(testName, screenshotBuffer, 'baseline');
+			saveSnapshot(testName, screenshotBuffer, 'baseline', undefined, projectId);
 		}
 		writeResult({
 			testName, buildId, status: 'pending',
 			diffPercent: 0, diffPixels: 0,
-			currentPath:  `baselines/${testName}.png`,
+			currentPath:  bPath,
 			baselinePath: `current/${buildId}/${testName}.png`,
 			viewport, timestamp,
 		});
@@ -112,12 +139,12 @@ export async function visualTest(
 
 	// ── 8. No baseline yet ─────────────────────────────────────────────────────
 	if (!fs.existsSync(paths.baseline)) {
-		console.log(`[visual-check] No baseline for "${testName}" — saving current as baseline`);
-		saveSnapshot(testName, screenshotBuffer, 'baseline');
+		console.log(`[visual-check] No baseline for "${testName}" (project: ${projectId ?? 'none'}) — saving current as baseline`);
+		saveSnapshot(testName, screenshotBuffer, 'baseline', undefined, projectId);
 		writeResult({
 			testName, buildId, status: 'pending',
 			diffPercent: 0, diffPixels: 0,
-			currentPath:  `baselines/${testName}.png`,
+			currentPath:  bPath,
 			baselinePath: `current/${buildId}/${testName}.png`,
 			viewport, timestamp,
 		});
@@ -133,16 +160,16 @@ export async function visualTest(
 	// ── 10. DOM label lookup ───────────────────────────────────────────────────
 	let diffRegions = await annotateDomLabels(page, diffResult.regions, viewport);
 
-	// ── 11. Figma node label lookup ────────────────────────────────────────────
-	diffRegions = annotateFigmaLabels(testName, diffRegions);
+	// ── 11. Figma node label lookup — load tree from project-scoped path ───────
+	diffRegions = annotateFigmaLabels(testName, diffRegions, projectId);
 
 	// ── 12. Write result ───────────────────────────────────────────────────────
 	writeResult({
 		testName, buildId, status,
 		diffPercent: diffResult.diffPercent,
 		diffPixels:  diffResult.diffPixels,
-		currentPath:  `baselines/${testName}.png`,
-		baselinePath: `current/${buildId}/${testName}.png`,
+		currentPath:  bPath,                               // Figma PNG → LEFT panel
+		baselinePath: `current/${buildId}/${testName}.png`, // web PNG  → RIGHT panel
 		diffPath:     `diffs/${buildId}/${testName}.png`,
 		viewport, timestamp,
 		diffRegions: diffRegions.length > 0 ? diffRegions : undefined,
@@ -157,7 +184,7 @@ export async function visualTest(
 			`(${diffResult.diffPixels.toLocaleString()} px · ${diffRegions.length} region${diffRegions.length !== 1 ? 's' : ''})`,
 		);
 		diffRegions.forEach((r) => {
-			const dom   = r.domLabel   ? ` DOM: ${r.domLabel}`   : '';
+			const dom   = r.domLabel   ? ` DOM: ${r.domLabel}`     : '';
 			const figma = r.figmaLabel ? ` Figma: ${r.figmaLabel}` : '';
 			console.log(`  Region ${r.index + 1}: ${r.diffPixels}px at (${r.x},${r.y}) ${r.width}×${r.height}${dom}${figma}`);
 		});
@@ -168,26 +195,22 @@ export async function visualTest(
 
 // ─── Figma label lookup ───────────────────────────────────────────────────────
 
-/**
- * Loads the saved Figma node tree for this testName and, for each region,
- * finds the deepest overlapping Figma node.
- *
- * Synchronous — no API calls. Reads the .figma.json saved at baseline-pull time.
- * Gracefully skips if the file doesn't exist.
- */
-function annotateFigmaLabels(testName: string, regions: DiffRegion[]): DiffRegion[] {
+function annotateFigmaLabels(
+	testName:  string,
+	regions:   DiffRegion[],
+	projectId?: string,
+): DiffRegion[] {
 	if (regions.length === 0) return regions;
 
-	const tree = loadFigmaNodeTree(testName);
+	const tree = loadFigmaNodeTree(testName, projectId);
 	if (!tree) {
-		console.warn(`[visual-check] No Figma node tree for "${testName}" — pull Figma baselines via the dashboard to enable Figma labels`);
+		console.warn(`[visual-check] No Figma node tree for "${testName}" (project: ${projectId ?? 'none'}) — pull Figma baselines to enable Figma labels`);
 		return regions;
 	}
 
 	return regions.map((region) => {
 		const node = findFigmaNodeForRegion(tree, region);
 		if (!node) return region;
-		// Format: "ComponentName (TYPE)" e.g. "CTA Button (COMPONENT)"
 		const figmaLabel = node.type !== 'TEXT' && node.type !== 'INSTANCE'
 			? `${node.name} (${node.type})`
 			: node.name;
@@ -198,8 +221,8 @@ function annotateFigmaLabels(testName: string, regions: DiffRegion[]): DiffRegio
 // ─── DOM label lookup ─────────────────────────────────────────────────────────
 
 async function annotateDomLabels(
-	page: Page,
-	regions: DiffRegion[],
+	page:     Page,
+	regions:  DiffRegion[],
 	viewport: { width: number; height: number },
 ): Promise<DiffRegion[]> {
 	if (regions.length === 0) return regions;

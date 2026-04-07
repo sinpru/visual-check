@@ -6,7 +6,7 @@ import type { FigmaNodeDocument } from './types.ts';
 // ─── Path resolution ──────────────────────────────────────────────────────────
 
 const __filename = fileURLToPath(import.meta.url);
-const REPO_ROOT = path.resolve(path.dirname(__filename), '..', '..');
+const REPO_ROOT  = path.resolve(path.dirname(__filename), '..', '..');
 
 export function getSnapshotsDir(): string {
 	const dir = process.env.SNAPSHOTS_DIR;
@@ -14,12 +14,29 @@ export function getSnapshotsDir(): string {
 	return path.isAbsolute(dir) ? dir : path.resolve(REPO_ROOT, dir);
 }
 
-// ─── Public API ───────────────────────────────────────────────────────────────
+// ─── Path helpers ─────────────────────────────────────────────────────────────
 
-export function getPaths(testName: string, buildId?: string) {
+/**
+ * Returns the resolved filesystem paths for baseline, current, and diff images.
+ *
+ * Baseline is scoped by projectId so different projects with the same testName
+ * (e.g. both have a frame called "homepage") never overwrite each other.
+ *
+ * baselines/{projectId}/{testName}.png   — Figma-sourced ground truth
+ * current/{buildId}/{testName}.png       — Playwright web screenshot
+ * diffs/{buildId}/{testName}.png         — pixelmatch output
+ *
+ * projectId is optional for backward-compat — old calls without it fall back
+ * to baselines/{testName}.png (the old flat layout).
+ */
+export function getPaths(testName: string, buildId?: string, projectId?: string) {
 	const snapshotsDir = getSnapshotsDir();
+	const baselineDir  = projectId
+		? path.join(snapshotsDir, 'baselines', projectId)
+		: path.join(snapshotsDir, 'baselines');
+
 	return {
-		baseline: path.join(snapshotsDir, 'baselines', `${testName}.png`),
+		baseline: path.join(baselineDir, `${testName}.png`),
 		current: buildId
 			? path.join(snapshotsDir, 'current', buildId, `${testName}.png`)
 			: path.join(snapshotsDir, 'current', `${testName}.png`),
@@ -29,20 +46,41 @@ export function getPaths(testName: string, buildId?: string) {
 	};
 }
 
+/** Relative path string written into results.json — used by /api/image */
+export function baselineRelPath(testName: string, projectId?: string): string {
+	return projectId
+		? `baselines/${projectId}/${testName}.png`
+		: `baselines/${testName}.png`;
+}
+
+// ─── Snapshot I/O ─────────────────────────────────────────────────────────────
+
 export function saveSnapshot(
-	testName: string,
-	buffer: Buffer,
-	type: 'baseline' | 'current',
-	buildId?: string,
+	testName:  string,
+	buffer:    Buffer,
+	type:      'baseline' | 'current',
+	buildId?:  string,
+	projectId?: string,
 ): void {
-	const paths      = getPaths(testName, buildId);
+	const paths      = getPaths(testName, buildId, projectId);
 	const targetPath = type === 'baseline' ? paths.baseline : paths.current;
 	fs.mkdirSync(path.dirname(targetPath), { recursive: true });
 	fs.writeFileSync(targetPath, buffer);
 }
 
-export function approveBaseline(testName: string, buildId: string): void {
-	const paths = getPaths(testName, buildId);
+/**
+ * Copies the web screenshot from current/ into baselines/{projectId}/ and
+ * deletes the diff image. Called by the approve flow.
+ *
+ * projectId is resolved from the build record when not passed directly —
+ * callers should prefer passing it explicitly.
+ */
+export function approveBaseline(
+	testName:  string,
+	buildId:   string,
+	projectId?: string,
+): void {
+	const paths = getPaths(testName, buildId, projectId);
 
 	if (!fs.existsSync(paths.current)) {
 		throw new Error(`Current snapshot not found for ${testName} in build ${buildId}`);
@@ -60,25 +98,36 @@ export function approveBaseline(testName: string, buildId: string): void {
 
 /**
  * Saves the Figma node document tree alongside the baseline PNG.
- * Path: snapshots/baselines/{testName}.figma.json
+ * Path: snapshots/baselines/{projectId}/{testName}.figma.json
  *
- * Call this immediately after saving the baseline PNG so the diff step can
- * resolve Figma node names for changed regions without an extra API call.
+ * Call immediately after saveSnapshot('baseline') so the diff step can resolve
+ * Figma node names without an extra API call.
  */
-export function saveFigmaNodeTree(testName: string, tree: FigmaNodeDocument): void {
-	const dir      = path.join(getSnapshotsDir(), 'baselines');
+export function saveFigmaNodeTree(
+	testName:  string,
+	tree:      FigmaNodeDocument,
+	projectId?: string,
+): void {
+	const dir      = projectId
+		? path.join(getSnapshotsDir(), 'baselines', projectId)
+		: path.join(getSnapshotsDir(), 'baselines');
 	const filePath = path.join(dir, `${testName}.figma.json`);
 	fs.mkdirSync(dir, { recursive: true });
 	fs.writeFileSync(filePath, JSON.stringify(tree, null, 2));
 }
 
 /**
- * Loads the Figma node document tree for a given testName.
- * Returns null if the file does not exist — the diff step should treat this as
- * graceful degradation (figmaLabel stays undefined for all regions).
+ * Loads the Figma node tree for a given testName (+ projectId).
+ * Returns null if not found — callers should treat this as graceful degradation.
  */
-export function loadFigmaNodeTree(testName: string): FigmaNodeDocument | null {
-	const filePath = path.join(getSnapshotsDir(), 'baselines', `${testName}.figma.json`);
+export function loadFigmaNodeTree(
+	testName:  string,
+	projectId?: string,
+): FigmaNodeDocument | null {
+	const dir      = projectId
+		? path.join(getSnapshotsDir(), 'baselines', projectId)
+		: path.join(getSnapshotsDir(), 'baselines');
+	const filePath = path.join(dir, `${testName}.figma.json`);
 	if (!fs.existsSync(filePath)) return null;
 	try {
 		return JSON.parse(fs.readFileSync(filePath, 'utf-8')) as FigmaNodeDocument;

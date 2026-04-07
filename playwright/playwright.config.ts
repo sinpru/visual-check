@@ -1,50 +1,48 @@
 import { defineConfig } from '@playwright/test';
 import dotenv from 'dotenv';
 import path from 'path';
-
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname  = path.dirname(__filename);
 
 // Load root .env
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 
+// Auth state — saved by `node helpers/saveAuth.mjs`
+const AUTH_PATH  = path.resolve(__dirname, '..', 'snapshots', 'auth.json');
+const authExists = fs.existsSync(AUTH_PATH);
+
+if (authExists) {
+  const ageH = Math.round((Date.now() - fs.statSync(AUTH_PATH).mtimeMs) / 3_600_000 * 10) / 10;
+  console.log(`[playwright] Using saved auth session (${ageH}h old)`);
+} else {
+  console.log('[playwright] No auth.json — running without saved session. Run `node helpers/saveAuth.mjs` to save one.');
+}
+
 export default defineConfig({
   testDir: './tests',
-  testMatch: '**/*.visual.ts',
 
-  /* Never run visual tests in parallel — race conditions on results.json */
-  workers: 1,
+  // Matches both the generic `visual.ts` and any legacy `*.visual.ts` files
+  testMatch: ['**/visual.ts', '**/*.visual.ts'],
+
+  workers: 1,          // NEVER parallelize — race conditions on results.json
   fullyParallel: false,
-
-  /* Fail the build on CI if you accidentally left test.only in the source code */
   forbidOnly: !!process.env.CI,
-
-  /* No retries for visual tests — flaky retries just mask real diffs */
   retries: 0,
 
-  /* Reporter */
   reporter: [['list']],
 
   use: {
-    /* Must match Figma frame dimensions — 1920×960 is the agreed default */
     viewport: { width: 1920, height: 960 },
-
-    /* Must be 1 — Figma exports at 1x. Retina (2x) doubles pixel dimensions and breaks the diff */
     deviceScaleFactor: 1,
-
-    /* Base URL from environment */
     baseURL: process.env.BASE_URL,
-
-    /* Screenshot settings */
-    screenshot: 'off', // We handle screenshots manually via visualTest helper
-
-    /* Timeout settings */
-    actionTimeout: 10_000,
+    screenshot: 'off',
+    actionTimeout:     10_000,
     navigationTimeout: 30_000,
+    storageState: authExists ? AUTH_PATH : undefined,
   },
 
-  /* Global timeout per test */
   timeout: 60_000,
 });

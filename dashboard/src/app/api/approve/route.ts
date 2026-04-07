@@ -3,6 +3,7 @@ import {
 	approveBaseline,
 	updateStatus,
 	readResults,
+	readBuilds,
 	recalculateBuildStatus,
 } from '@visual-check/core';
 
@@ -17,15 +18,20 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		// 1. Approve baseline (copy current to baseline)
-		await approveBaseline(testName, buildId);
+		// Look up projectId from the build so approveBaseline writes to the
+		// correct scoped baseline path: baselines/{projectId}/{testName}.png
+		const builds    = readBuilds();
+		const build     = builds.find((b) => b.buildId === buildId);
+		const projectId = build?.projectId;
 
-		// 2. Update snapshot status to 'approved'
-		await updateStatus(testName, buildId, 'approved');
-
-		// 3. Recalculate build status
-		const allResults = await readResults();
-		await recalculateBuildStatus(buildId, allResults);
+		// Sequential — never parallelize file ops on results.json
+		// 1. Copy current → baseline (scoped), delete diff
+		approveBaseline(testName, buildId, projectId);
+		// 2. Mark status approved
+		updateStatus(testName, buildId, 'approved');
+		// 3. Recompute build-level status
+		const allResults = readResults();
+		recalculateBuildStatus(buildId, allResults);
 
 		return NextResponse.json({ ok: true });
 	} catch (error) {
