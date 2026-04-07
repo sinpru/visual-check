@@ -2,6 +2,7 @@ import type { Page } from '@playwright/test';
 import {
 	saveSnapshot,
 	getPaths,
+	baselineRelPath,
 	runDiff,
 	writeResult,
 	fetchFigmaBaseline,
@@ -33,6 +34,7 @@ const MAX_DOM_LOOKUPS = 10;
 
 /**
  * Steps:
+ * 0.  JWT injection — if AUTH_JWT is set, inject into localStorage before navigation
  * 1.  getOrCreateBuild — register build (idempotent)
  * 2.  Suppress CSS animations/transitions
  * 3.  Normalize scroll
@@ -43,9 +45,18 @@ const MAX_DOM_LOOKUPS = 10;
  * 8.  [no baseline] save current as baseline → write pending, stop
  * 9.  runDiff(figmaBaseline, webScreenshot) → DiffResult with regions[]
  * 10. DOM lookup — attaches domLabel to each region
- * 11. Figma node lookup — attaches figmaLabel to each region (uses saved .figma.json)
+ * 11. Figma node lookup — attaches figmaLabel to each region
  * 12. writeResult with diffRegions
  * 13. recalculateBuildStatus
+ *
+ * Baseline scoping:
+ *   Baselines are stored under baselines/{projectId}/{testName}.png so that
+ *   different projects with the same testName never overwrite each other.
+ *   PROJECT_ID is set by the dashboard run route before spawning Playwright.
+ *
+ * Auth:
+ *   storageState loaded automatically from snapshots/auth.json by playwright.config.ts.
+ *   JWT fallback: AUTH_JWT injected into localStorage[AUTH_JWT_KEY] via addInitScript.
  *
  * Path naming swap (intentional — see AGENTS.md):
  *   currentPath  → Figma frame (LEFT  "Baseline / Expected")
@@ -62,6 +73,20 @@ export async function visualTest(
 	const buildId = process.env.BUILD_ID || `build_${Date.now()}`;
 	const projectId = process.env.PROJECT_ID || undefined;
 
+	// ── 0. JWT injection ───────────────────────────────────────────────────────
+	const authJwt    = process.env.AUTH_JWT;
+	const authJwtKey = process.env.AUTH_JWT_KEY || 'token';
+
+	if (authJwt) {
+		await page.addInitScript(
+			({ key, value }: { key: string; value: string }) => {
+				localStorage.setItem(key, value);
+			},
+			{ key: authJwtKey, value: authJwt },
+		);
+		log.info(`JWT injected into localStorage["${authJwtKey}"]`);
+	}
+
 	// ── 1. Register build ──────────────────────────────────────────────────────
 	getOrCreateBuild(buildId, {
 		projectId,
@@ -69,7 +94,8 @@ export async function visualTest(
 		status: 'unreviewed',
 	});
 
-	const paths = getPaths(testName, buildId);
+	const paths = getPaths(testName, buildId, projectId);
+	const bPath = baselineRelPath(testName, projectId);
 	const viewport = page.viewportSize() || { width: 1440, height: 900 };
 	const timestamp = new Date().toISOString();
 
@@ -108,13 +134,13 @@ export async function visualTest(
 					viewport.width,
 					viewport.height,
 				);
-				saveSnapshot(testName, figmaBuffer, 'baseline');
+				saveSnapshot(testName, figmaBuffer, 'baseline', undefined, projectId);
 				log.info(`Saved Figma baseline for "${testName}"`);
 			} catch (err) {
 				log.warn(
 					`Figma fetch failed for "${testName}": ${err} — using screenshot as baseline instead`,
 				);
-				saveSnapshot(testName, screenshotBuffer, 'baseline');
+				saveSnapshot(testName, screenshotBuffer, 'baseline', undefined, projectId);
 			}
 		} else {
 			if (nodeId)
@@ -125,7 +151,7 @@ export async function visualTest(
 				log.warn(
 					`No Figma node mapping for "${testName}" — using screenshot as baseline`,
 				);
-			saveSnapshot(testName, screenshotBuffer, 'baseline');
+			saveSnapshot(testName, screenshotBuffer, 'baseline', undefined, projectId);
 		}
 		writeResult({
 			testName,
@@ -133,7 +159,7 @@ export async function visualTest(
 			status: 'pending',
 			diffPercent: 0,
 			diffPixels: 0,
-			currentPath: `baselines/${testName}.png`,
+			currentPath: bPath,
 			baselinePath: `current/${buildId}/${testName}.png`,
 			viewport,
 			timestamp,
@@ -145,14 +171,14 @@ export async function visualTest(
 	// ── 8. No baseline yet ─────────────────────────────────────────────────────
 	if (!fs.existsSync(paths.baseline)) {
 		log.info(`No baseline for "${testName}" — saving current as baseline`);
-		saveSnapshot(testName, screenshotBuffer, 'baseline');
+		saveSnapshot(testName, screenshotBuffer, 'baseline', undefined, projectId);
 		writeResult({
 			testName,
 			buildId,
 			status: 'pending',
 			diffPercent: 0,
 			diffPixels: 0,
-			currentPath: `baselines/${testName}.png`,
+			currentPath: bPath,
 			baselinePath: `current/${buildId}/${testName}.png`,
 			viewport,
 			timestamp,
@@ -173,8 +199,8 @@ export async function visualTest(
 		viewport,
 	);
 
-	// ── 11. Figma node label lookup ────────────────────────────────────────────
-	diffRegions = annotateFigmaLabels(testName, diffRegions);
+	// ── 11. Figma node label lookup — load tree from project-scoped path ───────
+	diffRegions = annotateFigmaLabels(testName, diffRegions, projectId);
 
 	// ── 11b. AI Label Generation ───────────────────────────────────────────────
 	if (diffRegions.length > 0) {
@@ -205,7 +231,7 @@ export async function visualTest(
 		status,
 		diffPercent: diffResult.diffPercent,
 		diffPixels: diffResult.diffPixels,
-		currentPath: `baselines/${testName}.png`,
+		currentPath: bPath,
 		baselinePath: `current/${buildId}/${testName}.png`,
 		diffPath: `diffs/${buildId}/${testName}.png`,
 		viewport,
@@ -247,10 +273,11 @@ export async function visualTest(
 function annotateFigmaLabels(
 	testName: string,
 	regions: DiffRegion[],
+	projectId?: string,
 ): DiffRegion[] {
 	if (regions.length === 0) return regions;
 
-	const tree = loadFigmaNodeTree(testName);
+	const tree = loadFigmaNodeTree(testName, projectId);
 	if (!tree) {
 		log.warn(
 			`No Figma node tree for "${testName}" — pull Figma baselines via the dashboard to enable Figma labels`,
@@ -319,8 +346,8 @@ function annotateFigmaLabels(
 // ─── DOM label lookup ─────────────────────────────────────────────────────────
 
 async function annotateDomLabels(
-	page: Page,
-	regions: DiffRegion[],
+	page:     Page,
+	regions:  DiffRegion[],
 	viewport: { width: number; height: number },
 ): Promise<DiffRegion[]> {
 	if (regions.length === 0) return regions;

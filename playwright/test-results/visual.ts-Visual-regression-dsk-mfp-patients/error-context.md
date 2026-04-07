@@ -1,0 +1,1291 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e9]:
+  - generic [ref=e10]:
+    - generic [ref=e12]: You are in the FPT-TEST ENVIRONMENT. Only use with dummy patient data.
+    - generic [ref=e15]:
+      - img "MedAdvisor" [ref=e17] [cursor=pointer]
+      - generic [ref=e18]:
+        - img [ref=e20] [cursor=pointer]: help
+        - img [ref=e22] [cursor=pointer]: settings
+        - img "Plus One" [ref=e24] [cursor=pointer]
+        - button "Open AI Assist" [ref=e25] [cursor=pointer]:
+          - generic [ref=e27]:
+            - img [ref=e28]:
+              - img [ref=e29]
+            - img:
+              - img
+          - generic [ref=e35]: AI Assist
+  - generic [ref=e37]:
+    - generic [ref=e44]:
+      - generic [ref=e45]:
+        - link "Home" [ref=e46] [cursor=pointer]:
+          - /url: /pharmacy-inbox
+          - img [ref=e47]: home
+          - generic [ref=e48]: Home
+        - link "Bookings" [ref=e49] [cursor=pointer]:
+          - /url: /booking/pharmacy-booked-services
+          - img [ref=e50]: calendar_month
+          - generic [ref=e51]: Bookings
+        - link "Patients" [ref=e52] [cursor=pointer]:
+          - /url: /pharmacy-manage-customers
+          - img [ref=e53]: people
+          - generic [ref=e54]: Patients
+        - link "Health services hub" [ref=e55] [cursor=pointer]:
+          - /url: /pharmacy-health-service-hub
+          - img [ref=e56]: local_pharmacy
+          - generic [ref=e57]: Health services hub
+        - link "Communications" [ref=e58] [cursor=pointer]:
+          - /url: /pharmacy-communication
+          - img [ref=e59]: campaign
+          - generic [ref=e60]: Communications
+        - link "Doctors" [ref=e61] [cursor=pointer]:
+          - /url: /pharmacy-request-scripts
+          - img [ref=e62]: stethoscope
+          - generic [ref=e63]: Doctors
+        - link "Business insights" [ref=e64] [cursor=pointer]:
+          - /url: /business-insights/report
+          - img [ref=e65]: table_chart_view
+          - generic [ref=e66]: Business insights
+        - separator [ref=e67]
+        - link "Project STOP" [ref=e68] [cursor=pointer]:
+          - /url: /project-stop
+          - img [ref=e69]: front_hand
+          - generic [ref=e70]: Project STOP
+      - generic [ref=e72] [cursor=pointer]:
+        - img [ref=e73]: menu_open
+        - generic [ref=e74]: Collapse
+    - generic [ref=e78]:
+      - banner [ref=e79]:
+        - generic [ref=e80]:
+          - generic [ref=e81]: Home
+          - button "Manage Deliveries" [ref=e83] [cursor=pointer]:
+            - generic [ref=e84]:
+              - img [ref=e85]: local_shipping
+              - text: Manage Deliveries
+      - generic [ref=e87]:
+        - tablist [ref=e90]:
+          - generic [ref=e91]:
+            - tab "Inbox" [selected] [ref=e92] [cursor=pointer]:
+              - generic [ref=e93]: Inbox
+            - tab "Completed" [ref=e94] [cursor=pointer]:
+              - generic [ref=e95]: Completed
+            - tab "Sent" [ref=e96] [cursor=pointer]:
+              - generic [ref=e97]: Sent
+            - tab "Scheduled" [ref=e98] [cursor=pointer]:
+              - generic [ref=e99]: Scheduled
+        - generic [ref=e100]:
+          - tabpanel "Inbox" [ref=e101]:
+            - generic [ref=e105]:
+              - generic [ref=e106]:
+                - generic [ref=e112]:
+                  - textbox "Filter by name" [ref=e114]
+                  - button "Search" [ref=e117] [cursor=pointer]:
+                    - img [ref=e119]: search
+                - generic [ref=e120]:
+                  - button "Print" [ref=e121] [cursor=pointer]:
+                    - generic [ref=e122]:
+                      - img [ref=e123]: print
+                      - text: Print
+                  - button "Refresh list" [ref=e124] [cursor=pointer]:
+                    - generic [ref=e125]:
+                      - img [ref=e126]: refresh
+                      - text: Refresh list
+              - generic [ref=e128]:
+                - button "Bookings" [ref=e129] [cursor=pointer]:
+                  - generic [ref=e130]: Bookings
+                - button "Information" [ref=e131] [cursor=pointer]:
+                  - generic [ref=e132]: Information
+                - 'button "Messages: 37" [ref=e133] [cursor=pointer]':
+                  - generic [ref=e134]: "Messages: 37"
+                - 'button "App orders: 345" [ref=e135] [cursor=pointer]':
+                  - generic [ref=e136]: "App orders: 345"
+                - 'button "SMS orders: 3" [ref=e137] [cursor=pointer]':
+                  - generic [ref=e138]: "SMS orders: 3"
+              - generic [ref=e140]:
+                - table [ref=e142]:
+                  - rowgroup [ref=e143]:
+                    - row "deselect all Name Sort Name Options Details Date row actions" [ref=e144]:
+                      - columnheader "deselect all" [ref=e145]:
+                        - generic [ref=e148] [cursor=pointer]:
+                          - checkbox "deselect all" [ref=e149]
+                          - generic:
+                            - img
+                      - columnheader [ref=e150]
+                      - columnheader "Name Sort Name Options" [ref=e151]:
+                        - generic [ref=e152]:
+                          - generic [ref=e153]: Name
+                          - button "Sort Name Options" [ref=e154] [cursor=pointer]:
+                            - img [ref=e156]
+                      - columnheader "Details" [ref=e158]:
+                        - button "Details" [ref=e159] [cursor=pointer]:
+                          - generic [ref=e160]: Details
+                      - columnheader "Date" [ref=e167]:
+                        - button "Date" [ref=e168] [cursor=pointer]:
+                          - generic [ref=e169]: Date
+                      - columnheader "row actions" [ref=e176]: Action
+                  - rowgroup [ref=e177]:
+                    - row "select row 1 TEST_21 MOON On Order Follow-Up Please check if stock has arrived for the following items and respond. METHOTREXATE INJECTION 15mg / 0.30mL, 1 Trexject App 06/04/2026, 12:00 AM View expand_more Button that displays a tooltip when focused or hovered over" [ref=e178]:
+                      - cell "select row 1" [ref=e179]:
+                        - generic [ref=e182] [cursor=pointer]:
+                          - checkbox "select row 1" [ref=e183]
+                          - generic:
+                            - img
+                      - cell [ref=e184]:
+                        - img [ref=e186]
+                      - cell "TEST_21 MOON" [ref=e191]:
+                        - generic [ref=e193] [cursor=pointer]: TEST_21 MOON
+                      - cell "On Order Follow-Up Please check if stock has arrived for the following items and respond. METHOTREXATE INJECTION 15mg / 0.30mL, 1 Trexject App" [ref=e194]:
+                        - generic [ref=e196]:
+                          - generic [ref=e199]:
+                            - text: On Order Follow-Up
+                            - text: Please check if stock has arrived for the following items and respond. METHOTREXATE INJECTION 15mg / 0.30mL, 1 Trexject
+                          - generic [ref=e202]: App
+                      - cell "06/04/2026, 12:00 AM" [ref=e203]
+                      - cell "View expand_more Button that displays a tooltip when focused or hovered over" [ref=e204]:
+                        - generic [ref=e206]:
+                          - generic [ref=e207]:
+                            - button "View" [ref=e208] [cursor=pointer]:
+                              - generic [ref=e209]: View
+                            - button "expand_more" [ref=e210] [cursor=pointer]:
+                              - generic [ref=e212]: expand_more
+                          - button "Button that displays a tooltip when focused or hovered over" [ref=e213] [cursor=pointer]:
+                            - generic [ref=e215]: shopping_cart_checkout
+                    - row "select row 2 Linh Deptrai ATENOLOL TABLET 50MG ATENOLOL (AN) for Test Patient RAMIPRIL CAPSULE 10MG RAMIPRIL (APO) for Test Patient OLMESARTAN TABLET 40MG OLMESARTAN (MYL) for Test Patient App eScript 03/04/2026, 7:57 PM View expand_more Button that displays a tooltip when focused or hovered over" [ref=e216]:
+                      - cell "select row 2" [ref=e217]:
+                        - generic [ref=e220] [cursor=pointer]:
+                          - checkbox "select row 2" [ref=e221]
+                          - generic:
+                            - img
+                      - cell [ref=e222]:
+                        - img [ref=e224]
+                      - cell "Linh Deptrai" [ref=e229]:
+                        - generic [ref=e231] [cursor=pointer]: Linh Deptrai
+                      - cell "ATENOLOL TABLET 50MG ATENOLOL (AN) for Test Patient RAMIPRIL CAPSULE 10MG RAMIPRIL (APO) for Test Patient OLMESARTAN TABLET 40MG OLMESARTAN (MYL) for Test Patient App eScript" [ref=e232]:
+                        - generic [ref=e234]:
+                          - generic [ref=e235]:
+                            - generic [ref=e237]:
+                              - text: ATENOLOL TABLET 50MG ATENOLOL (AN)
+                              - generic [ref=e238]: for Test Patient
+                            - generic [ref=e240]:
+                              - text: RAMIPRIL CAPSULE 10MG RAMIPRIL (APO)
+                              - generic [ref=e241]: for Test Patient
+                            - generic [ref=e243]:
+                              - text: OLMESARTAN TABLET 40MG OLMESARTAN (MYL)
+                              - generic [ref=e244]: for Test Patient
+                          - generic [ref=e246]:
+                            - generic [ref=e247]: App
+                            - generic [ref=e248]: eScript
+                      - cell "03/04/2026, 7:57 PM" [ref=e249]
+                      - cell "View expand_more Button that displays a tooltip when focused or hovered over" [ref=e250]:
+                        - generic [ref=e252]:
+                          - generic [ref=e253]:
+                            - button "View" [ref=e254] [cursor=pointer]:
+                              - generic [ref=e255]: View
+                            - button "expand_more" [ref=e256] [cursor=pointer]:
+                              - generic [ref=e258]: expand_more
+                          - button "Button that displays a tooltip when focused or hovered over" [ref=e259] [cursor=pointer]:
+                            - generic [ref=e261]: shopping_cart_checkout
+                    - row "select row 3 gfjfjf fhfgh Booking Confirmation gfjfjf fhfgh has booked a CDV_service_Tinh with your pharmacy at 9:00 AM on 02/04/2026. 01/04/2026, 9:03 PM View expand_more" [ref=e262]:
+                      - cell "select row 3" [ref=e263]:
+                        - generic [ref=e266] [cursor=pointer]:
+                          - checkbox "select row 3" [ref=e267]
+                          - generic:
+                            - img
+                      - cell [ref=e268]:
+                        - img [ref=e270]: list_alt
+                      - cell "gfjfjf fhfgh" [ref=e271]:
+                        - generic [ref=e273] [cursor=pointer]: gfjfjf fhfgh
+                      - cell "Booking Confirmation gfjfjf fhfgh has booked a CDV_service_Tinh with your pharmacy at 9:00 AM on 02/04/2026." [ref=e274]:
+                        - generic [ref=e277]:
+                          - text: Booking Confirmation
+                          - text: gfjfjf fhfgh has booked a CDV_service_Tinh with your pharmacy at 9:00 AM on 02/04/2026.
+                      - cell "01/04/2026, 9:03 PM" [ref=e278]
+                      - cell "View expand_more" [ref=e279]:
+                        - generic [ref=e282]:
+                          - button "View" [ref=e283] [cursor=pointer]:
+                            - generic [ref=e284]: View
+                          - button "expand_more" [ref=e285] [cursor=pointer]:
+                            - generic [ref=e287]: expand_more
+                    - row "select row 4 tinh testing Booking Confirmation tinh testing has booked a Flu Vaccination with your pharmacy at 1:55 PM on 01/04/2026. 01/04/2026, 1:52 PM View expand_more" [ref=e288]:
+                      - cell "select row 4" [ref=e289]:
+                        - generic [ref=e292] [cursor=pointer]:
+                          - checkbox "select row 4" [ref=e293]
+                          - generic:
+                            - img
+                      - cell [ref=e294]:
+                        - img [ref=e296]: list_alt
+                      - cell "tinh testing" [ref=e297]:
+                        - generic [ref=e299] [cursor=pointer]: tinh testing
+                      - cell "Booking Confirmation tinh testing has booked a Flu Vaccination with your pharmacy at 1:55 PM on 01/04/2026." [ref=e300]:
+                        - generic [ref=e303]:
+                          - text: Booking Confirmation
+                          - text: tinh testing has booked a Flu Vaccination with your pharmacy at 1:55 PM on 01/04/2026.
+                      - cell "01/04/2026, 1:52 PM" [ref=e304]
+                      - cell "View expand_more" [ref=e305]:
+                        - generic [ref=e308]:
+                          - button "View" [ref=e309] [cursor=pointer]:
+                            - generic [ref=e310]: View
+                          - button "expand_more" [ref=e311] [cursor=pointer]:
+                            - generic [ref=e313]: expand_more
+                    - row "select row 5 gggg ggggg Booking Confirmation gggg ggggg has booked a Flu Vaccination with your pharmacy at 1:20 PM on 01/04/2026. 01/04/2026, 1:20 PM View expand_more" [ref=e314]:
+                      - cell "select row 5" [ref=e315]:
+                        - generic [ref=e318] [cursor=pointer]:
+                          - checkbox "select row 5" [ref=e319]
+                          - generic:
+                            - img
+                      - cell [ref=e320]:
+                        - img [ref=e322]: list_alt
+                      - cell "gggg ggggg" [ref=e323]:
+                        - generic [ref=e325] [cursor=pointer]: gggg ggggg
+                      - cell "Booking Confirmation gggg ggggg has booked a Flu Vaccination with your pharmacy at 1:20 PM on 01/04/2026." [ref=e326]:
+                        - generic [ref=e329]:
+                          - text: Booking Confirmation
+                          - text: gggg ggggg has booked a Flu Vaccination with your pharmacy at 1:20 PM on 01/04/2026.
+                      - cell "01/04/2026, 1:20 PM" [ref=e330]
+                      - cell "View expand_more" [ref=e331]:
+                        - generic [ref=e334]:
+                          - button "View" [ref=e335] [cursor=pointer]:
+                            - generic [ref=e336]: View
+                          - button "expand_more" [ref=e337] [cursor=pointer]:
+                            - generic [ref=e339]: expand_more
+                    - row "select row 6 TEST_21 MOON On Order Follow-Up Please check if stock has arrived for the following items and respond. METHOTREXATE INJECTION 15mg / 0.30mL, 1 Trexject App Delivery 01/04/2026, 12:00 AM View expand_more" [ref=e340]:
+                      - cell "select row 6" [ref=e341]:
+                        - generic [ref=e344] [cursor=pointer]:
+                          - checkbox "select row 6" [ref=e345]
+                          - generic:
+                            - img
+                      - cell [ref=e346]:
+                        - img [ref=e348]
+                      - cell "TEST_21 MOON" [ref=e353]:
+                        - generic [ref=e355] [cursor=pointer]: TEST_21 MOON
+                      - cell "On Order Follow-Up Please check if stock has arrived for the following items and respond. METHOTREXATE INJECTION 15mg / 0.30mL, 1 Trexject App Delivery" [ref=e356]:
+                        - generic [ref=e358]:
+                          - generic [ref=e361]:
+                            - text: On Order Follow-Up
+                            - text: Please check if stock has arrived for the following items and respond. METHOTREXATE INJECTION 15mg / 0.30mL, 1 Trexject
+                          - generic [ref=e363]:
+                            - generic [ref=e364]: App
+                            - generic [ref=e365]: Delivery
+                      - cell "01/04/2026, 12:00 AM" [ref=e366]
+                      - cell "View expand_more" [ref=e367]:
+                        - generic [ref=e370]:
+                          - button "View" [ref=e371] [cursor=pointer]:
+                            - generic [ref=e372]: View
+                          - button "expand_more" [ref=e373] [cursor=pointer]:
+                            - generic [ref=e375]: expand_more
+                    - row "select row 7 TEST_21 MOON On Order Follow-Up Please check if stock has arrived for the following items and respond. The Mixture App Pay in advance 01/04/2026, 12:00 AM View expand_more" [ref=e376]:
+                      - cell "select row 7" [ref=e377]:
+                        - generic [ref=e380] [cursor=pointer]:
+                          - checkbox "select row 7" [ref=e381]
+                          - generic:
+                            - img
+                      - cell [ref=e382]:
+                        - img [ref=e384]
+                      - cell "TEST_21 MOON" [ref=e389]:
+                        - generic [ref=e391] [cursor=pointer]: TEST_21 MOON
+                      - cell "On Order Follow-Up Please check if stock has arrived for the following items and respond. The Mixture App Pay in advance" [ref=e392]:
+                        - generic [ref=e394]:
+                          - generic [ref=e397]:
+                            - text: On Order Follow-Up
+                            - text: Please check if stock has arrived for the following items and respond.
+                            - text: The Mixture
+                          - generic [ref=e399]:
+                            - generic [ref=e400]: App
+                            - generic [ref=e401]: Pay in advance
+                      - cell "01/04/2026, 12:00 AM" [ref=e402]
+                      - cell "View expand_more" [ref=e403]:
+                        - generic [ref=e406]:
+                          - button "View" [ref=e407] [cursor=pointer]:
+                            - generic [ref=e408]: View
+                          - button "expand_more" [ref=e409] [cursor=pointer]:
+                            - generic [ref=e411]: expand_more
+                    - row "select row 8 TEST_21 MOON On Order Follow-Up Please check if stock has arrived for the following items and respond. METHOTREXATE INJECTION 15mg / 0.30mL, 1 Trexject App 01/04/2026, 12:00 AM View expand_more Button that displays a tooltip when focused or hovered over" [ref=e412]:
+                      - cell "select row 8" [ref=e413]:
+                        - generic [ref=e416] [cursor=pointer]:
+                          - checkbox "select row 8" [ref=e417]
+                          - generic:
+                            - img
+                      - cell [ref=e418]:
+                        - img [ref=e420]
+                      - cell "TEST_21 MOON" [ref=e425]:
+                        - generic [ref=e427] [cursor=pointer]: TEST_21 MOON
+                      - cell "On Order Follow-Up Please check if stock has arrived for the following items and respond. METHOTREXATE INJECTION 15mg / 0.30mL, 1 Trexject App" [ref=e428]:
+                        - generic [ref=e430]:
+                          - generic [ref=e433]:
+                            - text: On Order Follow-Up
+                            - text: Please check if stock has arrived for the following items and respond. METHOTREXATE INJECTION 15mg / 0.30mL, 1 Trexject
+                          - generic [ref=e436]: App
+                      - cell "01/04/2026, 12:00 AM" [ref=e437]
+                      - cell "View expand_more Button that displays a tooltip when focused or hovered over" [ref=e438]:
+                        - generic [ref=e440]:
+                          - generic [ref=e441]:
+                            - button "View" [ref=e442] [cursor=pointer]:
+                              - generic [ref=e443]: View
+                            - button "expand_more" [ref=e444] [cursor=pointer]:
+                              - generic [ref=e446]: expand_more
+                          - button "Button that displays a tooltip when focused or hovered over" [ref=e447] [cursor=pointer]:
+                            - generic [ref=e449]: shopping_cart_checkout
+                    - row "select row 9 TEST_21 MOON On Order Follow-Up Please check if stock has arrived for the following items and respond. MOXONIDINE TABLETS 200mcg Moxonidine (GH) App Pay in advance 01/04/2026, 12:00 AM View expand_more" [ref=e450]:
+                      - cell "select row 9" [ref=e451]:
+                        - generic [ref=e454] [cursor=pointer]:
+                          - checkbox "select row 9" [ref=e455]
+                          - generic:
+                            - img
+                      - cell [ref=e456]:
+                        - img [ref=e458]
+                      - cell "TEST_21 MOON" [ref=e463]:
+                        - generic [ref=e465] [cursor=pointer]: TEST_21 MOON
+                      - cell "On Order Follow-Up Please check if stock has arrived for the following items and respond. MOXONIDINE TABLETS 200mcg Moxonidine (GH) App Pay in advance" [ref=e466]:
+                        - generic [ref=e468]:
+                          - generic [ref=e471]:
+                            - text: On Order Follow-Up
+                            - text: Please check if stock has arrived for the following items and respond. MOXONIDINE TABLETS 200mcg Moxonidine (GH)
+                          - generic [ref=e473]:
+                            - generic [ref=e474]: App
+                            - generic [ref=e475]: Pay in advance
+                      - cell "01/04/2026, 12:00 AM" [ref=e476]
+                      - cell "View expand_more" [ref=e477]:
+                        - generic [ref=e480]:
+                          - button "View" [ref=e481] [cursor=pointer]:
+                            - generic [ref=e482]: View
+                          - button "expand_more" [ref=e483] [cursor=pointer]:
+                            - generic [ref=e485]: expand_more
+                    - row "select row 10 TEST_21 MOON Payment Received Pay in Advance TEST_21 MOON has made a payment of $55.90 for an order at 3:29 PM on 31/03/2026. 31/03/2026, 3:29 PM View expand_more" [ref=e486]:
+                      - cell "select row 10" [ref=e487]:
+                        - generic [ref=e490] [cursor=pointer]:
+                          - checkbox "select row 10" [ref=e491]
+                          - generic:
+                            - img
+                      - cell [ref=e492]:
+                        - img [ref=e494]: list_alt
+                      - cell "TEST_21 MOON" [ref=e495]:
+                        - generic [ref=e497] [cursor=pointer]: TEST_21 MOON
+                      - cell "Payment Received Pay in Advance TEST_21 MOON has made a payment of $55.90 for an order at 3:29 PM on 31/03/2026." [ref=e498]:
+                        - generic [ref=e501]:
+                          - text: Payment Received
+                          - generic [ref=e502]: Pay in Advance
+                          - text: TEST_21 MOON has made a payment of $55.90 for an order at 3:29 PM on 31/03/2026.
+                      - cell "31/03/2026, 3:29 PM" [ref=e503]
+                      - cell "View expand_more" [ref=e504]:
+                        - generic [ref=e507]:
+                          - button "View" [ref=e508] [cursor=pointer]:
+                            - generic [ref=e509]: View
+                          - button "expand_more" [ref=e510] [cursor=pointer]:
+                            - generic [ref=e512]: expand_more
+                    - row "select row 11 TEST_21 MOON Payment Received Pay in Advance TEST_21 MOON has made a payment of $39.50 for an order at 1:31 AM on 31/03/2026. 31/03/2026, 1:31 AM View expand_more" [ref=e513]:
+                      - cell "select row 11" [ref=e514]:
+                        - generic [ref=e517] [cursor=pointer]:
+                          - checkbox "select row 11" [ref=e518]
+                          - generic:
+                            - img
+                      - cell [ref=e519]:
+                        - img [ref=e521]: list_alt
+                      - cell "TEST_21 MOON" [ref=e522]:
+                        - generic [ref=e524] [cursor=pointer]: TEST_21 MOON
+                      - cell "Payment Received Pay in Advance TEST_21 MOON has made a payment of $39.50 for an order at 1:31 AM on 31/03/2026." [ref=e525]:
+                        - generic [ref=e528]:
+                          - text: Payment Received
+                          - generic [ref=e529]: Pay in Advance
+                          - text: TEST_21 MOON has made a payment of $39.50 for an order at 1:31 AM on 31/03/2026.
+                      - cell "31/03/2026, 1:31 AM" [ref=e530]
+                      - cell "View expand_more" [ref=e531]:
+                        - generic [ref=e534]:
+                          - button "View" [ref=e535] [cursor=pointer]:
+                            - generic [ref=e536]: View
+                          - button "expand_more" [ref=e537] [cursor=pointer]:
+                            - generic [ref=e539]: expand_more
+                    - row "select row 12 TEST_21 MOON Payment Received Pay in Advance TEST_21 MOON has made a payment of $14.40 for an order at 1:28 AM on 31/03/2026. 31/03/2026, 1:28 AM View expand_more" [ref=e540]:
+                      - cell "select row 12" [ref=e541]:
+                        - generic [ref=e544] [cursor=pointer]:
+                          - checkbox "select row 12" [ref=e545]
+                          - generic:
+                            - img
+                      - cell [ref=e546]:
+                        - img [ref=e548]: list_alt
+                      - cell "TEST_21 MOON" [ref=e549]:
+                        - generic [ref=e551] [cursor=pointer]: TEST_21 MOON
+                      - cell "Payment Received Pay in Advance TEST_21 MOON has made a payment of $14.40 for an order at 1:28 AM on 31/03/2026." [ref=e552]:
+                        - generic [ref=e555]:
+                          - text: Payment Received
+                          - generic [ref=e556]: Pay in Advance
+                          - text: TEST_21 MOON has made a payment of $14.40 for an order at 1:28 AM on 31/03/2026.
+                      - cell "31/03/2026, 1:28 AM" [ref=e557]
+                      - cell "View expand_more" [ref=e558]:
+                        - generic [ref=e561]:
+                          - button "View" [ref=e562] [cursor=pointer]:
+                            - generic [ref=e563]: View
+                          - button "expand_more" [ref=e564] [cursor=pointer]:
+                            - generic [ref=e566]: expand_more
+                    - row "select row 13 TEST_21 MOON Payment Received Delivery requested TEST_21 MOON has made a payment of $14.40 for an order at 1:14 AM on 31/03/2026. 31/03/2026, 1:14 AM View expand_more" [ref=e567]:
+                      - cell "select row 13" [ref=e568]:
+                        - generic [ref=e571] [cursor=pointer]:
+                          - checkbox "select row 13" [ref=e572]
+                          - generic:
+                            - img
+                      - cell [ref=e573]:
+                        - img [ref=e575]: list_alt
+                      - cell "TEST_21 MOON" [ref=e576]:
+                        - generic [ref=e578] [cursor=pointer]: TEST_21 MOON
+                      - cell "Payment Received Delivery requested TEST_21 MOON has made a payment of $14.40 for an order at 1:14 AM on 31/03/2026." [ref=e579]:
+                        - generic [ref=e582]:
+                          - text: Payment Received
+                          - generic [ref=e583]: Delivery requested
+                          - text: TEST_21 MOON has made a payment of $14.40 for an order at 1:14 AM on 31/03/2026.
+                      - cell "31/03/2026, 1:14 AM" [ref=e584]
+                      - cell "View expand_more" [ref=e585]:
+                        - generic [ref=e588]:
+                          - button "View" [ref=e589] [cursor=pointer]:
+                            - generic [ref=e590]: View
+                          - button "expand_more" [ref=e591] [cursor=pointer]:
+                            - generic [ref=e593]: expand_more
+                    - row "select row 14 TEST_21 MOON Payment Received Delivery requested TEST_21 MOON has made a payment of $26.68 for an order at 1:06 AM on 31/03/2026. 31/03/2026, 1:06 AM View expand_more" [ref=e594]:
+                      - cell "select row 14" [ref=e595]:
+                        - generic [ref=e598] [cursor=pointer]:
+                          - checkbox "select row 14" [ref=e599]
+                          - generic:
+                            - img
+                      - cell [ref=e600]:
+                        - img [ref=e602]: list_alt
+                      - cell "TEST_21 MOON" [ref=e603]:
+                        - generic [ref=e605] [cursor=pointer]: TEST_21 MOON
+                      - cell "Payment Received Delivery requested TEST_21 MOON has made a payment of $26.68 for an order at 1:06 AM on 31/03/2026." [ref=e606]:
+                        - generic [ref=e609]:
+                          - text: Payment Received
+                          - generic [ref=e610]: Delivery requested
+                          - text: TEST_21 MOON has made a payment of $26.68 for an order at 1:06 AM on 31/03/2026.
+                      - cell "31/03/2026, 1:06 AM" [ref=e611]
+                      - cell "View expand_more" [ref=e612]:
+                        - generic [ref=e615]:
+                          - button "View" [ref=e616] [cursor=pointer]:
+                            - generic [ref=e617]: View
+                          - button "expand_more" [ref=e618] [cursor=pointer]:
+                            - generic [ref=e620]: expand_more
+                    - row "select row 15 TEST_21 MOON On Order Follow-Up Please check if stock has arrived for the following items and respond. MOXONIDINE TABLETS 200mcg Moxonidine (GH) App Delivery 28/03/2026, 12:00 AM View expand_more" [ref=e621]:
+                      - cell "select row 15" [ref=e622]:
+                        - generic [ref=e625] [cursor=pointer]:
+                          - checkbox "select row 15" [ref=e626]
+                          - generic:
+                            - img
+                      - cell [ref=e627]:
+                        - img [ref=e629]
+                      - cell "TEST_21 MOON" [ref=e634]:
+                        - generic [ref=e636] [cursor=pointer]: TEST_21 MOON
+                      - cell "On Order Follow-Up Please check if stock has arrived for the following items and respond. MOXONIDINE TABLETS 200mcg Moxonidine (GH) App Delivery" [ref=e637]:
+                        - generic [ref=e639]:
+                          - generic [ref=e642]:
+                            - text: On Order Follow-Up
+                            - text: Please check if stock has arrived for the following items and respond. MOXONIDINE TABLETS 200mcg Moxonidine (GH)
+                          - generic [ref=e644]:
+                            - generic [ref=e645]: App
+                            - generic [ref=e646]: Delivery
+                      - cell "28/03/2026, 12:00 AM" [ref=e647]
+                      - cell "View expand_more" [ref=e648]:
+                        - generic [ref=e651]:
+                          - button "View" [ref=e652] [cursor=pointer]:
+                            - generic [ref=e653]: View
+                          - button "expand_more" [ref=e654] [cursor=pointer]:
+                            - generic [ref=e656]: expand_more
+                    - row "select row 16 TEST_21 MOON On Order Follow-Up Please check if stock has arrived for the following items and respond. ATORVASTATIN TABLET 80MG Lipitor, DOCETAXEL VIAL 160mg / 8mL Docetaxel (Accord) App 28/03/2026, 12:00 AM View expand_more Button that displays a tooltip when focused or hovered over" [ref=e657]:
+                      - cell "select row 16" [ref=e658]:
+                        - generic [ref=e661] [cursor=pointer]:
+                          - checkbox "select row 16" [ref=e662]
+                          - generic:
+                            - img
+                      - cell [ref=e663]:
+                        - img [ref=e665]
+                      - cell "TEST_21 MOON" [ref=e670]:
+                        - generic [ref=e672] [cursor=pointer]: TEST_21 MOON
+                      - cell "On Order Follow-Up Please check if stock has arrived for the following items and respond. ATORVASTATIN TABLET 80MG Lipitor, DOCETAXEL VIAL 160mg / 8mL Docetaxel (Accord) App" [ref=e673]:
+                        - generic [ref=e675]:
+                          - generic [ref=e678]:
+                            - text: On Order Follow-Up
+                            - text: Please check if stock has arrived for the following items and respond. ATORVASTATIN TABLET 80MG Lipitor, DOCETAXEL VIAL 160mg / 8mL Docetaxel (Accord)
+                          - generic [ref=e681]: App
+                      - cell "28/03/2026, 12:00 AM" [ref=e682]
+                      - cell "View expand_more Button that displays a tooltip when focused or hovered over" [ref=e683]:
+                        - generic [ref=e685]:
+                          - generic [ref=e686]:
+                            - button "View" [ref=e687] [cursor=pointer]:
+                              - generic [ref=e688]: View
+                            - button "expand_more" [ref=e689] [cursor=pointer]:
+                              - generic [ref=e691]: expand_more
+                          - button "Button that displays a tooltip when focused or hovered over" [ref=e692] [cursor=pointer]:
+                            - generic [ref=e694]: shopping_cart_checkout
+                    - row "select row 17 TEST_21 MOON On Order Follow-Up Please check if stock has arrived for the following items and respond. DOCETAXEL VIAL 160mg / 8mL Docetaxel (Accord) App Pay in advance 28/03/2026, 12:00 AM View expand_more" [ref=e695]:
+                      - cell "select row 17" [ref=e696]:
+                        - generic [ref=e699] [cursor=pointer]:
+                          - checkbox "select row 17" [ref=e700]
+                          - generic:
+                            - img
+                      - cell [ref=e701]:
+                        - img [ref=e703]
+                      - cell "TEST_21 MOON" [ref=e708]:
+                        - generic [ref=e710] [cursor=pointer]: TEST_21 MOON
+                      - cell "On Order Follow-Up Please check if stock has arrived for the following items and respond. DOCETAXEL VIAL 160mg / 8mL Docetaxel (Accord) App Pay in advance" [ref=e711]:
+                        - generic [ref=e713]:
+                          - generic [ref=e716]:
+                            - text: On Order Follow-Up
+                            - text: Please check if stock has arrived for the following items and respond. DOCETAXEL VIAL 160mg / 8mL Docetaxel (Accord)
+                          - generic [ref=e718]:
+                            - generic [ref=e719]: App
+                            - generic [ref=e720]: Pay in advance
+                      - cell "28/03/2026, 12:00 AM" [ref=e721]
+                      - cell "View expand_more" [ref=e722]:
+                        - generic [ref=e725]:
+                          - button "View" [ref=e726] [cursor=pointer]:
+                            - generic [ref=e727]: View
+                          - button "expand_more" [ref=e728] [cursor=pointer]:
+                            - generic [ref=e730]: expand_more
+                    - row "select row 18 tinh tinh Booking Confirmation tinh tinh has booked a a_tinh_test with your pharmacy at 11:35 AM on 28/03/2026. 27/03/2026, 8:58 PM View expand_more" [ref=e731]:
+                      - cell "select row 18" [ref=e732]:
+                        - generic [ref=e735] [cursor=pointer]:
+                          - checkbox "select row 18" [ref=e736]
+                          - generic:
+                            - img
+                      - cell [ref=e737]:
+                        - img [ref=e739]: list_alt
+                      - cell "tinh tinh" [ref=e740]:
+                        - generic [ref=e742] [cursor=pointer]: tinh tinh
+                      - cell "Booking Confirmation tinh tinh has booked a a_tinh_test with your pharmacy at 11:35 AM on 28/03/2026." [ref=e743]:
+                        - generic [ref=e746]:
+                          - text: Booking Confirmation
+                          - text: tinh tinh has booked a a_tinh_test with your pharmacy at 11:35 AM on 28/03/2026.
+                      - cell "27/03/2026, 8:58 PM" [ref=e747]
+                      - cell "View expand_more" [ref=e748]:
+                        - generic [ref=e751]:
+                          - button "View" [ref=e752] [cursor=pointer]:
+                            - generic [ref=e753]: View
+                          - button "expand_more" [ref=e754] [cursor=pointer]:
+                            - generic [ref=e756]: expand_more
+                    - row "select row 19 A_ FRED ACITRETIN CAPSULE 25MG NOVATIN AMOXYCILLIN VIAL 1G AMOXIL App 27/03/2026, 6:15 PM View expand_more Button that displays a tooltip when focused or hovered over" [ref=e757]:
+                      - cell "select row 19" [ref=e758]:
+                        - generic [ref=e761] [cursor=pointer]:
+                          - checkbox "select row 19" [ref=e762]
+                          - generic:
+                            - img
+                      - cell [ref=e763]:
+                        - img [ref=e765]
+                      - cell "A_ FRED" [ref=e770]:
+                        - generic [ref=e772] [cursor=pointer]: A_ FRED
+                      - cell "ACITRETIN CAPSULE 25MG NOVATIN AMOXYCILLIN VIAL 1G AMOXIL App" [ref=e773]:
+                        - generic [ref=e775]:
+                          - generic [ref=e776]:
+                            - generic [ref=e778]: ACITRETIN CAPSULE 25MG NOVATIN
+                            - generic [ref=e780]: AMOXYCILLIN VIAL 1G AMOXIL
+                          - generic [ref=e783]: App
+                      - cell "27/03/2026, 6:15 PM" [ref=e784]
+                      - cell "View expand_more Button that displays a tooltip when focused or hovered over" [ref=e785]:
+                        - generic [ref=e787]:
+                          - generic [ref=e788]:
+                            - button "View" [ref=e789] [cursor=pointer]:
+                              - generic [ref=e790]: View
+                            - button "expand_more" [ref=e791] [cursor=pointer]:
+                              - generic [ref=e793]: expand_more
+                          - button "Button that displays a tooltip when focused or hovered over" [ref=e794] [cursor=pointer]:
+                            - generic [ref=e796]: shopping_cart_checkout
+                    - row "select row 20 TEST_21 MOON Payment Received Pay in Advance TEST_21 MOON has made a payment of $109.73 for an order at 4:33 PM on 27/03/2026. 27/03/2026, 4:33 PM View expand_more" [ref=e797]:
+                      - cell "select row 20" [ref=e798]:
+                        - generic [ref=e801] [cursor=pointer]:
+                          - checkbox "select row 20" [ref=e802]
+                          - generic:
+                            - img
+                      - cell [ref=e803]:
+                        - img [ref=e805]: list_alt
+                      - cell "TEST_21 MOON" [ref=e806]:
+                        - generic [ref=e808] [cursor=pointer]: TEST_21 MOON
+                      - cell "Payment Received Pay in Advance TEST_21 MOON has made a payment of $109.73 for an order at 4:33 PM on 27/03/2026." [ref=e809]:
+                        - generic [ref=e812]:
+                          - text: Payment Received
+                          - generic [ref=e813]: Pay in Advance
+                          - text: TEST_21 MOON has made a payment of $109.73 for an order at 4:33 PM on 27/03/2026.
+                      - cell "27/03/2026, 4:33 PM" [ref=e814]
+                      - cell "View expand_more" [ref=e815]:
+                        - generic [ref=e818]:
+                          - button "View" [ref=e819] [cursor=pointer]:
+                            - generic [ref=e820]: View
+                          - button "expand_more" [ref=e821] [cursor=pointer]:
+                            - generic [ref=e823]: expand_more
+                    - row "select row 21 heh ehe Booking Confirmation heh ehe has booked a a_tinh_test with your pharmacy at 9:00 AM on 28/03/2026. 27/03/2026, 1:28 PM View expand_more" [ref=e824]:
+                      - cell "select row 21" [ref=e825]:
+                        - generic [ref=e828] [cursor=pointer]:
+                          - checkbox "select row 21" [ref=e829]
+                          - generic:
+                            - img
+                      - cell [ref=e830]:
+                        - img [ref=e832]: list_alt
+                      - cell "heh ehe" [ref=e833]:
+                        - generic [ref=e835] [cursor=pointer]: heh ehe
+                      - cell "Booking Confirmation heh ehe has booked a a_tinh_test with your pharmacy at 9:00 AM on 28/03/2026." [ref=e836]:
+                        - generic [ref=e839]:
+                          - text: Booking Confirmation
+                          - text: heh ehe has booked a a_tinh_test with your pharmacy at 9:00 AM on 28/03/2026.
+                      - cell "27/03/2026, 1:28 PM" [ref=e840]
+                      - cell "View expand_more" [ref=e841]:
+                        - generic [ref=e844]:
+                          - button "View" [ref=e845] [cursor=pointer]:
+                            - generic [ref=e846]: View
+                          - button "expand_more" [ref=e847] [cursor=pointer]:
+                            - generic [ref=e849]: expand_more
+                    - row "select row 22 Tinh cute Booking Confirmation Tinh cute has booked a a_tinh_test with your pharmacy at 9:00 AM on 05/05/2026. 26/03/2026, 9:52 PM View expand_more" [ref=e850]:
+                      - cell "select row 22" [ref=e851]:
+                        - generic [ref=e854] [cursor=pointer]:
+                          - checkbox "select row 22" [ref=e855]
+                          - generic:
+                            - img
+                      - cell [ref=e856]:
+                        - img [ref=e858]: list_alt
+                      - cell "Tinh cute" [ref=e859]:
+                        - generic [ref=e861] [cursor=pointer]: Tinh cute
+                      - cell "Booking Confirmation Tinh cute has booked a a_tinh_test with your pharmacy at 9:00 AM on 05/05/2026." [ref=e862]:
+                        - generic [ref=e865]:
+                          - text: Booking Confirmation
+                          - text: Tinh cute has booked a a_tinh_test with your pharmacy at 9:00 AM on 05/05/2026.
+                      - cell "26/03/2026, 9:52 PM" [ref=e866]
+                      - cell "View expand_more" [ref=e867]:
+                        - generic [ref=e870]:
+                          - button "View" [ref=e871] [cursor=pointer]:
+                            - generic [ref=e872]: View
+                          - button "expand_more" [ref=e873] [cursor=pointer]:
+                            - generic [ref=e875]: expand_more
+                    - row "select row 23 TEST_21 MOON On Order Follow-Up Please check if stock has arrived for the following items and respond. MOXONIDINE TABLETS 200mcg Moxonidine (GH) App Delivery 26/03/2026, 12:00 AM View expand_more" [ref=e876]:
+                      - cell "select row 23" [ref=e877]:
+                        - generic [ref=e880] [cursor=pointer]:
+                          - checkbox "select row 23" [ref=e881]
+                          - generic:
+                            - img
+                      - cell [ref=e882]:
+                        - img [ref=e884]
+                      - cell "TEST_21 MOON" [ref=e889]:
+                        - generic [ref=e891] [cursor=pointer]: TEST_21 MOON
+                      - cell "On Order Follow-Up Please check if stock has arrived for the following items and respond. MOXONIDINE TABLETS 200mcg Moxonidine (GH) App Delivery" [ref=e892]:
+                        - generic [ref=e894]:
+                          - generic [ref=e897]:
+                            - text: On Order Follow-Up
+                            - text: Please check if stock has arrived for the following items and respond. MOXONIDINE TABLETS 200mcg Moxonidine (GH)
+                          - generic [ref=e899]:
+                            - generic [ref=e900]: App
+                            - generic [ref=e901]: Delivery
+                      - cell "26/03/2026, 12:00 AM" [ref=e902]
+                      - cell "View expand_more" [ref=e903]:
+                        - generic [ref=e906]:
+                          - button "View" [ref=e907] [cursor=pointer]:
+                            - generic [ref=e908]: View
+                          - button "expand_more" [ref=e909] [cursor=pointer]:
+                            - generic [ref=e911]: expand_more
+                    - row "select row 24 TEST_21 MOON On Order Follow-Up Please check if stock has arrived for the following items and respond. PARACETAMOL / CODEINE TABLETS 500mg / 15mg Codasig App Pay in advance 26/03/2026, 12:00 AM View expand_more" [ref=e912]:
+                      - cell "select row 24" [ref=e913]:
+                        - generic [ref=e916] [cursor=pointer]:
+                          - checkbox "select row 24" [ref=e917]
+                          - generic:
+                            - img
+                      - cell [ref=e918]:
+                        - img [ref=e920]
+                      - cell "TEST_21 MOON" [ref=e925]:
+                        - generic [ref=e927] [cursor=pointer]: TEST_21 MOON
+                      - cell "On Order Follow-Up Please check if stock has arrived for the following items and respond. PARACETAMOL / CODEINE TABLETS 500mg / 15mg Codasig App Pay in advance" [ref=e928]:
+                        - generic [ref=e930]:
+                          - generic [ref=e933]:
+                            - text: On Order Follow-Up
+                            - text: Please check if stock has arrived for the following items and respond. PARACETAMOL / CODEINE TABLETS 500mg / 15mg Codasig
+                          - generic [ref=e935]:
+                            - generic [ref=e936]: App
+                            - generic [ref=e937]: Pay in advance
+                      - cell "26/03/2026, 12:00 AM" [ref=e938]
+                      - cell "View expand_more" [ref=e939]:
+                        - generic [ref=e942]:
+                          - button "View" [ref=e943] [cursor=pointer]:
+                            - generic [ref=e944]: View
+                          - button "expand_more" [ref=e945] [cursor=pointer]:
+                            - generic [ref=e947]: expand_more
+                    - row "select row 25 TEST_40 MOON CLOPIDOGREL TABLET 75MG PIAX IBANDRONATE SODIUM TABLET 50MG BONDRONAT METHOTREXATE INJECTION 15MG / 0.30ML, 1 TREXJECT ...2 more App Delivery Includes notes unmap - k sài data này 25/03/2026, 10:14 PM View expand_more" [ref=e948]:
+                      - cell "select row 25" [ref=e949]:
+                        - generic [ref=e952] [cursor=pointer]:
+                          - checkbox "select row 25" [ref=e953]
+                          - generic:
+                            - img
+                      - cell [ref=e954]:
+                        - img [ref=e956]
+                      - cell "TEST_40 MOON" [ref=e961]:
+                        - generic [ref=e963] [cursor=pointer]: TEST_40 MOON
+                      - cell "CLOPIDOGREL TABLET 75MG PIAX IBANDRONATE SODIUM TABLET 50MG BONDRONAT METHOTREXATE INJECTION 15MG / 0.30ML, 1 TREXJECT ...2 more App Delivery Includes notes unmap - k sài data này" [ref=e964]:
+                        - generic [ref=e966]:
+                          - generic [ref=e967]:
+                            - generic [ref=e969]: CLOPIDOGREL TABLET 75MG PIAX
+                            - generic [ref=e971]: IBANDRONATE SODIUM TABLET 50MG BONDRONAT
+                            - generic [ref=e972]:
+                              - generic [ref=e973]: METHOTREXATE INJECTION 15MG / 0.30ML, 1 TREXJECT
+                              - text: ...2 more
+                          - generic [ref=e975]:
+                            - generic [ref=e976]: App
+                            - generic [ref=e977]: Delivery
+                            - generic [ref=e978]: Includes notes
+                          - generic [ref=e979]:
+                            - img [ref=e981]
+                            - paragraph [ref=e984]: unmap - k sài data này
+                      - cell "25/03/2026, 10:14 PM" [ref=e985]
+                      - cell "View expand_more" [ref=e986]:
+                        - generic [ref=e989]:
+                          - button "View" [ref=e990] [cursor=pointer]:
+                            - generic [ref=e991]: View
+                          - button "expand_more" [ref=e992] [cursor=pointer]:
+                            - generic [ref=e994]: expand_more
+                    - row "select row 26 A_ FRED Payment Received Delivery requested A_ FRED has made a payment of $42.50 for an order at 8:06 PM on 25/03/2026. 25/03/2026, 8:06 PM View expand_more" [ref=e995]:
+                      - cell "select row 26" [ref=e996]:
+                        - generic [ref=e999] [cursor=pointer]:
+                          - checkbox "select row 26" [ref=e1000]
+                          - generic:
+                            - img
+                      - cell [ref=e1001]:
+                        - img [ref=e1003]: list_alt
+                      - cell "A_ FRED" [ref=e1004]:
+                        - generic [ref=e1006] [cursor=pointer]: A_ FRED
+                      - cell "Payment Received Delivery requested A_ FRED has made a payment of $42.50 for an order at 8:06 PM on 25/03/2026." [ref=e1007]:
+                        - generic [ref=e1010]:
+                          - text: Payment Received
+                          - generic [ref=e1011]: Delivery requested
+                          - text: A_ FRED has made a payment of $42.50 for an order at 8:06 PM on 25/03/2026.
+                      - cell "25/03/2026, 8:06 PM" [ref=e1012]
+                      - cell "View expand_more" [ref=e1013]:
+                        - generic [ref=e1016]:
+                          - button "View" [ref=e1017] [cursor=pointer]:
+                            - generic [ref=e1018]: View
+                          - button "expand_more" [ref=e1019] [cursor=pointer]:
+                            - generic [ref=e1021]: expand_more
+                    - row "select row 27 TEST_NEW TU LATANOPROST EYE DROPS 0.005% 2.5ML XALATAN MOXONIDINE TABLETS 200MCG MOXONIDINE (APO) OXYCODONE CAPSULE 10MG OXYNORM ...2 more App Pay in advance 25/03/2026, 7:31 PM View expand_more" [ref=e1022]:
+                      - cell "select row 27" [ref=e1023]:
+                        - generic [ref=e1026] [cursor=pointer]:
+                          - checkbox "select row 27" [ref=e1027]
+                          - generic:
+                            - img
+                      - cell [ref=e1028]:
+                        - img [ref=e1030]
+                      - cell "TEST_NEW TU" [ref=e1035]:
+                        - generic [ref=e1037] [cursor=pointer]: TEST_NEW TU
+                      - cell "LATANOPROST EYE DROPS 0.005% 2.5ML XALATAN MOXONIDINE TABLETS 200MCG MOXONIDINE (APO) OXYCODONE CAPSULE 10MG OXYNORM ...2 more App Pay in advance" [ref=e1038]:
+                        - generic [ref=e1040]:
+                          - generic [ref=e1041]:
+                            - generic [ref=e1043]: LATANOPROST EYE DROPS 0.005% 2.5ML XALATAN
+                            - generic [ref=e1045]: MOXONIDINE TABLETS 200MCG MOXONIDINE (APO)
+                            - generic [ref=e1046]:
+                              - generic [ref=e1047]: OXYCODONE CAPSULE 10MG OXYNORM
+                              - text: ...2 more
+                          - generic [ref=e1049]:
+                            - generic [ref=e1050]: App
+                            - generic [ref=e1051]: Pay in advance
+                      - cell "25/03/2026, 7:31 PM" [ref=e1052]
+                      - cell "View expand_more" [ref=e1053]:
+                        - generic [ref=e1056]:
+                          - button "View" [ref=e1057] [cursor=pointer]:
+                            - generic [ref=e1058]: View
+                          - button "expand_more" [ref=e1059] [cursor=pointer]:
+                            - generic [ref=e1061]: expand_more
+                    - row "select row 28 TEST_21 MOON Payment Received Delivery requested TEST_21 MOON has made a payment of $58.90 for an order at 6:53 PM on 25/03/2026. 25/03/2026, 6:53 PM View expand_more" [ref=e1062]:
+                      - cell "select row 28" [ref=e1063]:
+                        - generic [ref=e1066] [cursor=pointer]:
+                          - checkbox "select row 28" [ref=e1067]
+                          - generic:
+                            - img
+                      - cell [ref=e1068]:
+                        - img [ref=e1070]: list_alt
+                      - cell "TEST_21 MOON" [ref=e1071]:
+                        - generic [ref=e1073] [cursor=pointer]: TEST_21 MOON
+                      - cell "Payment Received Delivery requested TEST_21 MOON has made a payment of $58.90 for an order at 6:53 PM on 25/03/2026." [ref=e1074]:
+                        - generic [ref=e1077]:
+                          - text: Payment Received
+                          - generic [ref=e1078]: Delivery requested
+                          - text: TEST_21 MOON has made a payment of $58.90 for an order at 6:53 PM on 25/03/2026.
+                      - cell "25/03/2026, 6:53 PM" [ref=e1079]
+                      - cell "View expand_more" [ref=e1080]:
+                        - generic [ref=e1083]:
+                          - button "View" [ref=e1084] [cursor=pointer]:
+                            - generic [ref=e1085]: View
+                          - button "expand_more" [ref=e1086] [cursor=pointer]:
+                            - generic [ref=e1088]: expand_more
+                    - row "select row 29 TEST_21 MOON Payment Received Pay in Advance TEST_21 MOON has made a payment of $97.66 for an order at 3:14 AM on 25/03/2026. 25/03/2026, 3:14 AM View expand_more" [ref=e1089]:
+                      - cell "select row 29" [ref=e1090]:
+                        - generic [ref=e1093] [cursor=pointer]:
+                          - checkbox "select row 29" [ref=e1094]
+                          - generic:
+                            - img
+                      - cell [ref=e1095]:
+                        - img [ref=e1097]: list_alt
+                      - cell "TEST_21 MOON" [ref=e1098]:
+                        - generic [ref=e1100] [cursor=pointer]: TEST_21 MOON
+                      - cell "Payment Received Pay in Advance TEST_21 MOON has made a payment of $97.66 for an order at 3:14 AM on 25/03/2026." [ref=e1101]:
+                        - generic [ref=e1104]:
+                          - text: Payment Received
+                          - generic [ref=e1105]: Pay in Advance
+                          - text: TEST_21 MOON has made a payment of $97.66 for an order at 3:14 AM on 25/03/2026.
+                      - cell "25/03/2026, 3:14 AM" [ref=e1106]
+                      - cell "View expand_more" [ref=e1107]:
+                        - generic [ref=e1110]:
+                          - button "View" [ref=e1111] [cursor=pointer]:
+                            - generic [ref=e1112]: View
+                          - button "expand_more" [ref=e1113] [cursor=pointer]:
+                            - generic [ref=e1115]: expand_more
+                    - row "select row 30 TEST_21 MOON On Order Follow-Up Please check if stock has arrived for the following items and respond. MOXONIDINE TABLETS 200mcg Moxonidine (GH), CLOPIDOGREL TABLET 75MG Piax, BANDAGE COHESIVE 10CM X 1.3M 7423 Peg Cohesive App Pay in advance 25/03/2026, 12:00 AM View expand_more" [ref=e1116]:
+                      - cell "select row 30" [ref=e1117]:
+                        - generic [ref=e1120] [cursor=pointer]:
+                          - checkbox "select row 30" [ref=e1121]
+                          - generic:
+                            - img
+                      - cell [ref=e1122]:
+                        - img [ref=e1124]
+                      - cell "TEST_21 MOON" [ref=e1129]:
+                        - generic [ref=e1131] [cursor=pointer]: TEST_21 MOON
+                      - cell "On Order Follow-Up Please check if stock has arrived for the following items and respond. MOXONIDINE TABLETS 200mcg Moxonidine (GH), CLOPIDOGREL TABLET 75MG Piax, BANDAGE COHESIVE 10CM X 1.3M 7423 Peg Cohesive App Pay in advance" [ref=e1132]:
+                        - generic [ref=e1134]:
+                          - generic [ref=e1137]:
+                            - text: On Order Follow-Up
+                            - text: Please check if stock has arrived for the following items and respond. MOXONIDINE TABLETS 200mcg Moxonidine (GH), CLOPIDOGREL TABLET 75MG Piax, BANDAGE COHESIVE 10CM X 1.3M 7423 Peg Cohesive
+                          - generic [ref=e1139]:
+                            - generic [ref=e1140]: App
+                            - generic [ref=e1141]: Pay in advance
+                      - cell "25/03/2026, 12:00 AM" [ref=e1142]
+                      - cell "View expand_more" [ref=e1143]:
+                        - generic [ref=e1146]:
+                          - button "View" [ref=e1147] [cursor=pointer]:
+                            - generic [ref=e1148]: View
+                          - button "expand_more" [ref=e1149] [cursor=pointer]:
+                            - generic [ref=e1151]: expand_more
+                    - row "select row 31 TestA An Payment Received Pay in Advance TESTA AN has made a payment of $2.00 for an order at 4:11 PM on 23/03/2026. 23/03/2026, 4:11 PM View expand_more" [ref=e1152]:
+                      - cell "select row 31" [ref=e1153]:
+                        - generic [ref=e1156] [cursor=pointer]:
+                          - checkbox "select row 31" [ref=e1157]
+                          - generic:
+                            - img
+                      - cell [ref=e1158]:
+                        - img [ref=e1160]: list_alt
+                      - cell "TestA An" [ref=e1161]:
+                        - generic [ref=e1163] [cursor=pointer]: TestA An
+                      - cell "Payment Received Pay in Advance TESTA AN has made a payment of $2.00 for an order at 4:11 PM on 23/03/2026." [ref=e1164]:
+                        - generic [ref=e1167]:
+                          - text: Payment Received
+                          - generic [ref=e1168]: Pay in Advance
+                          - text: TESTA AN has made a payment of $2.00 for an order at 4:11 PM on 23/03/2026.
+                      - cell "23/03/2026, 4:11 PM" [ref=e1169]
+                      - cell "View expand_more" [ref=e1170]:
+                        - generic [ref=e1173]:
+                          - button "View" [ref=e1174] [cursor=pointer]:
+                            - generic [ref=e1175]: View
+                          - button "expand_more" [ref=e1176] [cursor=pointer]:
+                            - generic [ref=e1178]: expand_more
+                    - 'row "select row 32 Binh Hoang BIOCEUTICALS MIGRAINE CARE (60) Qty: 1 App 22/03/2026, 7:31 PM View expand_more Button that displays a tooltip when focused or hovered over" [ref=e1179]':
+                      - cell "select row 32" [ref=e1180]:
+                        - generic [ref=e1183] [cursor=pointer]:
+                          - checkbox "select row 32" [ref=e1184]
+                          - generic:
+                            - img
+                      - cell [ref=e1185]:
+                        - img [ref=e1187]
+                      - cell "Binh Hoang" [ref=e1192]:
+                        - generic [ref=e1194] [cursor=pointer]: Binh Hoang
+                      - 'cell "BIOCEUTICALS MIGRAINE CARE (60) Qty: 1 App" [ref=e1195]':
+                        - generic [ref=e1197]:
+                          - generic [ref=e1200]: "BIOCEUTICALS MIGRAINE CARE (60) Qty: 1"
+                          - generic [ref=e1203]: App
+                      - cell "22/03/2026, 7:31 PM" [ref=e1204]
+                      - cell "View expand_more Button that displays a tooltip when focused or hovered over" [ref=e1205]:
+                        - generic [ref=e1207]:
+                          - generic [ref=e1208]:
+                            - button "View" [ref=e1209] [cursor=pointer]:
+                              - generic [ref=e1210]: View
+                            - button "expand_more" [ref=e1211] [cursor=pointer]:
+                              - generic [ref=e1213]: expand_more
+                          - button "Button that displays a tooltip when focused or hovered over" [ref=e1214] [cursor=pointer]:
+                            - generic [ref=e1216]: shopping_cart_checkout
+                    - row "select row 33 TEST_01 KAMINA Booking Confirmation TEST_01 KAMINA has booked a Guild Corp Health Vaccination with your pharmacy at 4:40 PM on 21/03/2026. 20/03/2026, 3:14 PM View expand_more" [ref=e1217]:
+                      - cell "select row 33" [ref=e1218]:
+                        - generic [ref=e1221] [cursor=pointer]:
+                          - checkbox "select row 33" [ref=e1222]
+                          - generic:
+                            - img
+                      - cell [ref=e1223]:
+                        - img [ref=e1225]: list_alt
+                      - cell "TEST_01 KAMINA" [ref=e1226]:
+                        - generic [ref=e1228] [cursor=pointer]: TEST_01 KAMINA
+                      - cell "Booking Confirmation TEST_01 KAMINA has booked a Guild Corp Health Vaccination with your pharmacy at 4:40 PM on 21/03/2026." [ref=e1229]:
+                        - generic [ref=e1232]:
+                          - text: Booking Confirmation
+                          - text: TEST_01 KAMINA has booked a Guild Corp Health Vaccination with your pharmacy at 4:40 PM on 21/03/2026.
+                      - cell "20/03/2026, 3:14 PM" [ref=e1233]
+                      - cell "View expand_more" [ref=e1234]:
+                        - generic [ref=e1237]:
+                          - button "View" [ref=e1238] [cursor=pointer]:
+                            - generic [ref=e1239]: View
+                          - button "expand_more" [ref=e1240] [cursor=pointer]:
+                            - generic [ref=e1242]: expand_more
+                    - 'row "select row 34 JOB_02 DATA KOMBIGLYZE XR MR-TAB 2.5mg/1000mg Qty: 56 SMS YES 09/03/2026, 9:24 AM View expand_more Button that displays a tooltip when focused or hovered over" [ref=e1243]':
+                      - cell "select row 34" [ref=e1244]:
+                        - generic [ref=e1247] [cursor=pointer]:
+                          - checkbox "select row 34" [ref=e1248]
+                          - generic:
+                            - img
+                      - cell [ref=e1249]:
+                        - img [ref=e1251]
+                      - cell "JOB_02 DATA" [ref=e1256]:
+                        - generic [ref=e1258] [cursor=pointer]: JOB_02 DATA
+                      - 'cell "KOMBIGLYZE XR MR-TAB 2.5mg/1000mg Qty: 56 SMS YES" [ref=e1259]':
+                        - generic [ref=e1261]:
+                          - generic [ref=e1264]: "KOMBIGLYZE XR MR-TAB 2.5mg/1000mg Qty: 56"
+                          - generic [ref=e1267]: SMS
+                          - generic [ref=e1268]:
+                            - img [ref=e1270]
+                            - paragraph [ref=e1273]: "YES"
+                      - cell "09/03/2026, 9:24 AM" [ref=e1274]
+                      - cell "View expand_more Button that displays a tooltip when focused or hovered over" [ref=e1275]:
+                        - generic [ref=e1277]:
+                          - generic [ref=e1278]:
+                            - button "View" [ref=e1279] [cursor=pointer]:
+                              - generic [ref=e1280]: View
+                            - button "expand_more" [ref=e1281] [cursor=pointer]:
+                              - generic [ref=e1283]: expand_more
+                          - button "Button that displays a tooltip when focused or hovered over" [ref=e1284] [cursor=pointer]:
+                            - generic [ref=e1286]: shopping_cart_checkout
+                    - 'row "select row 35 TEST_06 DECEMBER BONDRONAT TAB 50mg Qty: 28 SMS YES message reply 03/03/2026, 10:16 AM View expand_more Button that displays a tooltip when focused or hovered over" [ref=e1287]':
+                      - cell "select row 35" [ref=e1288]:
+                        - generic [ref=e1291] [cursor=pointer]:
+                          - checkbox "select row 35" [ref=e1292]
+                          - generic:
+                            - img
+                      - cell [ref=e1293]:
+                        - img [ref=e1295]
+                      - cell "TEST_06 DECEMBER" [ref=e1300]:
+                        - generic [ref=e1302] [cursor=pointer]: TEST_06 DECEMBER
+                      - 'cell "BONDRONAT TAB 50mg Qty: 28 SMS YES message reply" [ref=e1303]':
+                        - generic [ref=e1305]:
+                          - generic [ref=e1308]: "BONDRONAT TAB 50mg Qty: 28"
+                          - generic [ref=e1311]: SMS
+                          - generic [ref=e1312]:
+                            - img [ref=e1314]
+                            - paragraph [ref=e1317]: YES message reply
+                      - cell "03/03/2026, 10:16 AM" [ref=e1318]
+                      - cell "View expand_more Button that displays a tooltip when focused or hovered over" [ref=e1319]:
+                        - generic [ref=e1321]:
+                          - generic [ref=e1322]:
+                            - button "View" [ref=e1323] [cursor=pointer]:
+                              - generic [ref=e1324]: View
+                            - button "expand_more" [ref=e1325] [cursor=pointer]:
+                              - generic [ref=e1327]: expand_more
+                          - button "Button that displays a tooltip when focused or hovered over" [ref=e1328] [cursor=pointer]:
+                            - generic [ref=e1330]: shopping_cart_checkout
+                    - 'row "select row 36 TEST_101 DECEMBER PARACETAMOL (APO) TAB 500mg, 100 Qty: 100 SMS YES 03/03/2026, 10:10 AM View expand_more Button that displays a tooltip when focused or hovered over" [ref=e1331]':
+                      - cell "select row 36" [ref=e1332]:
+                        - generic [ref=e1335] [cursor=pointer]:
+                          - checkbox "select row 36" [ref=e1336]
+                          - generic:
+                            - img
+                      - cell [ref=e1337]:
+                        - img [ref=e1339]
+                      - cell "TEST_101 DECEMBER" [ref=e1344]:
+                        - generic [ref=e1346] [cursor=pointer]: TEST_101 DECEMBER
+                      - 'cell "PARACETAMOL (APO) TAB 500mg, 100 Qty: 100 SMS YES" [ref=e1347]':
+                        - generic [ref=e1349]:
+                          - generic [ref=e1352]: "PARACETAMOL (APO) TAB 500mg, 100 Qty: 100"
+                          - generic [ref=e1355]: SMS
+                          - generic [ref=e1356]:
+                            - img [ref=e1358]
+                            - paragraph [ref=e1361]: "YES"
+                      - cell "03/03/2026, 10:10 AM" [ref=e1362]
+                      - cell "View expand_more Button that displays a tooltip when focused or hovered over" [ref=e1363]:
+                        - generic [ref=e1365]:
+                          - generic [ref=e1366]:
+                            - button "View" [ref=e1367] [cursor=pointer]:
+                              - generic [ref=e1368]: View
+                            - button "expand_more" [ref=e1369] [cursor=pointer]:
+                              - generic [ref=e1371]: expand_more
+                          - button "Button that displays a tooltip when focused or hovered over" [ref=e1372] [cursor=pointer]:
+                            - generic [ref=e1374]: shopping_cart_checkout
+                    - row "select row 37 Khuong Nguyen Booking Confirmation Khuong Nguyen has booked a COVID-19 Moderna with your pharmacy at 4:00 PM on 13/02/2026. 12/02/2026, 3:50 PM View expand_more" [ref=e1375]:
+                      - cell "select row 37" [ref=e1376]:
+                        - generic [ref=e1379] [cursor=pointer]:
+                          - checkbox "select row 37" [ref=e1380]
+                          - generic:
+                            - img
+                      - cell [ref=e1381]:
+                        - img [ref=e1383]: list_alt
+                      - cell "Khuong Nguyen" [ref=e1384]:
+                        - generic [ref=e1386] [cursor=pointer]: Khuong Nguyen
+                      - cell "Booking Confirmation Khuong Nguyen has booked a COVID-19 Moderna with your pharmacy at 4:00 PM on 13/02/2026." [ref=e1387]:
+                        - generic [ref=e1390]:
+                          - text: Booking Confirmation
+                          - text: Khuong Nguyen has booked a COVID-19 Moderna with your pharmacy at 4:00 PM on 13/02/2026.
+                      - cell "12/02/2026, 3:50 PM" [ref=e1391]
+                      - cell "View expand_more" [ref=e1392]:
+                        - generic [ref=e1395]:
+                          - button "View" [ref=e1396] [cursor=pointer]:
+                            - generic [ref=e1397]: View
+                          - button "expand_more" [ref=e1398] [cursor=pointer]:
+                            - generic [ref=e1400]: expand_more
+                    - row "select row 38 Khuong Nguyen Booking Confirmation Khuong Nguyen has booked a COVID-19 Moderna with your pharmacy at 3:45 PM on 13/02/2026. 12/02/2026, 3:40 PM View expand_more" [ref=e1401]:
+                      - cell "select row 38" [ref=e1402]:
+                        - generic [ref=e1405] [cursor=pointer]:
+                          - checkbox "select row 38" [ref=e1406]
+                          - generic:
+                            - img
+                      - cell [ref=e1407]:
+                        - img [ref=e1409]: list_alt
+                      - cell "Khuong Nguyen" [ref=e1410]:
+                        - generic [ref=e1412] [cursor=pointer]: Khuong Nguyen
+                      - cell "Booking Confirmation Khuong Nguyen has booked a COVID-19 Moderna with your pharmacy at 3:45 PM on 13/02/2026." [ref=e1413]:
+                        - generic [ref=e1416]:
+                          - text: Booking Confirmation
+                          - text: Khuong Nguyen has booked a COVID-19 Moderna with your pharmacy at 3:45 PM on 13/02/2026.
+                      - cell "12/02/2026, 3:40 PM" [ref=e1417]
+                      - cell "View expand_more" [ref=e1418]:
+                        - generic [ref=e1421]:
+                          - button "View" [ref=e1422] [cursor=pointer]:
+                            - generic [ref=e1423]: View
+                          - button "expand_more" [ref=e1424] [cursor=pointer]:
+                            - generic [ref=e1426]: expand_more
+                    - row "select row 39 TestA An Payment Received Pay in Advance TESTA AN has made a payment of $2.00 for an order at 12:37 AM on 10/02/2026. 10/02/2026, 12:37 AM View expand_more" [ref=e1427]:
+                      - cell "select row 39" [ref=e1428]:
+                        - generic [ref=e1431] [cursor=pointer]:
+                          - checkbox "select row 39" [ref=e1432]
+                          - generic:
+                            - img
+                      - cell [ref=e1433]:
+                        - img [ref=e1435]: list_alt
+                      - cell "TestA An" [ref=e1436]:
+                        - generic [ref=e1438] [cursor=pointer]: TestA An
+                      - cell "Payment Received Pay in Advance TESTA AN has made a payment of $2.00 for an order at 12:37 AM on 10/02/2026." [ref=e1439]:
+                        - generic [ref=e1442]:
+                          - text: Payment Received
+                          - generic [ref=e1443]: Pay in Advance
+                          - text: TESTA AN has made a payment of $2.00 for an order at 12:37 AM on 10/02/2026.
+                      - cell "10/02/2026, 12:37 AM" [ref=e1444]
+                      - cell "View expand_more" [ref=e1445]:
+                        - generic [ref=e1448]:
+                          - button "View" [ref=e1449] [cursor=pointer]:
+                            - generic [ref=e1450]: View
+                          - button "expand_more" [ref=e1451] [cursor=pointer]:
+                            - generic [ref=e1453]: expand_more
+                    - row "select row 40 DUNG BUI Send med 09/02/2026, 3:24 PM View expand_more" [ref=e1454]:
+                      - cell "select row 40" [ref=e1455]:
+                        - generic [ref=e1458] [cursor=pointer]:
+                          - checkbox "select row 40" [ref=e1459]
+                          - generic:
+                            - img
+                      - cell [ref=e1460]:
+                        - img [ref=e1462]
+                      - cell "DUNG BUI" [ref=e1467]:
+                        - generic [ref=e1469] [cursor=pointer]: DUNG BUI
+                      - cell "Send med" [ref=e1470]:
+                        - generic [ref=e1473]: Send med
+                      - cell "09/02/2026, 3:24 PM" [ref=e1474]
+                      - cell "View expand_more" [ref=e1475]:
+                        - generic [ref=e1478]:
+                          - button "View" [ref=e1479] [cursor=pointer]:
+                            - generic [ref=e1480]: View
+                          - button "expand_more" [ref=e1481] [cursor=pointer]:
+                            - generic [ref=e1483]: expand_more
+                    - row "select row 41 TEST_05 JULY this message will be sent to your pharmacist 06/02/2026, 10:54 PM View expand_more" [ref=e1484]:
+                      - cell "select row 41" [ref=e1485]:
+                        - generic [ref=e1488] [cursor=pointer]:
+                          - checkbox "select row 41" [ref=e1489]
+                          - generic:
+                            - img
+                      - cell [ref=e1490]:
+                        - img [ref=e1492]
+                      - cell "TEST_05 JULY" [ref=e1497]:
+                        - generic [ref=e1499] [cursor=pointer]: TEST_05 JULY
+                      - cell "this message will be sent to your pharmacist" [ref=e1500]:
+                        - generic [ref=e1503]: this message will be sent to your pharmacist
+                      - cell "06/02/2026, 10:54 PM" [ref=e1504]
+                      - cell "View expand_more" [ref=e1505]:
+                        - generic [ref=e1508]:
+                          - button "View" [ref=e1509] [cursor=pointer]:
+                            - generic [ref=e1510]: View
+                          - button "expand_more" [ref=e1511] [cursor=pointer]:
+                            - generic [ref=e1513]: expand_more
+                    - row "select row 42 TEST_05 JULY Booking Confirmation TEST_05 JULY has booked a COVID-19 Vaccine - Novavax with your pharmacy at 9:00 AM on 07/02/2026. 06/02/2026, 9:52 PM View expand_more" [ref=e1514]:
+                      - cell "select row 42" [ref=e1515]:
+                        - generic [ref=e1518] [cursor=pointer]:
+                          - checkbox "select row 42" [ref=e1519]
+                          - generic:
+                            - img
+                      - cell [ref=e1520]:
+                        - img [ref=e1522]: list_alt
+                      - cell "TEST_05 JULY" [ref=e1523]:
+                        - generic [ref=e1525] [cursor=pointer]: TEST_05 JULY
+                      - cell "Booking Confirmation TEST_05 JULY has booked a COVID-19 Vaccine - Novavax with your pharmacy at 9:00 AM on 07/02/2026." [ref=e1526]:
+                        - generic [ref=e1529]:
+                          - text: Booking Confirmation
+                          - text: TEST_05 JULY has booked a COVID-19 Vaccine - Novavax with your pharmacy at 9:00 AM on 07/02/2026.
+                      - cell "06/02/2026, 9:52 PM" [ref=e1530]
+                      - cell "View expand_more" [ref=e1531]:
+                        - generic [ref=e1534]:
+                          - button "View" [ref=e1535] [cursor=pointer]:
+                            - generic [ref=e1536]: View
+                          - button "expand_more" [ref=e1537] [cursor=pointer]:
+                            - generic [ref=e1539]: expand_more
+                    - row "select row 43 Jo Blogs Booking Confirmation Jo Blogs has booked a COVID-19 Novavax with your pharmacy at 9:00 AM on 07/02/2026. 06/02/2026, 9:47 PM View expand_more" [ref=e1540]:
+                      - cell "select row 43" [ref=e1541]:
+                        - generic [ref=e1544] [cursor=pointer]:
+                          - checkbox "select row 43" [ref=e1545]
+                          - generic:
+                            - img
+                      - cell [ref=e1546]:
+                        - img [ref=e1548]: list_alt
+                      - cell "Jo Blogs" [ref=e1549]:
+                        - generic [ref=e1551] [cursor=pointer]: Jo Blogs
+                      - cell "Booking Confirmation Jo Blogs has booked a COVID-19 Novavax with your pharmacy at 9:00 AM on 07/02/2026." [ref=e1552]:
+                        - generic [ref=e1555]:
+                          - text: Booking Confirmation
+                          - text: Jo Blogs has booked a COVID-19 Novavax with your pharmacy at 9:00 AM on 07/02/2026.
+                      - cell "06/02/2026, 9:47 PM" [ref=e1556]
+                      - cell "View expand_more" [ref=e1557]:
+                        - generic [ref=e1560]:
+                          - button "View" [ref=e1561] [cursor=pointer]:
+                            - generic [ref=e1562]: View
+                          - button "expand_more" [ref=e1563] [cursor=pointer]:
+                            - generic [ref=e1565]: expand_more
+                    - row "select row 44 PIN TUNATEST1 Rrrr 04/02/2026, 5:37 PM View expand_more" [ref=e1566]:
+                      - cell "select row 44" [ref=e1567]:
+                        - generic [ref=e1570] [cursor=pointer]:
+                          - checkbox "select row 44" [ref=e1571]
+                          - generic:
+                            - img
+                      - cell [ref=e1572]:
+                        - img [ref=e1574]
+                      - cell "PIN TUNATEST1" [ref=e1579]:
+                        - generic [ref=e1581] [cursor=pointer]: PIN TUNATEST1
+                      - cell "Rrrr" [ref=e1582]:
+                        - generic [ref=e1585]: Rrrr
+                      - cell "04/02/2026, 5:37 PM" [ref=e1586]
+                      - cell "View expand_more" [ref=e1587]:
+                        - generic [ref=e1590]:
+                          - button "View" [ref=e1591] [cursor=pointer]:
+                            - generic [ref=e1592]: View
+                          - button "expand_more" [ref=e1593] [cursor=pointer]:
+                            - generic [ref=e1595]: expand_more
+                    - row "select row 45 PIN TUNATEST1 1212 04/02/2026, 3:18 PM View expand_more" [ref=e1596]:
+                      - cell "select row 45" [ref=e1597]:
+                        - generic [ref=e1600] [cursor=pointer]:
+                          - checkbox "select row 45" [ref=e1601]
+                          - generic:
+                            - img
+                      - cell [ref=e1602]:
+                        - img [ref=e1604]
+                      - cell "PIN TUNATEST1" [ref=e1609]:
+                        - generic [ref=e1611] [cursor=pointer]: PIN TUNATEST1
+                      - cell "1212" [ref=e1612]:
+                        - generic [ref=e1615]: "1212"
+                      - cell "04/02/2026, 3:18 PM" [ref=e1616]
+                      - cell "View expand_more" [ref=e1617]:
+                        - generic [ref=e1620]:
+                          - button "View" [ref=e1621] [cursor=pointer]:
+                            - generic [ref=e1622]: View
+                          - button "expand_more" [ref=e1623] [cursor=pointer]:
+                            - generic [ref=e1625]: expand_more
+                    - row "select row 46 Test Today Booking Confirmation Test Today has booked a COVID-19 Moderna with your pharmacy at 2:30 PM on 04/02/2026. 04/02/2026, 2:19 PM View expand_more" [ref=e1626]:
+                      - cell "select row 46" [ref=e1627]:
+                        - generic [ref=e1630] [cursor=pointer]:
+                          - checkbox "select row 46" [ref=e1631]
+                          - generic:
+                            - img
+                      - cell [ref=e1632]:
+                        - img [ref=e1634]: list_alt
+                      - cell "Test Today" [ref=e1635]:
+                        - generic [ref=e1637] [cursor=pointer]: Test Today
+                      - cell "Booking Confirmation Test Today has booked a COVID-19 Moderna with your pharmacy at 2:30 PM on 04/02/2026." [ref=e1638]:
+                        - generic [ref=e1641]:
+                          - text: Booking Confirmation
+                          - text: Test Today has booked a COVID-19 Moderna with your pharmacy at 2:30 PM on 04/02/2026.
+                      - cell "04/02/2026, 2:19 PM" [ref=e1642]
+                      - cell "View expand_more" [ref=e1643]:
+                        - generic [ref=e1646]:
+                          - button "View" [ref=e1647] [cursor=pointer]:
+                            - generic [ref=e1648]: View
+                          - button "expand_more" [ref=e1649] [cursor=pointer]:
+                            - generic [ref=e1651]: expand_more
+                    - row "select row 47 TESTA AN Send test2 03/02/2026, 8:51 PM View expand_more" [ref=e1652]:
+                      - cell "select row 47" [ref=e1653]:
+                        - generic [ref=e1656] [cursor=pointer]:
+                          - checkbox "select row 47" [ref=e1657]
+                          - generic:
+                            - img
+                      - cell [ref=e1658]:
+                        - img [ref=e1660]
+                      - cell "TESTA AN" [ref=e1665]:
+                        - generic [ref=e1667] [cursor=pointer]: TESTA AN
+                      - cell "Send test2" [ref=e1668]:
+                        - generic [ref=e1671]: Send test2
+                      - cell "03/02/2026, 8:51 PM" [ref=e1672]
+                      - cell "View expand_more" [ref=e1673]:
+                        - generic [ref=e1676]:
+                          - button "View" [ref=e1677] [cursor=pointer]:
+                            - generic [ref=e1678]: View
+                          - button "expand_more" [ref=e1679] [cursor=pointer]:
+                            - generic [ref=e1681]: expand_more
+                    - row "select row 48 TESTA AN Test send to pharrmacy 2 02/02/2026, 6:45 PM View expand_more" [ref=e1682]:
+                      - cell "select row 48" [ref=e1683]:
+                        - generic [ref=e1686] [cursor=pointer]:
+                          - checkbox "select row 48" [ref=e1687]
+                          - generic:
+                            - img
+                      - cell [ref=e1688]:
+                        - img [ref=e1690]
+                      - cell "TESTA AN" [ref=e1695]:
+                        - generic [ref=e1697] [cursor=pointer]: TESTA AN
+                      - cell "Test send to pharrmacy 2" [ref=e1698]:
+                        - generic [ref=e1701]: Test send to pharrmacy 2
+                      - cell "02/02/2026, 6:45 PM" [ref=e1702]
+                      - cell "View expand_more" [ref=e1703]:
+                        - generic [ref=e1706]:
+                          - button "View" [ref=e1707] [cursor=pointer]:
+                            - generic [ref=e1708]: View
+                          - button "expand_more" [ref=e1709] [cursor=pointer]:
+                            - generic [ref=e1711]: expand_more
+                    - row "select row 49 33 33 Booking Confirmation 33 33 has booked a Covid day with your pharmacy at 9:00 AM on 03/02/2026. 30/01/2026, 2:45 PM View expand_more" [ref=e1712]:
+                      - cell "select row 49" [ref=e1713]:
+                        - generic [ref=e1716] [cursor=pointer]:
+                          - checkbox "select row 49" [ref=e1717]
+                          - generic:
+                            - img
+                      - cell [ref=e1718]:
+                        - img [ref=e1720]: list_alt
+                      - cell "33 33" [ref=e1721]:
+                        - generic [ref=e1723] [cursor=pointer]: 33 33
+                      - cell "Booking Confirmation 33 33 has booked a Covid day with your pharmacy at 9:00 AM on 03/02/2026." [ref=e1724]:
+                        - generic [ref=e1727]:
+                          - text: Booking Confirmation
+                          - text: 33 33 has booked a Covid day with your pharmacy at 9:00 AM on 03/02/2026.
+                      - cell "30/01/2026, 2:45 PM" [ref=e1728]
+                      - cell "View expand_more" [ref=e1729]:
+                        - generic [ref=e1732]:
+                          - button "View" [ref=e1733] [cursor=pointer]:
+                            - generic [ref=e1734]: View
+                          - button "expand_more" [ref=e1735] [cursor=pointer]:
+                            - generic [ref=e1737]: expand_more
+                    - row "select row 50 55 55 Booking Confirmation 55 55 has booked a Blood Lipid Testing with your pharmacy at 9:00 AM on 02/02/2026. 30/01/2026, 3:16 AM View expand_more" [ref=e1738]:
+                      - cell "select row 50" [ref=e1739]:
+                        - generic [ref=e1742] [cursor=pointer]:
+                          - checkbox "select row 50" [ref=e1743]
+                          - generic:
+                            - img
+                      - cell [ref=e1744]:
+                        - img [ref=e1746]: list_alt
+                      - cell "55 55" [ref=e1747]:
+                        - generic [ref=e1749] [cursor=pointer]: 55 55
+                      - cell "Booking Confirmation 55 55 has booked a Blood Lipid Testing with your pharmacy at 9:00 AM on 02/02/2026." [ref=e1750]:
+                        - generic [ref=e1753]:
+                          - text: Booking Confirmation
+                          - text: 55 55 has booked a Blood Lipid Testing with your pharmacy at 9:00 AM on 02/02/2026.
+                      - cell "30/01/2026, 3:16 AM" [ref=e1754]
+                      - cell "View expand_more" [ref=e1755]:
+                        - generic [ref=e1758]:
+                          - button "View" [ref=e1759] [cursor=pointer]:
+                            - generic [ref=e1760]: View
+                          - button "expand_more" [ref=e1761] [cursor=pointer]:
+                            - generic [ref=e1763]: expand_more
+                - button "Load more" [ref=e1765] [cursor=pointer]:
+                  - generic [ref=e1767]:
+                    - text: Load more
+                    - img [ref=e1768]: keyboard_arrow_down
+          - tabpanel "Completed" [ref=e1769]
+          - tabpanel "Sent" [ref=e1770]
+          - tabpanel "Scheduled" [ref=e1771]
+```

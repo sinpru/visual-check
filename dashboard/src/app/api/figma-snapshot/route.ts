@@ -9,6 +9,7 @@ import {
 	writeResult,
 	FigmaAssetFetchError,
 	logger,
+	baselineRelPath,
 } from '@visual-check/core';
 
 const log = logger.child('api:figma-snapshot');
@@ -128,8 +129,10 @@ export async function POST(req: NextRequest) {
 								.png()
 								.toBuffer();
 
-							saveSnapshot(testName, buffer, 'baseline');
-							saveFigmaNodeTree(testName, nodeData.tree);
+							saveSnapshot(testName, buffer, 'baseline', undefined, projectId);
+							saveFigmaNodeTree(testName, nodeData.tree, projectId);
+
+							const bPath = baselineRelPath(testName, projectId);
 
 							writeResult({
 								testName,
@@ -137,8 +140,8 @@ export async function POST(req: NextRequest) {
 								status: 'pass',
 								diffPercent: 0,
 								diffPixels: 0,
-								currentPath: `baselines/${testName}.png`,
-								baselinePath: `baselines/${testName}.png`,
+								currentPath: bPath,
+								baselinePath: bPath,
 								viewport: { width, height },
 								timestamp: new Date().toISOString(),
 							});

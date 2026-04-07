@@ -3,6 +3,7 @@ import {
 	approveBaseline,
 	updateStatus,
 	readResults,
+	readBuilds,
 	recalculateBuildStatus,
 	logger,
 } from '@visual-check/core';
@@ -25,7 +26,12 @@ export async function POST(request: NextRequest) {
 
 		log.info(`Approve-all request for build ${buildId}`);
 
-		const results = await readResults(buildId);
+		// Resolve projectId once for the whole batch
+		const builds    = readBuilds();
+		const build     = builds.find((b) => b.buildId === buildId);
+		const projectId = build?.projectId;
+
+		const results   = await readResults(buildId);
 		const toApprove = results.filter(
 			(r) => r.status === 'fail' || r.status === 'pending',
 		);
@@ -37,13 +43,13 @@ export async function POST(request: NextRequest) {
 		// Sequential approval to avoid race conditions on results.json
 		for (const result of toApprove) {
 			log.debug(`Approving "${result.testName}" in build ${buildId}`);
-			await approveBaseline(result.testName, buildId);
-			await updateStatus(result.testName, buildId, 'approved');
+			approveBaseline(result.testName, buildId, projectId);
+			updateStatus(result.testName, buildId, 'approved');
 		}
 
 		// Recalculate build status once at the end
 		const allResults = await readResults();
-		await recalculateBuildStatus(buildId, allResults);
+		recalculateBuildStatus(buildId, allResults);
 
 		return NextResponse.json({ ok: true, approvedCount: toApprove.length });
 	} catch (error) {

@@ -50,6 +50,7 @@ export {
 	saveSnapshot,
 	approveBaseline,
 	getPaths,
+	baselineRelPath,
 	getSnapshotsDir,
 	saveFigmaNodeTree,
 	loadFigmaNodeTree,
