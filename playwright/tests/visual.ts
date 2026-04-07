@@ -23,6 +23,25 @@ import { visualTest } from '../helpers/visualTest';
 const raw       = process.env.TEST_NAMES ?? '';
 const testNames = raw.split(',').map((s) => s.trim()).filter(Boolean);
 
+// Extract pathname from BASE_URL if the user provided one in the modal
+let fallbackPath = '/';
+try {
+  if (process.env.BASE_URL) {
+    const urlObj = new URL(process.env.BASE_URL);
+    if (urlObj.pathname && urlObj.pathname !== '/') {
+      fallbackPath = urlObj.pathname;
+    }
+  }
+} catch (e) {
+  // Ignore invalid URL
+}
+
+// Dynamic route mapping based on test names.
+const ROUTE_MAP: Record<string, string> = {
+  'homepage': '/',
+  'dsk-mfp-patients': fallbackPath, // Map to the user-provided path if available
+};
+
 if (testNames.length === 0) {
   // Guard: if somehow TEST_NAMES is empty, emit one failing test with a clear message
   test('no test names configured', async () => {
@@ -35,9 +54,9 @@ if (testNames.length === 0) {
   test.describe('Visual regression', () => {
     for (const testName of testNames) {
       test(testName, async ({ page }) => {
-        // Navigate to the base URL — this matches a full-page Figma frame.
-        // The storageState (auth) is already applied by playwright.config.ts.
-        await page.goto('/');
+        // Determine the route to crawl
+        const route = ROUTE_MAP[testName] || fallbackPath;
+        await page.goto(route);
         await visualTest(page, testName);
       });
     }

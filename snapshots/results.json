@@ -966,5 +966,424 @@
       "height": 1024
     },
     "timestamp": "2026-04-07T03:50:29.794Z"
+  },
+  {
+    "testName": "dsk-mfp-patients",
+    "buildId": "build_1775555137803",
+    "status": "fail",
+    "diffPercent": 17.381998697916668,
+    "diffPixels": 256308,
+    "currentPath": "baselines/project_1775533799245/dsk-mfp-patients.png",
+    "baselinePath": "current/build_1775555137803/dsk-mfp-patients.png",
+    "diffPath": "diffs/build_1775555137803/dsk-mfp-patients.png",
+    "viewport": {
+      "width": 1440,
+      "height": 1024
+    },
+    "timestamp": "2026-04-07T09:45:47.565Z",
+    "diffRegions": [
+      {
+        "index": 0,
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 187,
+        "diffPixels": 132571,
+        "diffPercent": 8.990546332465279,
+        "domLabel": "mat-toolbar-row.mat-toolbar-row — \"helpsettings AI Assist\"",
+        "domMetrics": {
+          "width": 1438,
+          "height": 57,
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "20px",
+          "fontWeight": "500",
+          "fontFamily": "Roboto, \"Helvetica Neue\", sans-serif",
+          "lineHeight": "32px",
+          "letterSpacing": "normal",
+          "textAlign": "start",
+          "text": "helpsettings AI Assist"
+        },
+        "figmaLabel": "Path 6428 (VECTOR)",
+        "figmaMetrics": {
+          "width": 4,
+          "height": 7,
+          "backgroundColor": "rgb(36, 130, 255)"
+        },
+        "aiLabel": "Label generation failed"
+      },
+      {
+        "index": 1,
+        "x": 246,
+        "y": 187,
+        "width": 1178,
+        "height": 837,
+        "diffPixels": 117731,
+        "diffPercent": 7.984144422743055,
+        "domLabel": "button.mat-focus-indicator.sign-up-button — \"Sign up\"",
+        "domMetrics": {
+          "width": 89,
+          "height": 43,
+          "color": "rgb(0, 33, 127)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "fontFamily": "Roboto, \"Helvetica Neue\", sans-serif",
+          "lineHeight": "36px",
+          "letterSpacing": "normal",
+          "textAlign": "center",
+          "text": "Sign up"
+        },
+        "figmaLabel": "Label",
+        "figmaMetrics": {
+          "width": 0,
+          "height": 22,
+          "text": " ",
+          "color": "rgb(34, 34, 34)",
+          "fontSize": "16px",
+          "fontWeight": 400,
+          "fontFamily": "Roboto",
+          "lineHeight": "22.399999618530273px",
+          "textAlign": "left"
+        },
+        "aiLabel": "Label generation failed"
+      },
+      {
+        "index": 2,
+        "x": 0,
+        "y": 434,
+        "width": 239,
+        "height": 67,
+        "diffPixels": 1050,
+        "diffPercent": 0.07120768229166666,
+        "domLabel": "a.side-bar-item.ng-tns-c95-8 — \"table_chart_viewBusiness insights\"",
+        "domMetrics": {
+          "width": 207,
+          "height": 48,
+          "color": "rgb(102, 102, 102)",
+          "backgroundColor": "rgb(255, 255, 255)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "fontFamily": "Roboto, \"Helvetica Neue\", sans-serif",
+          "lineHeight": "20px",
+          "letterSpacing": "normal",
+          "textAlign": "start",
+          "text": "table_chart_viewBusiness insights"
+        },
+        "figmaLabel": "Line 1 (LINE)",
+        "figmaMetrics": {
+          "width": 232,
+          "height": 0
+        },
+        "aiLabel": "Label generation failed"
+      },
+      {
+        "index": 3,
+        "x": 17,
+        "y": 277,
+        "width": 190,
+        "height": 44,
+        "diffPixels": 846,
+        "diffPercent": 0.057373046875,
+        "domLabel": "span.label.ng-tns-c95-8 — \"Health services hub\"",
+        "domMetrics": {
+          "width": 140,
+          "height": 23,
+          "color": "rgb(102, 102, 102)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "fontFamily": "Roboto, \"Helvetica Neue\", sans-serif",
+          "lineHeight": "20px",
+          "letterSpacing": "normal",
+          "textAlign": "start",
+          "text": "Health services hub"
+        },
+        "figmaLabel": "campaign_FILL0_wght400_GRAD0_opsz24 (VECTOR)",
+        "figmaMetrics": {
+          "width": 23,
+          "height": 18,
+          "backgroundColor": "rgb(102, 102, 102)"
+        },
+        "aiLabel": "Label generation failed"
+      },
+      {
+        "index": 4,
+        "x": 17,
+        "y": 228,
+        "width": 190,
+        "height": 41,
+        "diffPixels": 749,
+        "diffPercent": 0.05079481336805556,
+        "domLabel": "span.label.ng-tns-c95-8 — \"Patients\"",
+        "domMetrics": {
+          "width": 60,
+          "height": 23,
+          "color": "rgb(0, 33, 127)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "16px",
+          "fontWeight": "700",
+          "fontFamily": "Roboto, \"Helvetica Neue\", sans-serif",
+          "lineHeight": "20px",
+          "letterSpacing": "normal",
+          "textAlign": "start",
+          "text": "Patients"
+        },
+        "figmaLabel": "Path 6342 (VECTOR)",
+        "figmaMetrics": {
+          "width": 18,
+          "height": 20,
+          "backgroundColor": "rgb(102, 102, 102)"
+        },
+        "aiLabel": "Label generation failed"
+      },
+      {
+        "index": 5,
+        "x": 17,
+        "y": 173,
+        "width": 116,
+        "height": 42,
+        "diffPixels": 737,
+        "diffPercent": 0.04998101128472222,
+        "domLabel": "span.label.ng-tns-c95-8 — \"Bookings\"",
+        "domMetrics": {
+          "width": 66,
+          "height": 23,
+          "color": "rgb(102, 102, 102)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "fontFamily": "Roboto, \"Helvetica Neue\", sans-serif",
+          "lineHeight": "20px",
+          "letterSpacing": "normal",
+          "textAlign": "start",
+          "text": "Bookings"
+        },
+        "figmaLabel": "Path 6304 (VECTOR)",
+        "figmaMetrics": {
+          "width": 22,
+          "height": 14,
+          "backgroundColor": "rgb(0, 33, 127)"
+        },
+        "aiLabel": "Label generation failed"
+      },
+      {
+        "index": 6,
+        "x": 18,
+        "y": 332,
+        "width": 170,
+        "height": 43,
+        "diffPixels": 568,
+        "diffPercent": 0.038519965277777776,
+        "domLabel": "span.label.ng-tns-c95-8 — \"Communications\"",
+        "domMetrics": {
+          "width": 122,
+          "height": 23,
+          "color": "rgb(102, 102, 102)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "fontFamily": "Roboto, \"Helvetica Neue\", sans-serif",
+          "lineHeight": "20px",
+          "letterSpacing": "normal",
+          "textAlign": "start",
+          "text": "Communications"
+        },
+        "figmaLabel": "stethoscope_FILL0_wght400_GRAD0_opsz24 (VECTOR)",
+        "figmaMetrics": {
+          "width": 21,
+          "height": 21,
+          "backgroundColor": "rgb(102, 102, 102)"
+        },
+        "aiLabel": "Label generation failed"
+      },
+      {
+        "index": 7,
+        "x": 54,
+        "y": 387,
+        "width": 138,
+        "height": 37,
+        "diffPixels": 422,
+        "diffPercent": 0.028618706597222224,
+        "domLabel": "a.side-bar-item.ng-tns-c95-8 — \"stethoscopeDoctors\"",
+        "domMetrics": {
+          "width": 207,
+          "height": 48,
+          "color": "rgb(102, 102, 102)",
+          "backgroundColor": "rgb(255, 255, 255)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "fontFamily": "Roboto, \"Helvetica Neue\", sans-serif",
+          "lineHeight": "20px",
+          "letterSpacing": "normal",
+          "textAlign": "start",
+          "text": "stethoscopeDoctors"
+        },
+        "figmaLabel": "Primary",
+        "figmaMetrics": {
+          "width": 125,
+          "height": 22,
+          "text": "Business insights",
+          "color": "rgb(102, 102, 102)",
+          "fontSize": "16px",
+          "fontWeight": 400,
+          "fontFamily": "Roboto",
+          "lineHeight": "22.399999618530273px",
+          "textAlign": "left"
+        },
+        "aiLabel": "Label generation failed"
+      },
+      {
+        "index": 8,
+        "x": 54,
+        "y": 127,
+        "width": 79,
+        "height": 37,
+        "diffPixels": 272,
+        "diffPercent": 0.018446180555555556,
+        "domLabel": "span.label.ng-tns-c95-8 — \"Home\"",
+        "domMetrics": {
+          "width": 43,
+          "height": 23,
+          "color": "rgb(102, 102, 102)",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "fontFamily": "Roboto, \"Helvetica Neue\", sans-serif",
+          "lineHeight": "20px",
+          "letterSpacing": "normal",
+          "textAlign": "start",
+          "text": "Home"
+        },
+        "figmaLabel": "Primary",
+        "figmaMetrics": {
+          "width": 67,
+          "height": 22,
+          "text": "Bookings",
+          "color": "rgb(102, 102, 102)",
+          "fontSize": "16px",
+          "fontWeight": 400,
+          "fontFamily": "Roboto",
+          "lineHeight": "22.399999618530273px",
+          "textAlign": "left"
+        },
+        "aiLabel": "Label generation failed"
+      },
+      {
+        "index": 9,
+        "x": 0,
+        "y": 963,
+        "width": 239,
+        "height": 17,
+        "diffPixels": 231,
+        "diffPercent": 0.015665690104166668,
+        "domLabel": "div.collapse-trigger.side-bar-item — \"menu_open Collapse\"",
+        "domMetrics": {
+          "width": 231,
+          "height": 49,
+          "color": "rgb(102, 102, 102)",
+          "backgroundColor": "rgb(255, 255, 255)",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "fontFamily": "Roboto, \"Helvetica Neue\", sans-serif",
+          "lineHeight": "20px",
+          "letterSpacing": "normal",
+          "textAlign": "start",
+          "text": "menu_open Collapse"
+        },
+        "figmaLabel": "Rectangle 1 (RECTANGLE)",
+        "figmaMetrics": {
+          "width": 232,
+          "height": 964,
+          "backgroundColor": "rgb(255, 255, 255)"
+        },
+        "aiLabel": "Label generation failed"
+      },
+      {
+        "index": 10,
+        "x": 54,
+        "y": 519,
+        "width": 107,
+        "height": 30,
+        "diffPixels": 211,
+        "diffPercent": 0.014309353298611112,
+        "figmaLabel": "Rectangle 1 (RECTANGLE)",
+        "figmaMetrics": {
+          "width": 232,
+          "height": 964,
+          "backgroundColor": "rgb(255, 255, 255)"
+        },
+        "aiLabel": "Label generation failed"
+      },
+      {
+        "index": 11,
+        "x": 19,
+        "y": 123,
+        "width": 34,
+        "height": 43,
+        "diffPixels": 200,
+        "diffPercent": 0.013563368055555556,
+        "figmaLabel": "Path 6378 (VECTOR)",
+        "figmaMetrics": {
+          "width": 18,
+          "height": 20,
+          "backgroundColor": "rgb(102, 102, 102)"
+        },
+        "aiLabel": "Label generation failed"
+      },
+      {
+        "index": 12,
+        "x": 20,
+        "y": 511,
+        "width": 33,
+        "height": 39,
+        "diffPixels": 154,
+        "diffPercent": 0.010443793402777778,
+        "figmaLabel": "Primary navigation",
+        "figmaMetrics": {
+          "width": 232,
+          "height": 457
+        },
+        "aiLabel": "Label generation failed"
+      },
+      {
+        "index": 13,
+        "x": 18,
+        "y": 381,
+        "width": 35,
+        "height": 43,
+        "diffPixels": 139,
+        "diffPercent": 0.009426540798611112,
+        "figmaLabel": "table_chart_view_FILL0_wght400_GRAD0_opsz24 (VECTOR)",
+        "figmaMetrics": {
+          "width": 20,
+          "height": 18,
+          "backgroundColor": "rgb(102, 102, 102)"
+        },
+        "aiLabel": "Label generation failed"
+      },
+      {
+        "index": 14,
+        "x": 963,
+        "y": 279,
+        "width": 64,
+        "height": 28,
+        "diffPixels": 128,
+        "diffPercent": 0.008680555555555556,
+        "figmaLabel": "Hint text",
+        "figmaMetrics": {
+          "width": 747,
+          "height": 17,
+          "text": "HINT: You can refine your search by adding more ke…",
+          "color": "rgb(102, 102, 102)",
+          "fontSize": "12px",
+          "fontWeight": 400,
+          "fontFamily": "Roboto",
+          "lineHeight": "16.799999237060547px",
+          "textAlign": "left"
+        },
+        "aiLabel": "Label generation failed"
+      }
+    ]
   }
 ]

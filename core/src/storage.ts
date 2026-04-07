@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import sharp from 'sharp';
 import type { FigmaNodeDocument } from './types.ts';
 import { logger } from './logger.ts';
 
@@ -9,7 +10,7 @@ const log = logger.child('storage');
 // ─── Path resolution ──────────────────────────────────────────────────────────
 
 const __filename = fileURLToPath(import.meta.url);
-const REPO_ROOT  = path.resolve(path.dirname(__filename), '..', '..');
+const REPO_ROOT = path.resolve(path.dirname(__filename), '..', '..');
 
 export function getSnapshotsDir(): string {
 	const dir = process.env.SNAPSHOTS_DIR;
@@ -32,9 +33,13 @@ export function getSnapshotsDir(): string {
  * projectId is optional for backward-compat — old calls without it fall back
  * to baselines/{testName}.png (the old flat layout).
  */
-export function getPaths(testName: string, buildId?: string, projectId?: string) {
+export function getPaths(
+	testName: string,
+	buildId?: string,
+	projectId?: string,
+) {
 	const snapshotsDir = getSnapshotsDir();
-	const baselineDir  = projectId
+	const baselineDir = projectId
 		? path.join(snapshotsDir, 'baselines', projectId)
 		: path.join(snapshotsDir, 'baselines');
 
@@ -59,10 +64,10 @@ export function baselineRelPath(testName: string, projectId?: string): string {
 // ─── Snapshot I/O ─────────────────────────────────────────────────────────────
 
 export function saveSnapshot(
-	testName:  string,
-	buffer:    Buffer,
-	type:      'baseline' | 'current',
-	buildId?:  string,
+	testName: string,
+	buffer: Buffer,
+	type: 'baseline' | 'current',
+	buildId?: string,
 	projectId?: string,
 ): void {
 	const paths = getPaths(testName, buildId, projectId);
@@ -80,8 +85,8 @@ export function saveSnapshot(
  * callers should prefer passing it explicitly.
  */
 export function approveBaseline(
-	testName:  string,
-	buildId:   string,
+	testName: string,
+	buildId: string,
 	projectId?: string,
 ): void {
 	const paths = getPaths(testName, buildId, projectId);
@@ -114,11 +119,11 @@ export function approveBaseline(
  * Figma node names without an extra API call.
  */
 export function saveFigmaNodeTree(
-	testName:  string,
-	tree:      FigmaNodeDocument,
+	testName: string,
+	tree: FigmaNodeDocument,
 	projectId?: string,
 ): void {
-	const dir      = projectId
+	const dir = projectId
 		? path.join(getSnapshotsDir(), 'baselines', projectId)
 		: path.join(getSnapshotsDir(), 'baselines');
 	const filePath = path.join(dir, `${testName}.figma.json`);
@@ -132,10 +137,10 @@ export function saveFigmaNodeTree(
  * Returns null if not found — callers should treat this as graceful degradation.
  */
 export function loadFigmaNodeTree(
-	testName:  string,
+	testName: string,
 	projectId?: string,
 ): FigmaNodeDocument | null {
-	const dir      = projectId
+	const dir = projectId
 		? path.join(getSnapshotsDir(), 'baselines', projectId)
 		: path.join(getSnapshotsDir(), 'baselines');
 	const filePath = path.join(dir, `${testName}.figma.json`);
@@ -167,5 +172,30 @@ export function deleteBuildFiles(buildId: string): void {
 	}
 	if (fs.existsSync(diffDir)) {
 		fs.rmSync(diffDir, { recursive: true, force: true });
+	}
+}
+
+/**
+ * Retrieves the dimensions of the baseline image.
+ * Uses sharp to efficiently read image metadata without decoding pixels.
+ * Returns null if the file doesn't exist or an error occurs.
+ */
+export async function getBaselineDimensions(
+	testName: string,
+	projectId?: string,
+): Promise<{ width: number; height: number } | null> {
+	const paths = getPaths(testName, undefined, projectId);
+	if (!fs.existsSync(paths.baseline)) {
+		return null;
+	}
+	try {
+		const metadata = await sharp(paths.baseline).metadata();
+		if (metadata.width && metadata.height) {
+			return { width: metadata.width, height: metadata.height };
+		}
+		return null;
+	} catch (err) {
+		log.error(`Failed to read baseline dimensions for ${testName}: ${err}`);
+		return null;
 	}
 }

@@ -12,6 +12,7 @@ import {
 	loadFigmaNodeTree,
 	findFigmaNodeForRegion,
 	generateRegionLabel,
+	getBaselineDimensions,
 	logger,
 } from '@visual-check/core';
 import type { DiffRegion } from '@visual-check/core';
@@ -96,7 +97,7 @@ export async function visualTest(
 
 	const paths = getPaths(testName, buildId, projectId);
 	const bPath = baselineRelPath(testName, projectId);
-	const viewport = page.viewportSize() || { width: 1440, height: 900 };
+	let viewport = page.viewportSize() || { width: 1440, height: 900 };
 	const timestamp = new Date().toISOString();
 
 	log.info(`Starting visual test: "${testName}" (build: ${buildId})`);
@@ -115,6 +116,20 @@ export async function visualTest(
 	// ── 4. Wait for network ────────────────────────────────────────────────────
 	log.debug(`Waiting for network idle for "${testName}"`);
 	await page.waitForLoadState('networkidle');
+
+	// ── 4b. Match Viewport to Baseline ─────────────────────────────────────────
+	if (!updateBaseline) {
+		const dimensions = await getBaselineDimensions(testName, projectId);
+		if (dimensions) {
+			log.debug(
+				`Adjusting viewport for "${testName}" to match baseline: ${dimensions.width}×${dimensions.height}`,
+			);
+			await page.setViewportSize(dimensions);
+			// Wait a bit to ensure layout is updated
+			await page.waitForTimeout(500);
+			viewport = page.viewportSize() || dimensions;
+		}
+	}
 
 	// ── 5 & 6. Screenshot + save ───────────────────────────────────────────────
 	log.debug(`Capturing screenshot for "${testName}"`);
@@ -213,7 +228,29 @@ export async function visualTest(
 
 	// ── 9. Diff ────────────────────────────────────────────────────────────────
 	const baselineBuffer = fs.readFileSync(paths.baseline);
-	const diffResult = runDiff(baselineBuffer, screenshotBuffer, paths.diff);
+
+	let diffResult;
+	try {
+		diffResult = runDiff(baselineBuffer, screenshotBuffer, paths.diff);
+	} catch (err) {
+		log.error(
+			`Diff failed for "${testName}": ${err instanceof Error ? err.message : String(err)}`,
+		);
+		writeResult({
+			testName,
+			buildId,
+			status: 'fail',
+			diffPercent: 100,
+			diffPixels: 999999, // Arbitrary high number to indicate critical failure
+			currentPath: bPath,
+			baselinePath: `current/${buildId}/${testName}.png`,
+			viewport,
+			timestamp,
+		});
+		recalculateBuildStatus(buildId, readResults());
+		return;
+	}
+
 	const status = diffResult.diffPercent < 1.0 ? 'pass' : 'fail';
 
 	// ── 10. DOM label lookup ───────────────────────────────────────────────────
@@ -231,20 +268,28 @@ export async function visualTest(
 		log.info(
 			`Generating AI labels for ${diffRegions.length} region${diffRegions.length !== 1 ? 's' : ''}...`,
 		);
-		for (const region of diffRegions) {
-			try {
-				region.aiLabel = await generateRegionLabel(region);
-				log.debug(
-					`Generated AI label for region ${region.index}: ${region.aiLabel}`,
-				);
-			} catch (err) {
-				log.error(
-					`Failed to generate AI label for region ${region.index}`,
-					{ error: err },
-				);
-				region.aiLabel = 'Label generation failed';
-			}
-		}
+		await Promise.allSettled(
+			diffRegions.map(async (region) => {
+				try {
+					const timeoutPromise = new Promise<string>((_, reject) =>
+						setTimeout(() => reject(new Error('AI generation timed out')), 5000)
+					);
+					region.aiLabel = await Promise.race([
+						generateRegionLabel(region),
+						timeoutPromise,
+					]);
+					log.debug(
+						`Generated AI label for region ${region.index}: ${region.aiLabel}`,
+					);
+				} catch (err) {
+					log.error(
+						`Failed to generate AI label for region ${region.index}`,
+						{ error: err },
+					);
+					region.aiLabel = 'Label generation failed';
+				}
+			})
+		);
 		log.info(`Finished AI label generation for "${testName}"`);
 	}
 

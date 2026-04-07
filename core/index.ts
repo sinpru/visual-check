@@ -54,6 +54,7 @@ export {
 	getSnapshotsDir,
 	saveFigmaNodeTree,
 	loadFigmaNodeTree,
+	getBaselineDimensions,
 } from './src/storage.ts';
 
 // Results manifest
