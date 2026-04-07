@@ -95,7 +95,7 @@ export default function CompareDemoButton() {
             </button>
           </div>
 
-          <div className="p-8 pb-32 max-w-[1600px] w-full mx-auto">
+          <div className="p-8 pb-32 max-w-400 w-full mx-auto">
             <DiffViewer
               testName="demo-test"
               baselinePath={result.baselinePath}

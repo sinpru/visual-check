@@ -14,10 +14,7 @@ interface ProjectPageProps {
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const { projectId } = await params;
 
-  const [projects, builds] = await Promise.all([
-    readProjects(),
-    readBuilds(),
-  ]);
+  const [projects, builds] = await Promise.all([readProjects(), readBuilds()]);
 
   const project = projects.find((p) => p.projectId === projectId);
   if (!project) return notFound();
@@ -44,14 +41,18 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             {project.name}
           </h1>
           <p className="mt-2 text-base text-gray-500 font-normal">
-            {projectBuilds.length} build{projectBuilds.length !== 1 ? 's' : ''} · visual regression test runs
+            {projectBuilds.length} build{projectBuilds.length !== 1 ? 's' : ''}{' '}
+            · visual regression test runs
           </p>
         </div>
 
         {/* Actions: pull Figma baselines first, then run Playwright against them */}
         <div className="shrink-0 pt-1 flex items-center gap-3">
           <RunPlaywrightButton projectId={projectId} />
-          <FigmaSnapshotModal projectId={projectId} projectName={project.name} />
+          <FigmaSnapshotModal
+            projectId={projectId}
+            projectName={project.name}
+          />
         </div>
       </header>
 

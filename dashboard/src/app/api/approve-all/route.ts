@@ -27,11 +27,11 @@ export async function POST(request: NextRequest) {
 		log.info(`Approve-all request for build ${buildId}`);
 
 		// Resolve projectId once for the whole batch
-		const builds    = readBuilds();
-		const build     = builds.find((b) => b.buildId === buildId);
+		const builds = readBuilds();
+		const build = builds.find((b) => b.buildId === buildId);
 		const projectId = build?.projectId;
 
-		const results   = await readResults(buildId);
+		const results = await readResults(buildId);
 		const toApprove = results.filter(
 			(r) => r.status === 'fail' || r.status === 'pending',
 		);

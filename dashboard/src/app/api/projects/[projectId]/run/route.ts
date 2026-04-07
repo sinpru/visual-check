@@ -103,8 +103,12 @@ export async function POST(
 					BASE_URL: baseUrl,
 					// Comma-separated list of testNames derived from baseline PNGs.
 					TEST_NAMES: testNames.join(','),
-					...(authStateExists ? { AUTH_STATE_PATH: authStatePath } : {}),
-					...(authJwt ? { AUTH_JWT: authJwt, AUTH_JWT_KEY: authJwtKey } : {}),
+					...(authStateExists
+						? { AUTH_STATE_PATH: authStatePath }
+						: {}),
+					...(authJwt
+						? { AUTH_JWT: authJwt, AUTH_JWT_KEY: authJwtKey }
+						: {}),
 				},
 				timeout: 120_000, // 2 min ceiling
 				encoding: 'utf-8',
@@ -124,7 +128,11 @@ export async function POST(
 			buildId,
 			build,
 			testNames,
-			authMethod: authJwt ? 'jwt' : authStateExists ? 'storageState' : 'none',
+			authMethod: authJwt
+				? 'jwt'
+				: authStateExists
+					? 'storageState'
+					: 'none',
 			playwrightExitedWithFailures,
 			// Trim stdout to avoid huge responses; client only uses buildId
 			log: stdout.slice(-3000),

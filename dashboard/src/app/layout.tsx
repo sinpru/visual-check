@@ -40,7 +40,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${roboto.variable} ${poppins.variable} ${inconsolata.variable}`}>
+    <html
+      lang="en"
+      className={`${roboto.variable} ${poppins.variable} ${inconsolata.variable}`}
+    >
       <body className="min-h-screen bg-[#F8FAFC] font-sans text-gray-900 antialiased">
         <TooltipProvider delayDuration={300}>
           {/*

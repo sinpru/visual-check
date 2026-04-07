@@ -129,8 +129,18 @@ export async function POST(req: NextRequest) {
 								.png()
 								.toBuffer();
 
-							saveSnapshot(testName, buffer, 'baseline', undefined, projectId);
-							saveFigmaNodeTree(testName, nodeData.tree, projectId);
+							saveSnapshot(
+								testName,
+								buffer,
+								'baseline',
+								undefined,
+								projectId,
+							);
+							saveFigmaNodeTree(
+								testName,
+								nodeData.tree,
+								projectId,
+							);
 
 							const bPath = baselineRelPath(testName, projectId);
 

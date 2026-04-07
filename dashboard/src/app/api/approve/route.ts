@@ -30,8 +30,8 @@ export async function POST(request: NextRequest) {
 
 		// Look up projectId from the build so approveBaseline writes to the
 		// correct scoped baseline path: baselines/{projectId}/{testName}.png
-		const builds    = readBuilds();
-		const build     = builds.find((b) => b.buildId === buildId);
+		const builds = readBuilds();
+		const build = builds.find((b) => b.buildId === buildId);
 		const projectId = build?.projectId;
 
 		// Sequential — never parallelize file ops on results.json

@@ -74,7 +74,7 @@ export async function visualTest(
 	const projectId = process.env.PROJECT_ID || undefined;
 
 	// ── 0. JWT injection ───────────────────────────────────────────────────────
-	const authJwt    = process.env.AUTH_JWT;
+	const authJwt = process.env.AUTH_JWT;
 	const authJwtKey = process.env.AUTH_JWT_KEY || 'token';
 
 	if (authJwt) {
@@ -134,13 +134,25 @@ export async function visualTest(
 					viewport.width,
 					viewport.height,
 				);
-				saveSnapshot(testName, figmaBuffer, 'baseline', undefined, projectId);
+				saveSnapshot(
+					testName,
+					figmaBuffer,
+					'baseline',
+					undefined,
+					projectId,
+				);
 				log.info(`Saved Figma baseline for "${testName}"`);
 			} catch (err) {
 				log.warn(
 					`Figma fetch failed for "${testName}": ${err} — using screenshot as baseline instead`,
 				);
-				saveSnapshot(testName, screenshotBuffer, 'baseline', undefined, projectId);
+				saveSnapshot(
+					testName,
+					screenshotBuffer,
+					'baseline',
+					undefined,
+					projectId,
+				);
 			}
 		} else {
 			if (nodeId)
@@ -151,7 +163,13 @@ export async function visualTest(
 				log.warn(
 					`No Figma node mapping for "${testName}" — using screenshot as baseline`,
 				);
-			saveSnapshot(testName, screenshotBuffer, 'baseline', undefined, projectId);
+			saveSnapshot(
+				testName,
+				screenshotBuffer,
+				'baseline',
+				undefined,
+				projectId,
+			);
 		}
 		writeResult({
 			testName,
@@ -171,7 +189,13 @@ export async function visualTest(
 	// ── 8. No baseline yet ─────────────────────────────────────────────────────
 	if (!fs.existsSync(paths.baseline)) {
 		log.info(`No baseline for "${testName}" — saving current as baseline`);
-		saveSnapshot(testName, screenshotBuffer, 'baseline', undefined, projectId);
+		saveSnapshot(
+			testName,
+			screenshotBuffer,
+			'baseline',
+			undefined,
+			projectId,
+		);
 		writeResult({
 			testName,
 			buildId,
@@ -346,8 +370,8 @@ function annotateFigmaLabels(
 // ─── DOM label lookup ─────────────────────────────────────────────────────────
 
 async function annotateDomLabels(
-	page:     Page,
-	regions:  DiffRegion[],
+	page: Page,
+	regions: DiffRegion[],
 	viewport: { width: number; height: number },
 ): Promise<DiffRegion[]> {
 	if (regions.length === 0) return regions;

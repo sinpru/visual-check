@@ -316,12 +316,12 @@ function ActiveRegionPanel({
                   <div className="font-bold text-slate-600 capitalize mt-0.5">
                     {key.replace(/([A-Z])/g, ' $1').trim()}
                   </div>
-                  <div className="font-mono text-slate-600 break-words whitespace-pre-wrap">
+                  <div className="font-mono text-slate-600 wrap-break-word whitespace-pre-wrap">
                     {expected ?? '—'}
                   </div>
                   <div
                     className={cn(
-                      'font-mono break-words whitespace-pre-wrap font-semibold',
+                      'font-mono wrap-break-word whitespace-pre-wrap font-semibold',
                       expected !== actual ? 'text-red-600' : 'text-slate-700',
                     )}
                   >

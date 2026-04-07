@@ -17,7 +17,11 @@ interface SnapshotCardProps {
   projectId?: string;
 }
 
-const SnapshotCard: React.FC<SnapshotCardProps> = ({ result, buildId, projectId: propProjectId }) => {
+const SnapshotCard: React.FC<SnapshotCardProps> = ({
+  result,
+  buildId,
+  projectId: propProjectId,
+}) => {
   const params = useParams();
   const projectId = propProjectId || (params?.projectId as string);
 
@@ -81,9 +85,7 @@ const SnapshotCard: React.FC<SnapshotCardProps> = ({ result, buildId, projectId:
                   <span>Visual Difference</span>
                   <span
                     className={cn(
-                      result.diffPercent > 0
-                        ? 'text-red-600'
-                        : 'text-gray-900',
+                      result.diffPercent > 0 ? 'text-red-600' : 'text-gray-900',
                     )}
                   >
                     {formatDiffPercent(result.diffPercent)}
@@ -93,9 +95,7 @@ const SnapshotCard: React.FC<SnapshotCardProps> = ({ result, buildId, projectId:
                   <div
                     className={cn(
                       'h-full transition-all duration-700',
-                      result.diffPercent > 0
-                        ? 'bg-red-500'
-                        : 'bg-emerald-500',
+                      result.diffPercent > 0 ? 'bg-red-500' : 'bg-emerald-500',
                     )}
                     style={{
                       width: `${Math.min(result.diffPercent * 10, 100)}%`,
@@ -119,4 +119,3 @@ const SnapshotCard: React.FC<SnapshotCardProps> = ({ result, buildId, projectId:
 };
 
 export default SnapshotCard;
-

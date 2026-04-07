@@ -53,7 +53,11 @@ const BuildHeader: React.FC<BuildHeaderProps> = ({ build }) => {
   };
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this build? This action cannot be undone.')) {
+    if (
+      !confirm(
+        'Are you sure you want to delete this build? This action cannot be undone.',
+      )
+    ) {
       return;
     }
 
@@ -91,7 +95,9 @@ const BuildHeader: React.FC<BuildHeaderProps> = ({ build }) => {
             {build.commitHash && (
               <div className="flex items-center gap-2">
                 <GitCommit className="h-4 w-4 text-gray-400" />
-                <span className="font-mono text-xs">{build.commitHash.substring(0, 7)}</span>
+                <span className="font-mono text-xs">
+                  {build.commitHash.substring(0, 7)}
+                </span>
               </div>
             )}
             <div className="flex items-center gap-2">
@@ -156,4 +162,3 @@ const BuildHeader: React.FC<BuildHeaderProps> = ({ build }) => {
 };
 
 export default BuildHeader;
-

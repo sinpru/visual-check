@@ -2,8 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import {
-  Play, Loader2, CheckCircle, AlertCircle,
-  Globe, X, ChevronRight, ShieldCheck, ShieldOff, KeyRound,
+  Play,
+  Loader2,
+  CheckCircle,
+  AlertCircle,
+  Globe,
+  X,
+  ChevronRight,
+  ShieldCheck,
+  ShieldOff,
+  KeyRound,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
@@ -15,20 +23,22 @@ interface RunPlaywrightButtonProps {
 type ModalState = 'idle' | 'open' | 'running' | 'done' | 'error';
 
 interface AuthStatus {
-  exists:    boolean;
-  savedAt:   string | null;
-  ageHours:  number | null;
+  exists: boolean;
+  savedAt: string | null;
+  ageHours: number | null;
 }
 
-export default function RunPlaywrightButton({ projectId }: RunPlaywrightButtonProps) {
+export default function RunPlaywrightButton({
+  projectId,
+}: RunPlaywrightButtonProps) {
   const router = useRouter();
 
-  const [state,      setState]   = useState<ModalState>('idle');
-  const [baseUrl,    setBaseUrl] = useState('http://localhost:3000');
-  const [authJwt,    setAuthJwt] = useState('');
+  const [state, setState] = useState<ModalState>('idle');
+  const [baseUrl, setBaseUrl] = useState('http://localhost:3000');
+  const [authJwt, setAuthJwt] = useState('');
   const [authJwtKey, setAuthJwtKey] = useState('token');
-  const [showJwt,    setShowJwt] = useState(false);
-  const [error,      setError]   = useState('');
+  const [showJwt, setShowJwt] = useState(false);
+  const [error, setError] = useState('');
   const [authStatus, setAuthStatus] = useState<AuthStatus | null>(null);
 
   // Fetch auth.json status when modal opens
@@ -37,11 +47,20 @@ export default function RunPlaywrightButton({ projectId }: RunPlaywrightButtonPr
     fetch('/api/auth-status')
       .then((r) => r.json())
       .then((d) => setAuthStatus(d))
-      .catch(() => setAuthStatus({ exists: false, savedAt: null, ageHours: null }));
+      .catch(() =>
+        setAuthStatus({ exists: false, savedAt: null, ageHours: null }),
+      );
   }, [state]);
 
-  function open()  { setState('open');  setError(''); }
-  function close() { if (state === 'running') return; setState('idle'); setError(''); }
+  function open() {
+    setState('open');
+    setError('');
+  }
+  function close() {
+    if (state === 'running') return;
+    setState('idle');
+    setError('');
+  }
 
   async function handleRun(e: React.FormEvent) {
     e.preventDefault();
@@ -50,17 +69,25 @@ export default function RunPlaywrightButton({ projectId }: RunPlaywrightButtonPr
 
     try {
       const res = await fetch(`/api/projects/${projectId}/run`, {
-        method:  'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           baseUrl: baseUrl.trim(),
-          ...(authJwt.trim() ? { authJwt: authJwt.trim(), authJwtKey: authJwtKey.trim() || 'token' } : {}),
+          ...(authJwt.trim()
+            ? {
+                authJwt: authJwt.trim(),
+                authJwtKey: authJwtKey.trim() || 'token',
+              }
+            : {}),
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? `Server error ${res.status}`);
       setState('done');
-      setTimeout(() => router.push(`/projects/${projectId}/${data.buildId}`), 1000);
+      setTimeout(
+        () => router.push(`/projects/${projectId}/${data.buildId}`),
+        1000,
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
       setState('error');
@@ -72,19 +99,31 @@ export default function RunPlaywrightButton({ projectId }: RunPlaywrightButtonPr
   return (
     <>
       {state === 'running' ? (
-        <button disabled className="flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-black bg-slate-100 text-slate-500 cursor-not-allowed">
-          <Loader2 className="h-4 w-4 animate-spin" />Running…
+        <button
+          disabled
+          className="flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-black bg-slate-100 text-slate-500 cursor-not-allowed"
+        >
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Running…
         </button>
       ) : state === 'done' ? (
-        <button disabled className="flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-black bg-green-50 text-green-700">
-          <CheckCircle className="h-4 w-4" />Done — opening build…
+        <button
+          disabled
+          className="flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-black bg-green-50 text-green-700"
+        >
+          <CheckCircle className="h-4 w-4" />
+          Done — opening build…
         </button>
       ) : (
-        <button onClick={open} className={cn(
-          'flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-black',
-          'bg-primary text-white hover:opacity-90 transition-opacity shadow-sm',
-        )}>
-          <Play className="h-4 w-4" />Run tests
+        <button
+          onClick={open}
+          className={cn(
+            'flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-black',
+            'bg-primary text-white hover:opacity-90 transition-opacity shadow-sm',
+          )}
+        >
+          <Play className="h-4 w-4" />
+          Run tests
         </button>
       )}
 
@@ -92,10 +131,11 @@ export default function RunPlaywrightButton({ projectId }: RunPlaywrightButtonPr
       {(state === 'open' || state === 'running' || state === 'error') && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
-          onClick={(e) => { if (e.target === e.currentTarget) close(); }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) close();
+          }}
         >
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
-
             {/* Header */}
             <div className="flex items-center justify-between px-7 pt-6 pb-5 border-b border-slate-100">
               <div className="flex items-center gap-3">
@@ -103,21 +143,25 @@ export default function RunPlaywrightButton({ projectId }: RunPlaywrightButtonPr
                   <Play className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-base font-black text-slate-900">Run visual tests</h2>
+                  <h2 className="text-base font-black text-slate-900">
+                    Run visual tests
+                  </h2>
                   <p className="text-xs text-slate-400 font-medium mt-0.5">
                     Playwright screenshots and diffs against Figma baselines
                   </p>
                 </div>
               </div>
-              <button onClick={close} disabled={state === 'running'}
-                className="h-8 w-8 flex items-center justify-center rounded-xl hover:bg-slate-100 transition-colors disabled:opacity-40">
+              <button
+                onClick={close}
+                disabled={state === 'running'}
+                className="h-8 w-8 flex items-center justify-center rounded-xl hover:bg-slate-100 transition-colors disabled:opacity-40"
+              >
                 <X className="h-4 w-4 text-slate-400" />
               </button>
             </div>
 
             {/* Body */}
             <form onSubmit={handleRun} className="px-7 py-6 space-y-5">
-
               {/* Target URL */}
               <div>
                 <label className="block text-xs font-black text-slate-700 mb-1.5">
@@ -145,7 +189,6 @@ export default function RunPlaywrightButton({ projectId }: RunPlaywrightButtonPr
 
               {/* ── Auth section ── */}
               <div className="rounded-2xl border border-slate-200 overflow-hidden">
-
                 {/* Auth status row */}
                 <div className="flex items-center gap-3 px-4 py-3 bg-slate-50">
                   {authStatus === null ? (
@@ -159,28 +202,40 @@ export default function RunPlaywrightButton({ projectId }: RunPlaywrightButtonPr
 
                   <div className="flex-1 min-w-0">
                     {authStatus === null ? (
-                      <p className="text-xs text-slate-400 font-medium">Checking auth session…</p>
+                      <p className="text-xs text-slate-400 font-medium">
+                        Checking auth session…
+                      </p>
                     ) : authStatus.exists ? (
                       <>
-                        <p className="text-xs font-black text-emerald-700">Saved session found</p>
+                        <p className="text-xs font-black text-emerald-700">
+                          Saved session found
+                        </p>
                         <p className="text-[10px] text-slate-400 font-medium">
                           {authStatus.ageHours! < 1
                             ? 'Saved less than 1 hour ago'
                             : `Saved ${authStatus.ageHours}h ago`}
                           {authStatus.ageHours! > 24 && (
-                            <span className="text-amber-500 ml-1.5">· may have expired</span>
+                            <span className="text-amber-500 ml-1.5">
+                              · may have expired
+                            </span>
                           )}
                         </p>
                       </>
                     ) : (
                       <>
-                        <p className="text-xs font-black text-slate-700">No saved session</p>
+                        <p className="text-xs font-black text-slate-700">
+                          No saved session
+                        </p>
                         <p className="text-[10px] text-slate-400 font-medium">
                           Run{' '}
                           <code className="bg-slate-100 px-1 rounded font-mono">
                             pnpm exec ts-node helpers/saveAuth.ts
                           </code>{' '}
-                          in the <code className="bg-slate-100 px-1 rounded font-mono">playwright/</code> folder
+                          in the{' '}
+                          <code className="bg-slate-100 px-1 rounded font-mono">
+                            playwright/
+                          </code>{' '}
+                          folder
                         </p>
                       </>
                     )}
@@ -236,7 +291,15 @@ export default function RunPlaywrightButton({ projectId }: RunPlaywrightButtonPr
                           )}
                         />
                         <p className="text-[10px] text-slate-400 mt-1.5">
-                          The key the app reads from localStorage. Usually <code className="bg-slate-100 px-1 rounded">token</code> or <code className="bg-slate-100 px-1 rounded">authToken</code>.
+                          The key the app reads from localStorage. Usually{' '}
+                          <code className="bg-slate-100 px-1 rounded">
+                            token
+                          </code>{' '}
+                          or{' '}
+                          <code className="bg-slate-100 px-1 rounded">
+                            authToken
+                          </code>
+                          .
                         </p>
                       </div>
                     </div>
@@ -253,14 +316,27 @@ export default function RunPlaywrightButton({ projectId }: RunPlaywrightButtonPr
               )}
 
               {/* Submit */}
-              <button type="submit" disabled={state === 'running' || !baseUrl.trim()}
+              <button
+                type="submit"
+                disabled={state === 'running' || !baseUrl.trim()}
                 className={cn(
                   'w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-black text-white transition-colors',
-                  state === 'running' || !baseUrl.trim() ? 'bg-primary/50 cursor-not-allowed' : 'bg-primary hover:opacity-90',
-                )}>
-                {state === 'running'
-                  ? <><Loader2 className="h-4 w-4 animate-spin" />Running tests…</>
-                  : <><ChevronRight className="h-4 w-4" />Start Playwright run</>}
+                  state === 'running' || !baseUrl.trim()
+                    ? 'bg-primary/50 cursor-not-allowed'
+                    : 'bg-primary hover:opacity-90',
+                )}
+              >
+                {state === 'running' ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Running tests…
+                  </>
+                ) : (
+                  <>
+                    <ChevronRight className="h-4 w-4" />
+                    Start Playwright run
+                  </>
+                )}
               </button>
             </form>
           </div>

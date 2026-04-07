@@ -10,7 +10,6 @@ import {
   AlertCircle,
   ListFilter,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 interface SnapshotGridProps {
   results: ResultEntry[];
@@ -18,7 +17,11 @@ interface SnapshotGridProps {
   projectId?: string;
 }
 
-const SnapshotGrid: React.FC<SnapshotGridProps> = ({ results, buildId, projectId }) => {
+const SnapshotGrid: React.FC<SnapshotGridProps> = ({
+  results,
+  buildId,
+  projectId,
+}) => {
   const [filter, setFilter] = useState('changed');
 
   const filteredResults = results.filter((r) => {
@@ -131,4 +134,3 @@ const SnapshotGrid: React.FC<SnapshotGridProps> = ({ results, buildId, projectId
 };
 
 export default SnapshotGrid;
-

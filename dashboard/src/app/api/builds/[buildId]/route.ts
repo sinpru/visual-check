@@ -3,7 +3,7 @@ import { deleteBuild } from '@visual-check/core';
 
 export async function DELETE(
 	_req: NextRequest,
-	{ params }: { params: Promise<{ buildId: string }> }
+	{ params }: { params: Promise<{ buildId: string }> },
 ) {
 	try {
 		const { buildId } = await params;

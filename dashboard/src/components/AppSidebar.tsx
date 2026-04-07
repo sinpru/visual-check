@@ -44,7 +44,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  isActive={pathname === '/' || pathname.startsWith('/projects')}
+                  isActive={
+                    pathname === '/' || pathname.startsWith('/projects')
+                  }
                   tooltip="Projects"
                   render={<Link href="/" />}
                 >
@@ -70,4 +72,3 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     </Sidebar>
   );
 }
-

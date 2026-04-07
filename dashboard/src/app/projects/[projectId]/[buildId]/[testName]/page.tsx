@@ -11,7 +11,6 @@ import {
   FileDigit,
   Clock,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { formatDiffPercent, relativeTime } from '@/lib/format';
 
 export const dynamic = 'force-dynamic';
