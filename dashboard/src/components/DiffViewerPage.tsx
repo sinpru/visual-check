@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   MapPin,
   X,
@@ -8,6 +8,7 @@ import {
   Loader2,
   AlertCircle,
   RefreshCw,
+  ArrowUp,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import DiffViewer from '@/components/DiffViewer';
@@ -46,7 +47,9 @@ export default function DiffViewerPage({
   diffRegions,
 }: DiffViewerPageProps) {
   const [activeRegion, setActiveRegion] = useState<DiffRegion | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const hasRegions = diffRegions.length > 0;
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   // Local description cache — merges with server-persisted region.aiDescription.
   // Key: region.index. Value: description string.
@@ -62,7 +65,33 @@ export default function DiffViewerPage({
     {},
   );
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setShowScrollTop(true);
+      } else {
+        setShowScrollTop(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   // ── Active region helpers ─────────────────────────────────────────────────
+
+  const scrollToPanel = () => {
+    // Small delay to allow for rendering if it wasn't already there
+    setTimeout(() => {
+      panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
+
+  const handleRegionSelect = (region: DiffRegion | null) => {
+    setActiveRegion(region);
+    if (region) {
+      scrollToPanel();
+    }
+  };
 
   // Get the current description for a region:
   // 1. Local cache (set after successful API call this session)
@@ -119,7 +148,7 @@ export default function DiffViewerPage({
   // ─────────────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex flex-col min-h-0">
+    <div className="flex flex-col min-h-0 relative">
       <div className="flex flex-1 min-h-0">
         {/* ── LEFT: DiffViewer ── */}
         <div className={cn('flex-1 min-w-0 p-8', hasRegions ? 'pr-4' : '')}>
@@ -133,7 +162,7 @@ export default function DiffViewerPage({
             currentWidth={currentWidth}
             currentHeight={currentHeight}
             diffRegions={diffRegions}
-            onRegionSelect={setActiveRegion}
+            onRegionSelect={handleRegionSelect}
             activeRegionIndex={activeRegion?.index ?? null}
           />
         </div>
@@ -167,7 +196,7 @@ export default function DiffViewerPage({
                 return (
                   <button
                     key={region.index}
-                    onClick={() => setActiveRegion(isActive ? null : region)}
+                    onClick={() => handleRegionSelect(isActive ? null : region)}
                     className={cn(
                       'flex items-center gap-2.5 px-3 py-2 rounded-xl text-left transition-all w-full',
                       isActive
@@ -231,7 +260,10 @@ export default function DiffViewerPage({
 
       {/* ── BOTTOM: Inspection panel for Active Region ── */}
       {activeRegion && (
-        <div className="border-t border-slate-200 bg-slate-50 overflow-hidden shadow-[inset_0_4px_6px_-4px_rgba(0,0,0,0.05)]">
+        <div
+          ref={panelRef}
+          className="border-t border-slate-200 bg-slate-50 overflow-hidden shadow-[inset_0_4px_6px_-4px_rgba(0,0,0,0.05)]"
+        >
           <div className="max-w-7xl mx-auto">
             <ActiveRegionPanel
               region={activeRegion}
@@ -242,6 +274,17 @@ export default function DiffViewerPage({
             />
           </div>
         </div>
+      )}
+
+      {/* ── Floating Scroll to Top Button ── */}
+      {showScrollTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-8 right-8 p-3 bg-slate-900 text-white rounded-full shadow-2xl hover:bg-slate-800 transition-all hover:-translate-y-1 active:scale-95 z-50 ring-1 ring-white/20"
+          title="Scroll to top"
+        >
+          <ArrowUp className="h-5 w-5" />
+        </button>
       )}
     </div>
   );

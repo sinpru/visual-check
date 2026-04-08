@@ -345,7 +345,7 @@ Simple file-based SHA256 caching for expensive operations.
 ```
 1.  getOrCreateBuild(buildId, { projectId, branch: 'web' })
 2.  load auth.json if exists
-3.  addStyleTag: animation/transition none
+3.  addStyleTag: animation/transition none, hide layout banner
 4.  window.scrollTo(0, 0)
 5.  waitForLoadState('networkidle')
 6.  captureScreenshot (full page / selector / clip)

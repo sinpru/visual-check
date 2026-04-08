@@ -7,7 +7,9 @@ const log = logger.child('ai');
 // ─── AI calling logic ────────────────────────────────────────────────────────
 
 const FALLBACK_MODELS_GEMINI = [
-	'gemini-3.0-flash',
+	'gemini-3.1-pro-preview',
+	'gemini-3.1-flash-lite-preview',
+	'gemini-3-flash-preview',
 	'gemini-2.5-flash',
 	'gemini-2.0-flash',
 	'gemini-1.5-flash',
@@ -121,8 +123,8 @@ async function callAIPovider(
 						},
 					);
 
-					// If 429 (Rate Limit) or 503 (High Demand), try next model
-					if (res.status === 429 || res.status === 503) {
+					// If 404 (Not Found), 429 (Rate Limit), or 503 (High Demand), try next model
+					if (res.status === 404 || res.status === 429 || res.status === 503) {
 						lastError = new Error(
 							`Gemini API error ${res.status}: ${body.slice(0, 100)}`,
 						);

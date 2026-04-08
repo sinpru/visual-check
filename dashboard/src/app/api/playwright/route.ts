@@ -27,10 +27,12 @@ export async function POST(request: NextRequest) {
 		// 1. Navigate to URL and wait for networkidle
 		await page.goto(url, { waitUntil: 'networkidle' });
 
-		// 2. Suppress all CSS animations and transitions before capture
+		// 2. Suppress all CSS animations and transitions, and hide the layout banner before capture
 		await page.addStyleTag({
-			content:
-				'*, *::before, *::after { animation: none !important; transition: none !important; }',
+			content: `
+				*, *::before, *::after { animation: none !important; transition: none !important; }
+				.layout-banner { display: none !important; }
+			`,
 		});
 
 		// 3. Normalize scroll state

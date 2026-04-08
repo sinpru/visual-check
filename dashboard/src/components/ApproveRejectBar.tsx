@@ -164,7 +164,6 @@ const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
   }, [
     handleApprove,
     handleReject,
-    handleReject,
     projectId,
     buildId,
     nextSnapshot,
@@ -173,7 +172,7 @@ const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
   ]);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-2xl border-t border-slate-200 p-4 shadow-[0_-20px_50px_rgba(0,0,0,0.1)] z-50">
+    <div className="mt-12 w-full bg-white border-t border-slate-200 pt-5">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-8 px-4">
         <div className="hidden lg:flex items-center gap-4">
           <div className="p-3 bg-amber-100 rounded-2xl">

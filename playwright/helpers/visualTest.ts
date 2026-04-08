@@ -103,10 +103,12 @@ export async function visualTest(
 	log.info(`Starting visual test: "${testName}" (build: ${buildId})`);
 
 	// ── 2. Suppress animations ─────────────────────────────────────────────────
-	log.debug(`Suppressing animations and transitions for "${testName}"`);
+	log.debug(`Suppressing animations, transitions, and hiding layout banner for "${testName}"`);
 	await page.addStyleTag({
-		content:
-			'*, *::before, *::after { animation: none !important; transition: none !important; }',
+		content: `
+			*, *::before, *::after { animation: none !important; transition: none !important; }
+			.layout-banner { display: none !important; }
+		`,
 	});
 
 	// ── 3. Normalize scroll ────────────────────────────────────────────────────

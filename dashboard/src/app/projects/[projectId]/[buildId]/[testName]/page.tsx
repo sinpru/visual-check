@@ -39,7 +39,7 @@ export default async function TestPage({ params }: PageProps) {
   ).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
 
   return (
-    <main className="py-10 px-6 lg:px-10 pb-32">
+    <main className="py-10 px-6 lg:px-10">
       {/* Back */}
       <div className="mb-8">
         <Link
