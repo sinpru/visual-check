@@ -1385,5 +1385,33 @@
         "aiLabel": "Label generation failed"
       }
     ]
+  },
+  {
+    "testName": "dsk-mfp-patients",
+    "buildId": "build_1775626321437",
+    "status": "pass",
+    "diffPercent": 0,
+    "diffPixels": 0,
+    "currentPath": "baselines/project_1775626227438/dsk-mfp-patients.png",
+    "baselinePath": "baselines/project_1775626227438/dsk-mfp-patients.png",
+    "viewport": {
+      "width": 1440,
+      "height": 1024
+    },
+    "timestamp": "2026-04-08T05:32:07.434Z"
+  },
+  {
+    "testName": "dsk-mfp-patients",
+    "buildId": "build_1775626353877",
+    "status": "pass",
+    "diffPercent": 0,
+    "diffPixels": 0,
+    "currentPath": "baselines/project_1775626227438/dsk-mfp-patients.png",
+    "baselinePath": "baselines/project_1775626227438/dsk-mfp-patients.png",
+    "viewport": {
+      "width": 1440,
+      "height": 1024
+    },
+    "timestamp": "2026-04-08T05:32:35.993Z"
   }
 ]

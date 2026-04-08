@@ -1,5 +1,15 @@
 [
   {
+    "buildId": "build_1775626321437",
+    "createdAt": "2026-04-08T05:32:01.437Z",
+    "status": "passed",
+    "totalSnapshots": 1,
+    "changedSnapshots": 0,
+    "passedSnapshots": 1,
+    "projectId": "project_1775626227438",
+    "branch": "figma"
+  },
+  {
     "buildId": "build_1775555137803",
     "createdAt": "2026-04-07T09:45:37.804Z",
     "status": "unreviewed",
@@ -351,6 +361,16 @@
     "changedSnapshots": 0,
     "passedSnapshots": 1,
     "projectId": "project_1775180758027",
+    "branch": "figma"
+  },
+  {
+    "buildId": "build_1775626353877",
+    "createdAt": "2026-04-08T05:32:33.877Z",
+    "status": "passed",
+    "totalSnapshots": 1,
+    "changedSnapshots": 0,
+    "passedSnapshots": 1,
+    "projectId": "project_1775626227438",
     "branch": "figma"
   }
 ]
