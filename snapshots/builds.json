@@ -330,5 +330,15 @@
     "passedSnapshots": 1,
     "projectId": "project_1775180758027",
     "branch": "figma"
+  },
+  {
+    "buildId": "build_1775621560545",
+    "createdAt": "2026-04-08T04:12:40.545Z",
+    "status": "passed",
+    "totalSnapshots": 1,
+    "changedSnapshots": 0,
+    "passedSnapshots": 1,
+    "projectId": "project_1775620742069",
+    "branch": "figma"
   }
 ]

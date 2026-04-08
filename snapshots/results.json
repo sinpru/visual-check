@@ -1804,5 +1804,19 @@
         "aiLabel": "Element is missing on web"
       }
     ]
+  },
+  {
+    "testName": "dsk-mfp-patients",
+    "buildId": "build_1775621560545",
+    "status": "pass",
+    "diffPercent": 0,
+    "diffPixels": 0,
+    "currentPath": "baselines/project_1775620742069/dsk-mfp-patients.png",
+    "baselinePath": "baselines/project_1775620742069/dsk-mfp-patients.png",
+    "viewport": {
+      "width": 1440,
+      "height": 1024
+    },
+    "timestamp": "2026-04-08T04:12:48.531Z"
   }
 ]
