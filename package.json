@@ -4,7 +4,8 @@
   "scripts": {
     "test": "pnpm --filter playwright test",
     "dev": "pnpm --filter dashboard dev",
-    "lint": "pnpm -r exec eslint ."
+    "lint": "pnpm -r exec eslint .",
+    "install-browsers": "pnpm --filter playwright exec playwright install chromium"
   },
   "devDependencies": {
     "prettier": "^3.8.1",
