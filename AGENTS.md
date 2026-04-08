@@ -1,7 +1,7 @@
 # AGENTS.md — visual-check (Monorepo Root)
 
 > Master context file for the entire `visual-check` monorepo.
-> Read this before touching any code. Reflects state as of late April 2026.
+> Read this before touching any code. Reflects state as of early May 2026.
 > Supersedes all previous AGENTS.md versions.
 
 ---
@@ -17,6 +17,7 @@ compares them pixel-by-pixel using `pixelmatch`, and presents diffs in a Next.js
 1. User creates a **Project**
 2. Inside the project → **"Pull Figma baselines"** → two-step modal discovers all frames in the Figma file, user selects which ones → PNGs + node trees saved as baselines, Figma build created
 3. **"Run tests"** → dashboard spawns `pnpm exec playwright test`, Playwright diffs each web screenshot against the saved Figma baseline, results written to `results.json`
+    - **Session Capture:** Dashboard can launch a browser for the user to log in and save session state (`auth.json`) for Playwright to use.
 4. User opens the build → clicks a changed snapshot → reviews side-by-side diff with numbered region pins → clicks a pin → sees Figma node name + DOM element in the inspection panel → optionally clicks **"Analyze with AI"** for a natural language description
 
 **Hierarchy:** Project → Build → Snapshot/Result (three levels, always linked by ID)
@@ -46,7 +47,10 @@ visual-check/
 │       ├── storage.ts           ← file I/O, path resolution, Figma node tree persistence
 │       ├── results.ts           ← results.json manifest + updateRegionAnalysis
 │       ├── builds.ts            ← builds.json manifest + getOrCreateBuild
-│       └── projects.ts          ← projects.json manifest
+│       ├── projects.ts          ← projects.json manifest
+│       ├── ai-reasoning.ts      ← OpenAI/Gemini vision API wrappers + region cropping
+│       ├── cache.ts             ← file-based SHA256 caching for snapshots
+│       └── logger.ts            ← namespaced logger (console + file under snapshots/logs)
 │
 ├── dashboard/                   ← @visual-check/dashboard — Next.js 16 app
 │   ├── AGENTS.md
@@ -65,12 +69,6 @@ visual-check/
 │       │   │           ├── page.tsx             ← Build overview: snapshot grid
 │       │   │           └── [testName]/
 │       │   │               └── page.tsx         ← Diff viewer page ← PRIMARY ROUTE
-│       │   ├── builds/                          ← Legacy route (all builds, no project scope)
-│       │   │   ├── page.tsx
-│       │   │   └── [buildId]/
-│       │   │       ├── page.tsx
-│       │   │       └── [testName]/
-│       │   │           └── page.tsx
 │       │   └── api/
 │       │       ├── projects/
 │       │       │   ├── route.ts                 ← GET + POST /api/projects
@@ -83,6 +81,11 @@ visual-check/
 │       │       │   └── route.ts                 ← POST — pulls Figma frames + node trees, creates baseline build
 │       │       ├── analyze-region/
 │       │       │   └── route.ts                 ← POST — crops images, calls AI, persists description
+│       │       ├── auth/
+│       │       │   └── save/
+│       │       │       └── route.ts             ← POST — launches browser for session capture
+│       │       ├── auth-status/
+│       │       │   └── route.ts                 ← GET — checks if snapshots/auth.json exists
 │       │       ├── builds/
 │       │       │   └── route.ts
 │       │       ├── results/
@@ -96,6 +99,7 @@ visual-check/
 │       │       └── reject/
 │       │           └── route.ts
 │       ├── components/
+│       │   ├── ProjectList.tsx              ← List of projects with stats and status
 │       │   ├── BuildList.tsx
 │       │   ├── BuildHeader.tsx
 │       │   ├── SnapshotGrid.tsx
@@ -104,11 +108,10 @@ visual-check/
 │       │   ├── DiffViewerPage.tsx           ← 'use client' wrapper: two-column layout + inspection panel + AI button
 │       │   ├── StatusBadge.tsx
 │       │   ├── ApproveRejectBar.tsx
-│       │   ├── ProjectCard.tsx
 │       │   ├── CreateProjectModal.tsx
 │       │   ├── FigmaSnapshotModal.tsx       ← Two-step Figma frame picker (used in project page)
-│       │   ├── RunPlaywrightButton.tsx      ← URL input modal + triggers /api/projects/[projectId]/run
-│       │   ├── CompareDemoButton.tsx        ← Demo helper, /builds page only
+│       │   ├── RunPlaywrightModal.tsx       ← Launch tests + session capture UI
+│       │   ├── AppSidebar.tsx               ← Icon-only navigation
 │       │   └── ui/                          ← shadcn/ui components
 │       └── lib/
 │           ├── utils.ts                     ← cn() (clsx + tailwind-merge)
@@ -120,14 +123,18 @@ visual-check/
 │   ├── playwright.config.ts     ← viewport 1440×900, deviceScaleFactor 1, workers 1
 │   ├── helpers/
 │   │   ├── visualTest.ts        ← full pipeline: screenshot → diff → DOM labels → Figma labels → writeResult
+│   │   ├── saveAuth.ts          ← CLI helper for manual session capture
 │   │   └── figmaNodes.ts        ← testName → Figma nodeId mapping (used for UPDATE_BASELINE only)
 │   └── tests/
-│       └── *.visual.ts          ← individual visual test files
+│       └── visual.ts            ← primary visual test suite
 │
 └── snapshots/                   ← runtime data (gitignored)
     ├── projects.json
     ├── builds.json
     ├── results.json
+    ├── auth.json                ← Playwright session state
+    ├── logs/                    ← per-build log files
+    ├── cache/                   ← image/data cache
     ├── baselines/
     │   ├── {testName}.png       ← Figma-sourced ground truth PNG
     │   └── {testName}.figma.json ← Figma node document tree (for region label matching)
@@ -165,15 +172,13 @@ UPDATE_BASELINE=false
 BUILD_ID=build_1234567890
 PROJECT_ID=project_1234567890
 
-# AI analysis (OpenAI-compatible — works with OpenAI, corporate proxies, Groq, etc.)
+# AI analysis (OpenAI-compatible or Google Gemini)
 AI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxx
-AI_API_URL=https://api.openai.com/v1/chat/completions   # override for corporate proxy
-AI_MODEL=gpt-4o                                          # override for corporate model name
-# e.g. for STU corporate proxy:
-#   AI_API_URL=https://aiportalapi.stu-platform.live/use
-#   AI_MODEL=gpt-5-nano
-#   AI_API_KEY=sk-...corporate-key...
-# Anthropic/Claude requires a different API format — not currently supported without code changes
+AI_API_URL=https://api.openai.com/v1/chat/completions   # or https://generativelanguage.googleapis.com/v1beta
+AI_MODEL=gpt-4o                                          # or gemini-1.5-pro
+
+# Logging
+LOG_LEVEL=INFO   # DEBUG | INFO | WARN | ERROR
 ```
 
 **`SNAPSHOTS_DIR` path resolution — always use `import.meta.url`:**
@@ -259,7 +264,9 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 				"diffPercent": 2.84,
 				"domLabel": "div.absolute.text-[#2482FF] — \"MedAdvisor for Pharmacy design system\"",
 				"figmaLabel": "MedAdvisor for Pharmacy design system",
-				"aiDescription": "The heading font weight appears lighter in the web implementation..."
+				"aiDescription": "The heading font weight appears lighter in the web implementation...",
+				"figmaMetrics": { "fontSize": 32, "fontWeight": 400, "color": "#2482FF" },
+				"domMetrics": { "fontSize": 32, "fontWeight": 300, "color": "#2482FF" }
 			}
 		]
 	}
@@ -297,59 +304,39 @@ The primary function to use when pulling Figma baselines. Makes exactly **2 Figm
 
 Returns `{ buffer: Buffer, tree: FigmaNodeDocument }`. Use this in `figma-snapshot/route.ts` — it replaces the old pattern of calling `fetchFigmaBaseline` + `fetchNodeTree` separately (which used 3 calls).
 
-**`fetchFigmaBaseline()`** — kept for backward compat, returns Buffer only. Uses `fetchFigmaBaselineWithTree` internally.
-
-**`fetchNodeTree()`** — returns `FigmaNodeDocument | null`. Returns null on error (graceful degradation).
-
 **`findFigmaNodeForRegion(tree, region)`** — walks the node tree, returns the deepest non-excluded node whose `absoluteBoundingBox` overlaps the region in frame-relative pixel space. Returns `{ name, type, id } | null`.
 
-**Figma rate limits — critical context:**
+### `ai-reasoning.ts`
 
-- Tier 1 endpoints (`/nodes`, `/images`) are heavily rate-limited on Starter/View-seat accounts
-- Starter plan: as low as 2–6 requests/month on low-traffic endpoints
-- 429 response with `Retry-After: ~400,000s` (~4.5 days) = Starter plan quota exhausted
-- The code caps backoff at 30s — if `Retry-After > 60s`, it throws immediately rather than hanging
-- **Always use `fetchFigmaBaselineWithTree` to minimize calls** — never call nodes endpoint twice for the same frame
+**`generateRegionDescription(result, regionIndex, figmaPath, webPath)`**
+- Crops both images to the region's bounding box (+ padding).
+- Calls the AI Vision API (GPT-4o or Gemini).
+- Provides a natural language explanation of the visual mismatch based on metrics.
+
+### `logger.ts`
+
+Standardized logger used across the project.
+- **Console:** Colored output.
+- **File:** Appends to `snapshots/logs/{BUILD_ID}.log`.
+- Usage: `import { logger } from './logger.ts'; const log = logger.child('namespace'); log.info('message');`
+
+### `cache.ts`
+
+Simple file-based SHA256 caching for expensive operations.
 
 ### `storage.ts`
 
 **`saveFigmaNodeTree(testName, tree)`** → writes `snapshots/baselines/{testName}.figma.json`
 **`loadFigmaNodeTree(testName)`** → reads it back, returns null if missing
 
-These are called at Figma baseline pull time (dashboard) and Playwright test time (core) respectively.
-
-**`getPaths(testName, buildId?)`** returns:
-
-```ts
-{
-  baseline: `${SNAPSHOTS_DIR}/baselines/${testName}.png`,
-  current:  `${SNAPSHOTS_DIR}/current/${buildId}/${testName}.png`,
-  diff:     `${SNAPSHOTS_DIR}/diffs/${buildId}/${testName}.png`,
-}
-```
-
 ### `results.ts`
 
 **`writeResult(entry)`** — upserts by `testName + buildId` composite key.
 **`updateRegionAnalysis(testName, buildId, regionIndex, description)`** — updates `diffRegions[i].aiDescription` atomically. Called by `/api/analyze-region` after AI returns.
-**`readResults(buildId?)`** — if `buildId` passed, filters by it.
 
 ### `diff.ts`
 
 **`runDiff(baseline, current, diffOutputPath, threshold?)`** — returns `DiffResult` including `regions: DiffRegion[]`.
-
-Region extraction algorithm:
-
-1. Detect red-ish pixels (R>200, G<180, B<180 — pixelmatch's default diff color)
-2. Dilate mask by `MERGE_RADIUS=8px` — merges nearby scattered changes into one region
-3. BFS flood-fill with index-based queue (not `array.shift()` — that's O(n))
-4. Discard regions with <25 actual changed pixels (noise filter)
-5. Sort largest-first, cap at 15 regions
-
-### `builds.ts`
-
-**`getOrCreateBuild(buildId, data)`** — idempotent. Call at start of every Playwright test. Safe to call N times in same run.
-**`recalculateBuildStatus(buildId, results)`** — recomputes status from results array after every writeResult.
 
 ---
 
@@ -357,160 +344,43 @@ Region extraction algorithm:
 
 ```
 1.  getOrCreateBuild(buildId, { projectId, branch: 'web' })
-2.  addStyleTag: animation/transition none
-3.  window.scrollTo(0, 0)
-4.  waitForLoadState('networkidle')
-5.  captureScreenshot (full page / selector / clip)
-6.  saveSnapshot(testName, buffer, 'current', buildId)
-7.  [UPDATE_BASELINE=true] → save Figma or current as baseline → writeResult pending → STOP
-8.  [no baseline] → save current as baseline → writeResult pending → STOP
-9.  runDiff(figmaBaseline, webScreenshot, paths.diff) → DiffResult with regions[]
-10. annotateDomLabels() — page.evaluate elementFromPoint for each region center → domLabel
-11. annotateFigmaLabels() — loadFigmaNodeTree + findFigmaNodeForRegion → figmaLabel (sync, no API call)
-12. writeResult({ ...entry, diffRegions }) — NOTE the path swap (see above)
-13. recalculateBuildStatus(buildId, readResults())
+2.  load auth.json if exists
+3.  addStyleTag: animation/transition none
+4.  window.scrollTo(0, 0)
+5.  waitForLoadState('networkidle')
+6.  captureScreenshot (full page / selector / clip)
+7.  saveSnapshot(testName, buffer, 'current', buildId)
+8.  [UPDATE_BASELINE=true] → save Figma or current as baseline → writeResult pending → STOP
+9.  [no baseline] → save current as baseline → writeResult pending → STOP
+10. runDiff(figmaBaseline, webScreenshot, paths.diff) → DiffResult with regions[]
+11. annotateDomLabels() — page.evaluate elementFromPoint + getComputedStyle for each region center → domLabel + domMetrics
+12. annotateFigmaLabels() — loadFigmaNodeTree + findFigmaNodeForRegion → figmaLabel + figmaMetrics
+13. writeResult({ ...entry, diffRegions }) — NOTE the path swap (see above)
+14. recalculateBuildStatus(buildId, readResults())
 ```
-
-`BUILD_ID` and `PROJECT_ID` are set by `/api/projects/[projectId]/run` before spawning Playwright.
 
 ---
 
 ## Dashboard — DiffViewer Architecture
-
-### `DiffViewer.tsx` (presentational)
-
-- Three view modes: **Both** (side-by-side) | **Baseline** (left full-width) | **Current** (right full-width)
-- `RegionOverlay` SVG uses `viewBox="0 0 {imageWidth} {imageHeight}"` + `preserveAspectRatio="xMidYMid meet"` — aligns pins with `object-contain` images with zero JS measurement
-- Props: `onRegionSelect?: (region: DiffRegion | null) => void`, `activeRegionIndex?: number | null`
-- When `onRegionSelect` is provided, the component is controlled by the parent
 
 ### `DiffViewerPage.tsx` (`'use client'` — owns state)
 
 - Renders two-column layout: `DiffViewer` (left, fills space) + inspection panel (right, `w-72`, fixed)
 - Inspection panel region list uses **Figma name as primary label**, DOM selector as secondary
 - "Analyze with AI" button per region — calls `POST /api/analyze-region`, result persisted + shown immediately
-- `localDescriptions` state merges with `region.aiDescription` from props — so descriptions survive without a page reload, and also come back from server on refresh
 
-### `/api/analyze-region` route
+### `/api/auth/save` route
 
-- Receives `{ testName, buildId, regionIndex }`
-- Loads result from `results.json`, finds the region
-- Crops both images (Figma + web) to region bounding box + 16px padding using `sharp`
-- Calls AI vision API (OpenAI-compatible format)
-- Persists via `updateRegionAnalysis()`
-- Returns `{ ok, description }`
-
-**AI provider configuration** — all via env vars, no code changes needed to switch providers:
-
-```env
-AI_API_KEY=...
-AI_API_URL=https://api.openai.com/v1/chat/completions  # any OpenAI-compatible URL
-AI_MODEL=gpt-4o                                         # any model name the provider accepts
-```
-
----
-
-## Figma Integration — Frame Discovery
-
-1. User pastes Figma file URL or file key in `FigmaSnapshotModal`
-2. `GET /api/figma-frames?fileKey=xxx` — calls `GET /v1/files/{fileKey}`, walks document tree
-3. Tree walker (mirrors Percy's exclusion logic):
-    - **Eligible:** `FRAME`, `COMPONENT`, `INSTANCE`
-    - **Excluded but recursed (max 3 levels):** `CANVAS`, `SECTION`, `COMPONENT_SET`, `RECTANGLE`, `VECTOR`, `GROUP`, `DOCUMENT`, `TEXT`, `LINE`
-4. User sees checkbox list grouped by page, all pre-selected, with editable testNames
-5. `POST /api/figma-snapshot` → for each frame: `fetchFigmaBaselineWithTree()` (2 API calls) → `saveSnapshot` + `saveFigmaNodeTree` → `writeResult`
+- `action: 'start'` → Launches Playwright browser (non-headless) for user login.
+- `action: 'confirm'` → Saves `context.storageState()` to `snapshots/auth.json`.
+- `action: 'cancel'` → Closes browser without saving.
 
 ---
 
 ## Pending Work — Roadmap
 
-### 1. Multiple viewport support
-
-Run same test at multiple preset viewports: 1920×1080, 1280×720, 1440×900, 768×1024, 390×844.
-
-- `testName + viewport` composite key → `homepage@1920x1080`
-- User configures active viewports per project
-
+### 1. Multiple viewport support ✅ IN PROGRESS
 ### 2. Annotated diff regions ✅ DONE
-
-- Region extraction, DOM labels, Figma labels, AI descriptions — all implemented.
-- **Remaining:** geometric delta (deltaX/Y shift calculation)
-
-### 3. Component-level matching
-
-When Figma frame = one component, web screenshot = full page — locate the component on the page.
-
-- Priority 1: `figmaNodes.ts` maps nodeId → CSS selector for clip-based diff
-- Priority 2: template matching (slide Figma image across web screenshot)
-- Priority 3: AI embedding (deferred)
-
-### 4. Sub-pixel / resolution robustness
-
-- `includeAA: true` in pixelmatch to eliminate anti-aliasing false positives
-- Runtime assertion: screenshot dimensions ≠ declared viewport → throw clearly
-
-### 5. Click to enlarge (lightbox)
-
-Full-screen image view when clicking either panel in DiffViewer. Not yet implemented.
-
-### 6. AI provider — Claude/Anthropic support
-
-Currently only OpenAI-compatible APIs are supported. Anthropic uses a different message format (`/v1/messages`, different role schema). Would require a provider abstraction layer in `analyze-region/route.ts`.
-
----
-
-## Owner Map
-
-| Package / Area                               | Owner      |
-| -------------------------------------------- | ---------- |
-| `core`                                       | Thanh Binh |
-| `playwright`                                 | Person 2   |
-| `dashboard`                                  | Đức Thái   |
-| Figma integration, diff regions, AI analysis | Thanh Binh |
-| DiffViewer UI, inspection panel              | Đức Thái   |
-
----
-
-## What AI Agents Must Know — Non-Negotiables
-
-**The path swap:**
-
-- `currentPath` in `ResultEntry` = Figma PNG → LEFT panel "Baseline / Expected"
-- `baselinePath` in `ResultEntry` = web screenshot → RIGHT panel "Current / Actual"
-- **This is intentional. Do not revert it.**
-
-**Data:**
-
-- `writeResult` upserts by `testName + buildId` composite key — not just `testName`
-- `approveBaseline` does NOT update `results.json` — caller must call `updateStatus` after
-- Approve/reject ops are always sequential — `Promise.all` on file ops corrupts JSON
-- All paths from `getSnapshotsDir()` or `getPaths()` — never hardcode
-
-**Playwright:**
-
-- `workers: 1` mandatory — concurrent writes corrupt `results.json`
-- `deviceScaleFactor: 1` mandatory — retina doubles pixel dimensions and breaks diff
-- `getOrCreateBuild` is idempotent — call at the start of every test
-- `recalculateBuildStatus` after every `writeResult`
-
-**Figma API:**
-
-- Always use `fetchFigmaBaselineWithTree` — 2 API calls per frame, not 3
-- Never call `/nodes` endpoint twice for the same node in one operation
-- 429 with `Retry-After > 60s` = Starter plan quota exhausted (~4.5 day cooldown) — not a transient error
-- Node tree saved as `{testName}.figma.json` alongside baseline PNG — load at diff time, no extra API call
-
-**Dashboard:**
-
-- `cn()` from `@/lib/utils` — NOT `@/lib/cn` (deleted)
-- `lucide-react` v1.7.0 — `Figma` icon does not exist, use `ImagePlus`
-- Next.js 16 `params` are Promises — always `await params`
-- Tailwind v4 — `@import "tailwindcss"`, NOT `@tailwind` directives
-- Primary route for diff viewer: `/projects/[projectId]/[buildId]/[testName]`
-- `DiffViewerPage` requires `buildId` prop — `page.tsx` must pass it explicitly
-
-**Architecture:**
-
-- Dependency flows: `core` ← `playwright`, `core` ← `dashboard`. Never cross.
-- `core` has no side effects on import — pure functions only
-- `REPO_ROOT` from `import.meta.url` — never `process.cwd()`
+### 3. Component-level matching 🚧 TODO
+### 4. Sub-pixel / resolution robustness 🚧 TODO
+### 5. AI provider — Gemini support ✅ DONE

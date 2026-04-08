@@ -5,6 +5,7 @@ export {
 	callAI,
 	generateRegionDescription,
 	generateRegionLabel,
+	generateBatchRegionLabels,
 } from './src/ai-reasoning.ts';
 
 // Types

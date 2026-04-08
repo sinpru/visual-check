@@ -11,7 +11,7 @@ import {
 	readResults,
 	loadFigmaNodeTree,
 	findFigmaNodeForRegion,
-	generateRegionLabel,
+	generateBatchRegionLabels,
 	getBaselineDimensions,
 	logger,
 } from '@visual-check/core';
@@ -268,28 +268,30 @@ export async function visualTest(
 		log.info(
 			`Generating AI labels for ${diffRegions.length} region${diffRegions.length !== 1 ? 's' : ''}...`,
 		);
-		await Promise.allSettled(
-			diffRegions.map(async (region) => {
-				try {
-					const timeoutPromise = new Promise<string>((_, reject) =>
-						setTimeout(() => reject(new Error('AI generation timed out')), 5000)
-					);
-					region.aiLabel = await Promise.race([
-						generateRegionLabel(region),
-						timeoutPromise,
-					]);
-					log.debug(
-						`Generated AI label for region ${region.index}: ${region.aiLabel}`,
-					);
-				} catch (err) {
-					log.error(
-						`Failed to generate AI label for region ${region.index}`,
-						{ error: err },
-					);
-					region.aiLabel = 'Label generation failed';
-				}
-			})
-		);
+		try {
+			const timeoutPromise = new Promise<string[]>((_, reject) =>
+				setTimeout(
+					() => reject(new Error('AI batch generation timed out')),
+					30000,
+				),
+			);
+			const labels = await Promise.race([
+				generateBatchRegionLabels(diffRegions),
+				timeoutPromise,
+			]);
+
+			for (let i = 0; i < diffRegions.length; i++) {
+				diffRegions[i].aiLabel = labels[i] || 'Visual discrepancy';
+				log.debug(
+					`Generated AI label for region ${diffRegions[i].index}: ${diffRegions[i].aiLabel}`,
+				);
+			}
+		} catch (err) {
+			log.error(`Failed to generate batch AI labels`, { error: err });
+			diffRegions.forEach((region) => {
+				region.aiLabel = 'Label generation failed';
+			});
+		}
 		log.info(`Finished AI label generation for "${testName}"`);
 	}
 
