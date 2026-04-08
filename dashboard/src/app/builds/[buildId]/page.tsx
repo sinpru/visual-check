@@ -1,0 +1,42 @@
+import { readBuilds, readResults } from '@visual-check/core';
+import { notFound } from 'next/navigation';
+import BuildHeader from '@/components/BuildHeader';
+import SnapshotGrid from '@/components/SnapshotGrid';
+import Link from 'next/link';
+import { ChevronLeft } from 'lucide-react';
+
+interface BuildPageProps {
+  params: Promise<{
+    buildId: string;
+  }>;
+}
+
+export default async function BuildPage({ params }: BuildPageProps) {
+  const { buildId } = await params;
+  const builds = await readBuilds();
+  const build = builds.find((b) => b.buildId === buildId);
+
+  if (!build) {
+    return notFound();
+  }
+
+  const results = await readResults(buildId);
+
+  return (
+    <main className="max-w-400 mx-auto py-12 px-6 lg:px-12">
+      <div className="mb-10">
+        <Link
+          href="/builds"
+          className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 font-bold transition-all hover:-translate-x-1"
+        >
+          <ChevronLeft className="w-5 h-5" />
+          Back to Builds
+        </Link>
+      </div>
+
+      <BuildHeader build={build} />
+
+      <SnapshotGrid results={results} buildId={buildId} />
+    </main>
+  );
+}

@@ -3,21 +3,12 @@ import {
 	approveBaseline,
 	updateStatus,
 	readResults,
-	readBuilds,
 	recalculateBuildStatus,
-	logger,
 } from '@visual-check/core';
 
-const log = logger.child('api:approve');
-
 export async function POST(request: NextRequest) {
-	let testName: string | undefined;
-	let buildId: string | undefined;
-
 	try {
-		const body = await request.json();
-		testName = body.testName;
-		buildId = body.buildId;
+		const { testName, buildId } = await request.json();
 
 		if (!testName || !buildId) {
 			return NextResponse.json(
@@ -26,28 +17,19 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		log.info(`Approve request for "${testName}" (build: ${buildId})`);
+		// 1. Approve baseline (copy current to baseline)
+		await approveBaseline(testName, buildId);
 
-		// Look up projectId from the build so approveBaseline writes to the
-		// correct scoped baseline path: baselines/{projectId}/{testName}.png
-		const builds = readBuilds();
-		const build = builds.find((b) => b.buildId === buildId);
-		const projectId = build?.projectId;
+		// 2. Update snapshot status to 'approved'
+		await updateStatus(testName, buildId, 'approved');
 
-		// Sequential — never parallelize file ops on results.json
-		// 1. Copy current → baseline (scoped), delete diff
-		approveBaseline(testName, buildId, projectId);
-		// 2. Mark status approved
-		updateStatus(testName, buildId, 'approved');
-		// 3. Recompute build-level status
+		// 3. Recalculate build status
 		const allResults = await readResults();
-		recalculateBuildStatus(buildId, allResults);
+		await recalculateBuildStatus(buildId, allResults);
 
 		return NextResponse.json({ ok: true });
 	} catch (error) {
-		log.error(`Approve failed for "${testName}" (build: ${buildId})`, {
-			error,
-		});
+		console.error('Approve failed:', error);
 		return NextResponse.json({ error: 'Approve failed' }, { status: 500 });
 	}
 }

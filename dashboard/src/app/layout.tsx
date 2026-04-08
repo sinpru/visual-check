@@ -1,4 +1,4 @@
-import { Roboto, Poppins, Inconsolata } from 'next/font/google';
+import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import Link from 'next/link';
 import { LayoutGrid } from 'lucide-react';
@@ -10,26 +10,18 @@ import {
 import { AppSidebar } from '@/components/AppSidebar';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
-const roboto = Roboto({
-  variable: '--font-roboto',
+const geistSans = Geist({
+  variable: '--font-geist-sans',
   subsets: ['latin'],
-  weight: ['300', '400', '500', '700'],
 });
 
-const poppins = Poppins({
-  variable: '--font-poppins',
+const geistMono = Geist_Mono({
+  variable: '--font-geist-mono',
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-});
-
-const inconsolata = Inconsolata({
-  variable: '--font-inconsolata',
-  subsets: ['latin'],
-  weight: ['400', '500', '700'],
 });
 
 export const metadata = {
-  title: 'Visual Check — Visual Regression Testing',
+  title: 'Visual Check — Percy-style Visual Testing',
   description:
     'Review and manage visual changes between Figma baselines and Playwright screenshots.',
 };
@@ -40,29 +32,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      className={`${roboto.variable} ${poppins.variable} ${inconsolata.variable}`}
-    >
-      <body className="min-h-screen bg-[#F8FAFC] font-sans text-gray-900 antialiased">
-        <TooltipProvider delayDuration={300}>
-          {/*
-            defaultOpen={false} + collapsible="icon" keeps the sidebar in icon-only
-            mode on first load. The SidebarTrigger in the header can still expand it
-            if needed. AppSidebar must also set collapsible="icon" on its <Sidebar> root.
-          */}
-          <SidebarProvider defaultOpen={false}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="min-h-screen bg-[#F8FAFC] font-sans text-slate-900 antialiased">
+        <TooltipProvider>
+          <SidebarProvider>
             <AppSidebar />
-            <SidebarInset className="flex flex-col min-h-screen">
-              {/* Top bar — only shows on mobile / when sidebar is hidden */}
-              <header className="h-12 border-b border-gray-200/80 bg-white/80 backdrop-blur-xl sticky top-0 z-40 flex items-center px-4 gap-3">
-                <SidebarTrigger className="text-slate-400 hover:text-slate-700 transition-colors" />
+            <SidebarInset className="flex flex-col">
+              {/* Mobile Header & Sidebar Trigger */}
+              <header className="h-16 border-b border-slate-200 bg-white/80 backdrop-blur-xl sticky top-0 z-40 flex items-center px-6 gap-4">
+                <SidebarTrigger className="lg:flex" />
                 <div className="lg:hidden flex items-center gap-2">
-                  <Link href="/" className="flex items-center gap-2">
+                  <Link href="/builds" className="flex items-center gap-2">
                     <div className="bg-primary h-6 w-6 rounded-lg flex items-center justify-center">
                       <LayoutGrid className="h-3 w-3 text-white" />
                     </div>
-                    <span className="text-lg font-bold tracking-tight font-display">
+                    <span className="text-lg font-black tracking-tighter">
                       Visual Check
                     </span>
                   </Link>
@@ -70,6 +54,28 @@ export default function RootLayout({
               </header>
 
               <div className="grow">{children}</div>
+
+              <footer className="py-12 border-t border-slate-200 bg-white px-8">
+                <div className="max-w-400 mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+                  <p className="text-sm font-medium text-slate-500">
+                    © 2026 Visual Check. Built for pixel perfection.
+                  </p>
+                  <div className="flex items-center gap-8">
+                    <Link
+                      href="/builds"
+                      className="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all"
+                    >
+                      Support
+                    </Link>
+                    <Link
+                      href="/builds"
+                      className="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all"
+                    >
+                      Status
+                    </Link>
+                  </div>
+                </div>
+              </footer>
             </SidebarInset>
           </SidebarProvider>
         </TooltipProvider>

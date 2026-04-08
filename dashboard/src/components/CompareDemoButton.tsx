@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Columns, Loader2, AlertCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Columns, Loader2, X, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import DiffViewer from './DiffViewer';
 
@@ -95,7 +95,7 @@ export default function CompareDemoButton() {
             </button>
           </div>
 
-          <div className="p-8 pb-32 max-w-400 w-full mx-auto">
+          <div className="p-8 pb-32 max-w-[1600px] w-full mx-auto">
             <DiffViewer
               testName="demo-test"
               baselinePath={result.baselinePath}

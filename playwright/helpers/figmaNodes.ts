@@ -11,6 +11,6 @@
  *   → nodeId is '123:456'
  */
 export const figmaNodes: Record<string, string> = {
-	'homepage-hero': '123:456',
-	'homepage-nav': '123:789',
+  'homepage-hero': '123:456',
+  'homepage-nav': '123:789',
 };

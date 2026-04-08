@@ -22,7 +22,6 @@ import {
 } from '@/components/ui/dialog';
 
 interface ApproveRejectBarProps {
-  projectId: string;
   testName: string;
   buildId: string;
   status: string;
@@ -31,7 +30,6 @@ interface ApproveRejectBarProps {
 }
 
 const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
-  projectId,
   testName,
   buildId,
   status,
@@ -66,9 +64,9 @@ const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
 
       router.refresh();
       if (nextSnapshot) {
-        router.push(`/projects/${projectId}/${buildId}/${nextSnapshot}`);
+        router.push(`/builds/${buildId}/${nextSnapshot}`);
       } else {
-        router.push(`/projects/${projectId}/${buildId}`);
+        router.push(`/builds/${buildId}`);
       }
     } catch (error) {
       console.error(error);
@@ -83,7 +81,6 @@ const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
     isApproving,
     isRejecting,
     nextSnapshot,
-    projectId,
     router,
     testName,
   ]);
@@ -106,9 +103,9 @@ const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
 
       router.refresh();
       if (nextSnapshot) {
-        router.push(`/projects/${projectId}/${buildId}/${nextSnapshot}`);
+        router.push(`/builds/${buildId}/${nextSnapshot}`);
       } else {
-        router.push(`/projects/${projectId}/${buildId}`);
+        router.push(`/builds/${buildId}`);
       }
     } catch (error) {
       console.error(error);
@@ -123,7 +120,6 @@ const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
     isApproving,
     isRejecting,
     nextSnapshot,
-    projectId,
     router,
     testName,
   ]);
@@ -146,14 +142,14 @@ const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
           break;
         case 'arrowleft':
           if (prevSnapshot) {
-            router.push(`/projects/${projectId}/${buildId}/${prevSnapshot}`);
+            router.push(`/builds/${buildId}/${prevSnapshot}`);
           } else {
-            router.push(`/projects/${projectId}/${buildId}`);
+            router.push(`/builds/${buildId}`);
           }
           break;
         case 'arrowright':
           if (nextSnapshot) {
-            router.push(`/projects/${projectId}/${buildId}/${nextSnapshot}`);
+            router.push(`/builds/${buildId}/${nextSnapshot}`);
           }
           break;
       }
@@ -164,8 +160,6 @@ const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
   }, [
     handleApprove,
     handleReject,
-    handleReject,
-    projectId,
     buildId,
     nextSnapshot,
     prevSnapshot,
@@ -173,8 +167,8 @@ const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
   ]);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-2xl border-t border-slate-200 p-4 shadow-[0_-20px_50px_rgba(0,0,0,0.1)] z-50">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-8 px-4">
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[calc(100%-4rem)] max-w-5xl bg-white/80 backdrop-blur-2xl border border-slate-200 p-4 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] z-50 ring-1 ring-slate-200/50">
+      <div className="flex items-center justify-between gap-8 px-4">
         <div className="hidden lg:flex items-center gap-4">
           <div className="p-3 bg-amber-100 rounded-2xl">
             <AlertCircle className="h-6 w-6 text-amber-600" />
@@ -292,10 +286,8 @@ const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
             size="icon"
             onClick={() =>
               prevSnapshot
-                ? router.push(
-                    `/projects/${projectId}/${buildId}/${prevSnapshot}`,
-                  )
-                : router.push(`/projects/${projectId}/${buildId}`)
+                ? router.push(`/builds/${buildId}/${prevSnapshot}`)
+                : router.push(`/builds/${buildId}`)
             }
             className="h-14 w-14 rounded-2xl hover:bg-slate-100"
           >
@@ -306,8 +298,7 @@ const ApproveRejectBar: React.FC<ApproveRejectBarProps> = ({
             size="icon"
             disabled={!nextSnapshot}
             onClick={() =>
-              nextSnapshot &&
-              router.push(`/projects/${projectId}/${buildId}/${nextSnapshot}`)
+              nextSnapshot && router.push(`/builds/${buildId}/${nextSnapshot}`)
             }
             className="h-14 w-14 rounded-2xl hover:bg-slate-100 disabled:opacity-30"
           >
