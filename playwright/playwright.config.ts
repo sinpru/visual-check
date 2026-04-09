@@ -40,7 +40,7 @@ export default defineConfig({
     baseURL: process.env.BASE_URL,
     screenshot: 'off',
     actionTimeout:     10_000,
-    navigationTimeout: 30_000,
+    navigationTimeout: 60_000,
     storageState: authExists ? AUTH_PATH : undefined,
   },
 

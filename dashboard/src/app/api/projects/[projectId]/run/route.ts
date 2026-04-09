@@ -94,8 +94,11 @@ export async function POST(
 
 		try {
 			// Run synchronously — for a local demo the suite is small enough to wait for.
+			// shell: true is required on Windows so that custom env vars (TEST_NAMES,
+			// BUILD_ID, etc.) are correctly inherited by the child pnpm process.
 			const output = execSync('pnpm exec playwright test', {
 				cwd: playwrightDir,
+				shell: process.platform === 'win32' ? 'cmd.exe' : '/bin/sh',
 				env: {
 					...process.env,
 					BUILD_ID: buildId,
