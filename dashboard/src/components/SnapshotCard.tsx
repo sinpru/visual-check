@@ -39,7 +39,7 @@ const SnapshotCard: React.FC<SnapshotCardProps> = ({
 
   return (
     <Link href={href}>
-      <Card className="group overflow-hidden border-gray-200 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 rounded-2xl bg-white h-full flex flex-col">
+      <Card className="group overflow-hidden border-gray-200 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 rounded-2xl bg-white h-full flex flex-col pt-0">
         <div className="relative h-56 bg-gray-50 flex items-center justify-center overflow-hidden border-b border-gray-100">
           <Image
             src={imageUrl(thumbnailPath)}
@@ -47,7 +47,7 @@ const SnapshotCard: React.FC<SnapshotCardProps> = ({
             width={400}
             height={225}
             unoptimized
-            className="relative z-10 w-full h-full object-contain transition-transform duration-500 group-hover:scale-105 p-4"
+            className="relative z-10 w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
           />
 
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 z-20 flex items-center justify-center">
